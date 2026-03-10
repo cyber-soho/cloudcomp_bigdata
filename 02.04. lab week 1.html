@@ -1,0 +1,1828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cloud Computing & Big Data — Week 01</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #070b12;
+    --bg2: #0d1320;
+    --bg3: #111827;
+    --card: #131d2e;
+    --card2: #192236;
+    --border: rgba(99,179,237,0.12);
+    --border2: rgba(99,179,237,0.25);
+    --accent: #38bdf8;
+    --accent2: #0ea5e9;
+    --accent3: #7dd3fc;
+    --gold: #f59e0b;
+    --green: #34d399;
+    --red: #f87171;
+    --purple: #a78bfa;
+    --text: #e2e8f0;
+    --text2: #94a3b8;
+    --text3: #64748b;
+    --mono: 'Space Mono', monospace;
+    --head: 'Syne', sans-serif;
+    --body: 'DM Sans', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--body);
+    font-size: 15px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* ── NOISE OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 999;
+    opacity: 0.4;
+  }
+
+  /* ── GRID BACKGROUND ── */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(56,189,248,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(56,189,248,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 6rem 2rem 4rem;
+    overflow: hidden;
+    z-index: 1;
+  }
+
+  .hero-glow {
+    position: absolute;
+    width: 700px; height: 700px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(56,189,248,0.12) 0%, transparent 70%);
+    top: -200px; left: -200px;
+    pointer-events: none;
+    animation: pulse-glow 8s ease-in-out infinite;
+  }
+  .hero-glow2 {
+    position: absolute;
+    width: 500px; height: 500px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(167,139,250,0.07) 0%, transparent 70%);
+    bottom: -150px; right: -100px;
+    pointer-events: none;
+    animation: pulse-glow 11s ease-in-out infinite reverse;
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.7; }
+  }
+
+  .hero-inner { max-width: 900px; margin: 0 auto; position: relative; }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(56,189,248,0.08);
+    border: 1px solid rgba(56,189,248,0.2);
+    border-radius: 100px;
+    padding: 6px 16px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: var(--accent3);
+    margin-bottom: 2rem;
+    opacity: 0;
+    animation: fade-up 0.6s ease forwards 0.2s;
+  }
+  .badge-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 8px var(--green);
+    animation: blink 2s ease-in-out infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  .hero h1 {
+    font-family: var(--head);
+    font-size: clamp(2.4rem, 6vw, 5rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fade-up 0.7s ease forwards 0.4s;
+  }
+  .hero h1 .line1 { display: block; color: var(--text); }
+  .hero h1 .line2 {
+    display: block;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--purple) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-desc {
+    font-size: 1.1rem;
+    color: var(--text2);
+    max-width: 620px;
+    margin-bottom: 2.5rem;
+    opacity: 0;
+    animation: fade-up 0.7s ease forwards 0.6s;
+  }
+
+  .hero-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    opacity: 0;
+    animation: fade-up 0.7s ease forwards 0.8s;
+  }
+  .meta-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 13px;
+    color: var(--text2);
+  }
+  .meta-chip .icon { color: var(--accent); font-size: 16px; }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 2.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--text3);
+    opacity: 0;
+    animation: fade-up 0.7s ease forwards 1.2s;
+  }
+  .scroll-arrow {
+    width: 24px; height: 24px;
+    border-right: 2px solid var(--text3);
+    border-bottom: 2px solid var(--text3);
+    transform: rotate(45deg);
+    animation: bounce 2s ease-in-out infinite;
+  }
+  @keyframes bounce { 0%,100%{transform:rotate(45deg) translateY(0)} 50%{transform:rotate(45deg) translateY(4px)} }
+
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── DISCLAIMER ── */
+  .disclaimer {
+    position: relative;
+    z-index: 1;
+    max-width: 960px;
+    margin: 0 auto 3rem;
+    padding: 0 1.5rem;
+  }
+  .disclaimer-box {
+    background: rgba(248,113,113,0.06);
+    border: 1px solid rgba(248,113,113,0.2);
+    border-left: 4px solid var(--red);
+    border-radius: 10px;
+    padding: 1.5rem 2rem;
+  }
+  .disclaimer-box h3 {
+    font-family: var(--head);
+    font-size: 0.85rem;
+    letter-spacing: 0.1em;
+    color: var(--red);
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .disclaimer-box p {
+    font-size: 13px;
+    color: var(--text2);
+    line-height: 1.7;
+    margin-bottom: 0.5rem;
+  }
+  .disclaimer-box p:last-child { margin-bottom: 0; }
+
+  /* ── MAIN LAYOUT ── */
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── SECTION HEADINGS ── */
+  .section-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    color: var(--accent);
+    margin-bottom: 1rem;
+  }
+  .section-label::before {
+    content: '';
+    display: block;
+    width: 24px; height: 1px;
+    background: var(--accent);
+  }
+
+  .section-title {
+    font-family: var(--head);
+    font-size: clamp(1.6rem, 3vw, 2.4rem);
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.02em;
+  }
+
+  .section-sub {
+    color: var(--text2);
+    font-size: 1rem;
+    margin-bottom: 2.5rem;
+  }
+
+  /* ── GRADING CARD ── */
+  .grading-section {
+    margin-bottom: 5rem;
+  }
+  .grading-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  .grade-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s, transform 0.3s;
+  }
+  .grade-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+  .grade-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+  .grade-card.theory::before { background: var(--purple); }
+  .grade-card.practical::before { background: var(--accent); }
+  .grade-card.report::before { background: var(--gold); }
+
+  .grade-pct {
+    font-family: var(--head);
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 0.25rem;
+  }
+  .grade-card.theory .grade-pct { color: var(--purple); }
+  .grade-card.practical .grade-pct { color: var(--accent); }
+  .grade-card.report .grade-pct { color: var(--gold); }
+
+  .grade-label {
+    font-family: var(--head);
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+  }
+  .grade-desc { font-size: 13px; color: var(--text2); }
+
+  /* ── TIMELINE (Days) ── */
+  .timeline-section { margin-bottom: 5rem; }
+
+  .day-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+  }
+  .day-tab {
+    cursor: pointer;
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: transparent;
+    font-family: var(--head);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text2);
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+  .day-tab::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--accent);
+    opacity: 0;
+    transition: opacity 0.25s;
+  }
+  .day-tab:hover { color: var(--text); border-color: var(--accent); }
+  .day-tab.active {
+    background: rgba(56,189,248,0.12);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .day-panel { display: none; }
+  .day-panel.active { display: block; animation: fade-up 0.4s ease; }
+
+  .day-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    padding: 1.5rem 2rem;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+  }
+  .day-number {
+    font-family: var(--head);
+    font-size: 3rem;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--border2);
+    flex-shrink: 0;
+    width: 3rem;
+  }
+  .day-info h2 {
+    font-family: var(--head);
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 0.25rem;
+  }
+  .day-info p { font-size: 14px; color: var(--text2); }
+  .day-time {
+    margin-left: auto;
+    flex-shrink: 0;
+    background: rgba(52,211,153,0.08);
+    border: 1px solid rgba(52,211,153,0.2);
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--green);
+    text-align: center;
+  }
+
+  /* ── STEPS ── */
+  .steps { display: flex; flex-direction: column; gap: 1.5rem; }
+
+  .step {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    transition: border-color 0.3s;
+  }
+  .step:hover { border-color: var(--border2); }
+
+  .step-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.25rem 1.5rem;
+    cursor: pointer;
+    user-select: none;
+  }
+  .step-num {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: rgba(56,189,248,0.12);
+    border: 1px solid rgba(56,189,248,0.3);
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .step-title {
+    font-family: var(--head);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text);
+    flex: 1;
+  }
+  .step-duration {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text3);
+  }
+  .step-chevron {
+    color: var(--text3);
+    transition: transform 0.25s;
+    font-size: 12px;
+  }
+  .step.open .step-chevron { transform: rotate(180deg); }
+
+  .step-body {
+    display: none;
+    padding: 0 1.5rem 1.5rem;
+    border-top: 1px solid var(--border);
+  }
+  .step.open .step-body { display: block; animation: fade-up 0.3s ease; }
+
+  /* ── CONTENT BLOCKS ── */
+  .step-body p { color: var(--text2); margin-bottom: 1rem; }
+  .step-body p:last-child { margin-bottom: 0; }
+
+  .step-body h4 {
+    font-family: var(--head);
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+    margin: 1.25rem 0 0.5rem;
+  }
+
+  .tip-box {
+    background: rgba(56,189,248,0.06);
+    border: 1px solid rgba(56,189,248,0.15);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 0.75rem 1rem;
+    margin: 1rem 0;
+    font-size: 13px;
+    color: var(--text2);
+  }
+  .tip-box strong { color: var(--accent); }
+
+  .warn-box {
+    background: rgba(245,158,11,0.06);
+    border: 1px solid rgba(245,158,11,0.2);
+    border-left: 3px solid var(--gold);
+    border-radius: 0 8px 8px 0;
+    padding: 0.75rem 1rem;
+    margin: 1rem 0;
+    font-size: 13px;
+    color: var(--text2);
+  }
+  .warn-box strong { color: var(--gold); }
+
+  /* ── CODE BLOCKS ── */
+  .code-wrap {
+    margin: 1rem 0;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .code-header {
+    background: var(--bg3);
+    padding: 8px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+  }
+  .code-lang {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text3);
+    letter-spacing: 0.08em;
+  }
+  .copy-btn {
+    cursor: pointer;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 4px 12px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text3);
+    transition: all 0.2s;
+  }
+  .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .copy-btn.copied { border-color: var(--green); color: var(--green); }
+
+  pre {
+    background: #080e18;
+    padding: 1.25rem 1.5rem;
+    overflow-x: auto;
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.7;
+    color: #cdd9e5;
+  }
+  pre .kw { color: #79c0ff; }
+  pre .str { color: #a5d6ff; }
+  pre .cm { color: #484f58; font-style: italic; }
+  pre .fn { color: #d2a8ff; }
+  pre .va { color: #ffa657; }
+  pre .nu { color: #f2cc60; }
+
+  /* ── TABLES ── */
+  .table-wrap {
+    overflow-x: auto;
+    margin: 1rem 0;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+  }
+  table { width: 100%; border-collapse: collapse; }
+  thead { background: var(--bg3); }
+  th {
+    font-family: var(--head);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    color: var(--accent3);
+    text-align: left;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  td {
+    font-size: 13px;
+    color: var(--text2);
+    padding: 10px 16px;
+    border-bottom: 1px solid rgba(99,179,237,0.06);
+    vertical-align: top;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(56,189,248,0.03); }
+
+  /* ── CHECKLIST ── */
+  .checklist {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: 1rem 0;
+  }
+  .checklist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 14px;
+    color: var(--text2);
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+  }
+  .checklist li:hover { border-color: var(--border); background: var(--card2); }
+  .checklist li.done { color: var(--text3); text-decoration: line-through; }
+  .checkbox {
+    width: 18px; height: 18px;
+    border-radius: 4px;
+    border: 1.5px solid var(--border2);
+    flex-shrink: 0;
+    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+  .checklist li.done .checkbox {
+    background: var(--green);
+    border-color: var(--green);
+    color: #000;
+    font-size: 11px;
+  }
+
+  /* ── ARCH DIAGRAM ── */
+  .arch-diagram {
+    margin: 1rem 0;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+  .arch-row {
+    display: flex;
+    align-items: stretch;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.2s;
+  }
+  .arch-row:last-child { border-bottom: none; }
+  .arch-row:hover { background: rgba(56,189,248,0.03); }
+  .arch-label {
+    width: 140px;
+    flex-shrink: 0;
+    padding: 1rem;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    border-right: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  .arch-content {
+    flex: 1;
+    padding: 1rem 1.25rem;
+    display: flex;
+    align-items: center;
+  }
+  .arch-title {
+    font-family: var(--head);
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 0.2rem;
+  }
+  .arch-desc { font-size: 12px; color: var(--text3); }
+  .arch-row.saas .arch-label { color: var(--accent); background: rgba(56,189,248,0.05); }
+  .arch-row.paas .arch-label { color: var(--purple); background: rgba(167,139,250,0.05); }
+  .arch-row.iaas .arch-label { color: var(--gold); background: rgba(245,158,11,0.05); }
+  .arch-row.hw .arch-label { color: var(--text3); background: rgba(100,116,139,0.05); }
+
+  /* ── LINKS ── */
+  a {
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s;
+  }
+  a:hover { border-bottom-color: var(--accent); }
+
+  .ext-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(56,189,248,0.07);
+    border: 1px solid rgba(56,189,248,0.2);
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 12px;
+    font-family: var(--mono);
+    color: var(--accent3);
+    transition: all 0.2s;
+    text-decoration: none;
+    margin: 3px 0;
+    display: inline-flex;
+  }
+  .ext-link:hover { background: rgba(56,189,248,0.14); border-color: rgba(56,189,248,0.4); border-bottom-color: rgba(56,189,248,0.4); }
+  .ext-link::after { content: '↗'; font-size: 10px; opacity: 0.6; }
+
+  /* ── PROGRESS TRACKER ── */
+  .progress-section {
+    position: fixed;
+    top: 50%;
+    right: 1.5rem;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 100;
+  }
+  .prog-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--bg3);
+    border: 1.5px solid var(--border2);
+    transition: all 0.3s;
+    cursor: pointer;
+    position: relative;
+  }
+  .prog-dot.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    box-shadow: 0 0 10px var(--accent2);
+  }
+  .prog-dot:hover::after {
+    content: attr(data-label);
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-family: var(--mono);
+    color: var(--text);
+    white-space: nowrap;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 200;
+    padding: 0 2rem;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(7,11,18,0.8);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-logo {
+    font-family: var(--head);
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .nav-logo span { color: var(--accent); }
+  .nav-links { display: flex; gap: 1.5rem; }
+  .nav-links a {
+    font-size: 13px;
+    font-family: var(--head);
+    font-weight: 500;
+    color: var(--text2);
+    border: none;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--text); }
+
+  /* ── OVERVIEW SECTION ── */
+  .overview-section { margin-bottom: 5rem; }
+
+  .project-timeline {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    margin-bottom: 2rem;
+  }
+  .timeline-item {
+    background: var(--card);
+    padding: 1.25rem 1.5rem;
+    transition: background 0.2s;
+  }
+  .timeline-item:hover { background: var(--card2); }
+  .timeline-item.current { background: rgba(56,189,248,0.08); }
+  .timeline-week {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--text3);
+    margin-bottom: 0.5rem;
+  }
+  .timeline-item.current .timeline-week { color: var(--accent); }
+  .timeline-theme {
+    font-family: var(--head);
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text2);
+  }
+  .timeline-item.current .timeline-theme { color: var(--text); }
+  .you-are-here {
+    display: inline-block;
+    margin-top: 0.5rem;
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    background: rgba(56,189,248,0.1);
+    border-radius: 4px;
+    padding: 2px 8px;
+  }
+
+  /* ── REFERENCES ── */
+  .refs-section { margin-bottom: 5rem; }
+  .refs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+  }
+  .ref-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .ref-card:hover { border-color: var(--border2); transform: translateY(-1px); }
+  .ref-name {
+    font-family: var(--head);
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 0.25rem;
+  }
+  .ref-why { font-size: 12px; color: var(--text3); margin-bottom: 0.75rem; }
+
+  /* ── REPORT SECTION ── */
+  .report-section { margin-bottom: 5rem; }
+  .report-structure {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1rem;
+  }
+  .report-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .report-item::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent) 0%, transparent 100%);
+  }
+  .report-num {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    margin-bottom: 0.4rem;
+  }
+  .report-title {
+    font-family: var(--head);
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 0.3rem;
+  }
+  .report-detail { font-size: 12px; color: var(--text3); }
+
+  /* ── FOOTER ── */
+  footer {
+    position: relative;
+    z-index: 1;
+    border-top: 1px solid var(--border);
+    padding: 2rem 1.5rem;
+    text-align: center;
+  }
+  footer p { font-size: 12px; color: var(--text3); font-family: var(--mono); }
+  footer p span { color: var(--accent); }
+
+  /* ── ABBR TOOLTIP ── */
+  abbr {
+    cursor: help;
+    border-bottom: 1px dotted var(--accent);
+    text-decoration: none;
+    color: inherit;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    .progress-section { display: none; }
+    .day-header { flex-wrap: wrap; }
+    .day-time { margin-left: 0; }
+    .nav-links { display: none; }
+  }
+
+  /* ── SECTION SPACING ── */
+  section { padding-top: 5rem; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    ☁️ <span>Cloud</span>Lab — Week 01
+  </div>
+  <div class="nav-links">
+    <a href="#overview">Overview</a>
+    <a href="#grading">Grading</a>
+    <a href="#lab">Lab Days</a>
+    <a href="#report">Report</a>
+    <a href="#refs">References</a>
+  </div>
+</nav>
+
+<!-- SIDE PROGRESS -->
+<div class="progress-section">
+  <div class="prog-dot active" data-label="Hero" onclick="scrollToSection('hero')"></div>
+  <div class="prog-dot" data-label="Overview" onclick="scrollToSection('overview')"></div>
+  <div class="prog-dot" data-label="Grading" onclick="scrollToSection('grading')"></div>
+  <div class="prog-dot" data-label="Lab Days" onclick="scrollToSection('lab')"></div>
+  <div class="prog-dot" data-label="Report" onclick="scrollToSection('report')"></div>
+  <div class="prog-dot" data-label="References" onclick="scrollToSection('refs')"></div>
+</div>
+
+<!-- HERO -->
+<section id="hero" class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-glow2"></div>
+  <div class="hero-inner">
+    <div class="badge">
+      <span class="badge-dot"></span>
+      DIGITAL SCIENCE — GRADUATE PROGRAMME
+    </div>
+    <h1>
+      <span class="line1">Cloud Computing</span>
+      <span class="line2">&amp; Big Data Analytics</span>
+    </h1>
+    <p class="hero-desc">
+      Week 01 Laboratory Module — Cloud Foundations in Practice. A hands-on, step-by-step, continuous project designed for graduate-level exploration.
+    </p>
+    <div class="hero-meta">
+      <div class="meta-chip"><span class="icon">📅</span> Week 01 of 04</div>
+      <div class="meta-chip"><span class="icon">⏱️</span> ~6 hours total</div>
+      <div class="meta-chip"><span class="icon">📄</span> Max 5 pages A4 report</div>
+      <div class="meta-chip"><span class="icon">⚖️</span> Ponderation 1–2–1</div>
+      <div class="meta-chip"><span class="icon">🔧</span> All tools are open &amp; replaceable</div>
+    </div>
+  </div>
+  <div class="scroll-hint">
+    <span>SCROLL</span>
+    <div class="scroll-arrow"></div>
+  </div>
+</section>
+
+<!-- DISCLAIMER -->
+<div class="disclaimer">
+  <div class="disclaimer-box">
+    <h3>⚠️ IMPORTANT — READ BEFORE STARTING</h3>
+    <p><strong>Educational purpose only.</strong> This laboratory is designed exclusively for learning. All tools, platforms, and techniques are <strong>open suggestions</strong> — none are mandatory. You are strongly encouraged to research, compare, and substitute any tool with an alternative of your choosing. If you discover a better approach or decide to build your own solution, that initiative is recognised and valued.</p>
+    <p><strong>Simulated real-world environments.</strong> Scenarios are intentionally modelled on real architectures to provide practical exposure. They are simplified simulations and must <strong>not</strong> be replicated in production environments without proper authorisation. The instructor bears no responsibility for any misuse of the knowledge acquired.</p>
+    <p><strong>Security reminder.</strong> Never share credentials, <abbr title="Application Programming Interface">API</abbr> keys, or billing information in submitted work or public repositories. Always operate within legal and institutional boundaries.</p>
+  </div>
+</div>
+
+<!-- OVERVIEW -->
+<section id="overview">
+  <div class="container">
+    <div class="section-label">PROJECT SCOPE</div>
+    <h2 class="section-title">The Continuous Project</h2>
+    <p class="section-sub">This is Part 1 of 4. Each week builds directly on the previous — your final submission is a unified portfolio.</p>
+
+    <div class="overview-section">
+      <div class="project-timeline">
+        <div class="timeline-item current">
+          <div class="timeline-week">WEEK 01</div>
+          <div class="timeline-theme">Cloud Foundations</div>
+          <span class="you-are-here">▶ YOU ARE HERE</span>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-week">WEEK 02</div>
+          <div class="timeline-theme">Cloud Services, Tools &amp; Governance</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-week">MIDTERM</div>
+          <div class="timeline-theme">Comprehensive Exam</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-week">WEEK 03</div>
+          <div class="timeline-theme">Cloud Platforms in Practice</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-week">WEEK 04</div>
+          <div class="timeline-theme">Big Data &amp; Apache Spark</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-week">FINAL</div>
+          <div class="timeline-theme">Comprehensive Exam &amp; Feedback</div>
+        </div>
+      </div>
+
+      <div class="section-label">LEARNING OBJECTIVES</div>
+      <div class="steps">
+        <div class="step open">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-num">LO</div>
+            <div class="step-title">What you will be able to do after this week</div>
+            <span class="step-chevron">▼</span>
+          </div>
+          <div class="step-body">
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>#</th><th>Objective</th><th>Assessed In</th></tr></thead>
+                <tbody>
+                  <tr><td>1</td><td>Describe the architectural layers and deployment models of cloud computing</td><td>Day 1, Report Section 4</td></tr>
+                  <tr><td>2</td><td>Explain <abbr title="Virtualisation: abstraction of physical hardware into logical resources">virtualisation</abbr> and <abbr title="Containerisation: packaging of applications with their runtime dependencies into portable units">containerisation</abbr> principles and compare their trade-offs</td><td>Day 2, Report Section 5</td></tr>
+                  <tr><td>3</td><td>Compare cloud data storage paradigms and select appropriate ones for given scenarios</td><td>Day 3, Report Section 6</td></tr>
+                  <tr><td>4</td><td>Articulate core cloud security tenets and <abbr title="SOA: Service-Oriented Architecture — a software design paradigm in which application components provide services to other components via a communication protocol">SOA</abbr> principles</td><td>Day 4, Report Section 7</td></tr>
+                  <tr><td>5</td><td>Produce a structured, properly cited technical report using correct industry terminology</td><td>Full Report</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GRADING -->
+<section id="grading">
+  <div class="container">
+    <div class="section-label">ASSESSMENT</div>
+    <h2 class="section-title">Grading Ponderation 1–2–1</h2>
+    <p class="section-sub">Your grade is built from three weighted components. Practical work carries the most weight — your hands-on engagement matters most.</p>
+
+    <div class="grading-section">
+      <div class="grading-grid">
+        <div class="grade-card theory">
+          <div class="grade-pct">25%</div>
+          <div class="grade-label">Theoretical Research</div>
+          <div class="grade-desc">Accuracy, depth, and proper citation of concepts. Correct use of industry terminology and abbreviations.</div>
+        </div>
+        <div class="grade-card practical">
+          <div class="grade-pct">50%</div>
+          <div class="grade-label">Practical Work</div>
+          <div class="grade-desc">Hands-on tasks, screenshots, configurations, code snippets, diagrams, and demonstrated tool usage.</div>
+        </div>
+        <div class="grade-card report">
+          <div class="grade-pct">25%</div>
+          <div class="grade-label">Written Report</div>
+          <div class="grade-desc">Clarity, structure, critical thinking, originality of analysis, and professional presentation.</div>
+        </div>
+      </div>
+
+      <div class="warn-box">
+        <strong>📄 Report format:</strong> Maximum <strong>5 pages A4</strong>. Font size 11–12 pt, standard margins (2.5 cm). Cover page, table of contents, and references are <em>not</em> counted toward the limit. Submit as PDF. Filename: <code>LASTNAME_Firstname_W01_CloudFoundations.pdf</code>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LAB DAYS -->
+<section id="lab">
+  <div class="container">
+    <div class="section-label">LABORATORY</div>
+    <h2 class="section-title">Four Days of Practice</h2>
+    <p class="section-sub">Approximately 1.5 hours per day. Complete the steps in order — each builds on the last.</p>
+
+    <div class="timeline-section">
+      <div class="day-tabs">
+        <button class="day-tab active" onclick="showDay('d1', this)">☁️ Day 1 — Architecture</button>
+        <button class="day-tab" onclick="showDay('d2', this)">🖥️ Day 2 — Virtualisation</button>
+        <button class="day-tab" onclick="showDay('d3', this)">🗄️ Day 3 — Storage</button>
+        <button class="day-tab" onclick="showDay('d4', this)">🔐 Day 4 — Security &amp; SOA</button>
+      </div>
+
+      <!-- DAY 1 -->
+      <div id="d1" class="day-panel active">
+        <div class="day-header">
+          <div class="day-number">01</div>
+          <div class="day-info">
+            <h2>Cloud Computing Architecture</h2>
+            <p>Establish the theoretical and visual foundation of cloud computing — the stack you will build upon all semester.</p>
+          </div>
+          <div class="day-time">⏱ ~90 min</div>
+        </div>
+        <div class="steps">
+
+          <div class="step open">
+            <div class="step-header" onclick="toggleStep(this)">
+              <div class="step-num">1.1</div>
+              <div class="step-title">Conceptual Grounding — NIST Definition</div>
+              <div class="step-duration">~20 min</div>
+              <span class="step-chevron">▼</span>
+            </div>
+            <div class="step-body">
+              <p>Begin with the canonical reference for cloud computing: <strong>NIST Special Publication 800-145</strong>, published by the <a href="https://www.nist.gov/" target="_blank" class="ext-link">National Institute of Standards and Technology (NIST)</a>.</p>
+              <p>Direct link to the document: <a href="https://csrc.nist.gov/publications/detail/sp/800-145/final" target="_blank" class="ext-link">NIST SP 800-145 — Cloud Computing Definition</a></p>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>Dimension</th><th>Elements to Identify &amp; Explain</th></tr></thead>
+                  <tbody>
+                    <tr><td><strong>5 Essential Characteristics</strong></td><td>On-demand self-service, Broad network access, Resource pooling, Rapid elasticity, Measured service</td></tr>
+                    <tr><td><strong>3 Service Models</strong></td><td><abbr title="IaaS: Infrastructure as a Service — provides virtualised computing resources over the internet">IaaS</abbr>, <abbr title="PaaS: Platform as a Service — provides a platform for developing, running, and managing applications">PaaS</abbr>, <abbr title="SaaS: Software as a Service — delivers software applications over the internet on a subscription basis">SaaS</abbr></td></tr>
+                    <tr><td><strong>4 Deployment Models</strong></td><td>Public Cloud, Private Cloud, Hybrid Cloud, Community Cloud</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="tip-box"><strong>💡 Your task:</strong> Write one paragraph (5–8 sentences) per service model in your own words, with one real-world company/product example per model. Also explore: <a href="https://landscape.cncf.io/" target="_blank" class="ext-link">CNCF Landscape</a></div>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-header" onclick="toggleStep(this)">
+              <div class="step-num">1.2</div>
+              <div class="step-title">Architectural Stack — The Abstraction Layers</div>
+              <div class="step-duration">~30 min</div>
+              <span class="step-chevron">▼</span>
+            </div>
+            <div class="step-body">
+              <p>Study the following reference architecture. Each row represents one abstraction layer of a cloud system:</p>
+              <div class="arch-diagram">
+                <div class="arch-row saas">
+                  <div class="arch-label">SaaS<br><small>Layer</small></div>
+                  <div class="arch-content">
+                    <div>
+                      <div class="arch-title">End Users / Applications</div>
+                      <div class="arch-desc">Managed by: Cloud Provider entirely. Examples: Gmail, Salesforce, Office 365.</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="arch-row paas">
+                  <div class="arch-label">PaaS<br><small>Layer</small></div>
+                  <div class="arch-content">
+                    <div>
+                      <div class="arch-title">Development Platforms &amp; Middleware</div>
+                      <div class="arch-desc">Provider manages runtime, OS, middleware. Customer manages: apps &amp; data. Examples: Heroku, Google App Engine.</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="arch-row iaas">
+                  <div class="arch-label">IaaS<br><small>Layer</small></div>
+                  <div class="arch-content">
+                    <div>
+                      <div class="arch-title">Virtual Machines, Storage, Networking</div>
+                      <div class="arch-desc">Provider manages: hardware, network, virtualisation. Customer manages: OS upward. Examples: AWS EC2, Azure VMs.</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="arch-row hw">
+                  <div class="arch-label">Physical<br><small>Layer</small></div>
+                  <div class="arch-content">
+                    <div>
+                      <div class="arch-title">Physical Hardware &amp; Data Centres</div>
+                      <div class="arch-desc">Always managed entirely by the cloud provider. Geographically distributed across regions and availability zones.</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="tip-box"><strong>💡 Your task:</strong> Reproduce and annotate this diagram as <strong>Figure 1</strong> in your report using any tool you choose: <a href="https://app.diagrams.net/" target="_blank" class="ext-link">draw.io</a> | <a href="https://excalidraw.com/" target="_blank" class="ext-link">Excalidraw</a> | <a href="https://www.lucidchart.com/" target="_blank" class="ext-link">Lucidchart</a> — or pen and paper. Research and use alternatives!</div>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-header" onclick="toggleStep(this)">
+              <div class="step-num">1.3</div>
+              <div class="step-title">Hands-On — Explore a Cloud Provider</div>
+              <div class="step-duration">~40 min</div>
+              <span class="step-chevron">▼</span>
+            </div>
+            <div class="step-body">
+              <p>Sign up for a <strong>free-tier</strong> account on any provider of your choice (or use an existing academic account):</p>
+              <p>
+                <a href="https://aws.amazon.com/free/" target="_blank" class="ext-link">AWS Free Tier</a>
+                <a href="https://azure.microsoft.com/en-us/free/" target="_blank" class="ext-link">Azure Free Account</a>
+                <a href="https://cloud.google.com/free" target="_blank" class="ext-link">Google Cloud Free Tier</a>
+              </p>
+              <h4>TASKS:</h4>
+              <ul class="checklist" id="d1-tasks">
+                <li onclick="toggleCheck(this)"><div class="checkbox"></div>Navigate to the console dashboard and locate the region selector</li>
+                <li onclick="toggleCheck(this)"><div class="checkbox"></div>Find the provider's global infrastructure map (regions &amp; <abbr title="AZ: Availability Zone — an isolated location within a data centre region">AZs</abbr>)</li>
+                <li onclick="toggleCheck(this)"><div class="checkbox"></div>Take a screenshot of the global infrastructure map</li>
+                <li onclick="toggleCheck(this)"><div class="checkbox"></div>Write 3–5 sentences: why does geographic distribution matter for latency, compliance, and fault tolerance?</li>
+              </ul>
+              <div class="warn-box"><strong>⚠️ Security:</strong> Never include passwords, <abbr title="API: Application Programming Interface — a set of definitions and protocols for building and integrating application software">API</abbr> keys, or billing information in your submitted report or any public repository.</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- DAY 2 -->
+      <div id="d2" class="day-panel">
+        <div class="day-header">
+          <div class="day-number">02</div>
+          <div class="day-info">
+            <h2>Virtualisation and Containerisation</h2>
+            <p>Understand how the cloud abstracts hardware — and how containers changed deployment forever.</p>
+          </div>
+          <div class="day-time">⏱ ~90 min</div>
+        </div>
+        <div class="steps">
+
+          <div class="step open">
+            <div class="step-header" onclick="toggleStep(this)">
+              <div class="step-num">2.1</div>
+              <div class="step-title">Understanding Virtualisation &amp; Hypervisors</div>
+              <div class="step-duration">~25 min</div>
+              <span class="step-chevron">▼</span>
+            </div>
+            <div class="step-body">
+              <p><strong>Virtualisation</strong> is the process of creating a software-based (logical) representation of physical hardware. A <strong>hypervisor</strong> (also called a <abbr title="VMM: Virtual Machine Monitor — the software component that creates and manages virtual machines">VMM</abbr>) is the software layer enabling this.</p>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>Type</th><th>How It Works</th><th>Examples</th><th>Cloud Relevance</th></tr></thead>
+                  <tbody>
+                    <tr>
+                      <td><strong>Type 1<br>(Bare-metal)</strong></td>
+                      <td>Runs directly on hardware — no host <abbr title="OS: Operating System — the software that manages computer hardware and software resources">OS</abbr> needed</td>
+                      <td>VMware ESXi, Microsoft Hyper-V, <a href="https://xenproject.org/" target="_blank">Xen Project</a></td>
+                      <td>Used by all major cloud providers — maximum performance</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Type 2<br>(Hosted)</strong></td>
+                      <td>Runs on top of a conventional OS</td>
+                      <td>Oracle VirtualBox, VMware Workstation</td>
+                      <td>Developer workstations, local testing</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="tip-box"><strong>💡 Your task:</strong> Draw a side-by-side hypervisor comparison diagram. Explain (3–5 sentences) why cloud providers use Type 1. Reference: <a href="https://xenproject.org/" target="_blank" class="ext-link">Xen Project (open-source Type 1)</a></div>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-header" onclick="toggleStep(this)">
+              <div class="step-num">2.2</div>
+              <div class="step-title">Containers vs Virtual Machines — The Comparison</div>
+              <div class="step-duration">~25 min</div>
+              <span class="step-chevron">▼</span>
+            </div>
+            <div class="step-body">
+              <p>Containers package an application with its libraries and configuration, but <strong>share the host OS kernel</strong> — making them lighter, faster, and more portable than full <abbr title="VM: Virtual Machine — a software-based emulation of a physical computer">VMs</abbr>.</p>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>Criterion</th><th>Virtual Machines</th><th>Containers</th></tr></thead>
+                  <tbody>
+                    <tr><td>Startup time</td><td>Minutes</td><td>Seconds or milliseconds</td></tr>
+                    <tr><td>Typical image size</td><td>Gigabytes</td><td>Megabytes</td></tr>
+                    <tr><td>OS isolation</td><td>Full (separate guest OS per VM)</td><td>Partial (shared host kernel)</td></tr>
+                    <tr><td>Portability</td><td>Moderate — depends on hypervisor</td><td>High — runs anywhere with container runtime</td></tr>
+                    <tr><td>Typical use case</td><td>Full OS environments, legacy apps</td><td>Microservices, <abbr title="CI/CD: Continuous Integration / Continuous Delivery — practices for automating software building, testing, and deployment">CI/CD</abbr> pipelines, cloud-native apps</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="tip-box"><strong>💡 Complete this table with your own research</strong> — verify each row and add a row of your own choosing.</div>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-header" onclick="toggleStep(this)">
+              <div class="step-num">2.3</div>
+              <div class="step-title">Hands-On — Your First Container</div>
+              <div class="step-duration">~40 min</div>
+              <span class="step-chevron">▼</span>
+            </div>
+            <div class="step-body">
+              <p>Use any container platform you prefer. Suggestions (all open &amp; replaceable):</p>
+              <p>
+                <a href="https://www.docker.com/products/docker-desktop/" target="_blank" class="ext-link">Docker Desktop</a>
+                <a href="https://labs.play-with-docker.com/" target="_blank" class="ext-link">Play with Docker (browser)</a>
+                <a href="https://podman.io/" target="_blank" class="ext-link">Podman (rootless)</a>
+                <a href="https://linuxcontainers.org/" target="_blank" class="ext-link">LXC</a>
+              </p>
+              <h4>STEP 1 — Run your first container:</h4>
+              <div class="code-wrap">
+                <div class="code-header">
+                  <span class="code-lang">BASH</span>
+                  <button class="copy-btn" onclick="copyCode(this)">copy</button>
+                </div>
+                <pre><span class="cm"># Pull and run Alpine Linux — a minimal container base image</span>
+docker run --rm -it alpine:latest /bin/sh
+
+<span class="cm"># Inside the container, explore:</span>
+cat /etc/os-release
+ps aux
+
+<span class="cm"># Exit when done</span>
+exit</pre>
+              </div>
+              <h4>STEP 2 — Write a Dockerfile:</h4>
+              <div class="code-wrap">
+                <div class="code-header">
+                  <span class="code-lang">DOCKERFILE</span>
+                  <button class="copy-btn" onclick="copyCode(this)">copy</button>
+                </div>
+                <pre><span class="cm"># My first Dockerfile — adapt this freely!</span>
+<span class="kw">FROM</span> alpine:latest
+
+<span class="cm"># Label with your name</span>
+<span class="kw">LABEL</span> <span class="va">author</span>=<span class="str">"Your Name"</span>
+
+<span class="cm"># Install a simple tool</span>
+<span class="kw">RUN</span> apk add --no-cache curl
+
+<span class="cm"># Default command when container starts</span>
+<span class="kw">CMD</span> [<span class="str">"echo"</span>, <span class="str">"Hello from my first container!"</span>]</pre>
+              </div>
+              <h4>STEP 3 — Build and run:</h4>
+              <div class="code-wrap">
+                <div class="code-header">
+                  <span class="code-lang">BASH</span>
+                  <button class="copy-btn" onclick="copyCode(this)">copy</button>
+                </div>
+                <pre>docker build -t my-first-image .
+docker run --rm my-first-image</pre>
+              </div>
+              <div class="tip-box"><strong>💡 Be creative!</strong> Modify the Dockerfile — add a small web server, install Python and print a data summary, create a file inside the image. The more original your approach, the better your grade.</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- DAY 3 -->
+      <div id="d3" class="day-panel">
+        <div class="day-header">
+          <div class="day-number">03</div>
+          <div class="day-info">
+            <h2>Data Storage and Cloud Services</h2>
+            <p>Discover how the cloud stores data — and the expanding universe of managed services built on top of storage.</p>
+          </div>
+          <div class="day-time">⏱ ~90 min</div>
+        </div>
+        <div class="steps">
+
+          <div class="step open">
+            <div class="step-header" onclick="toggleStep(this)">
+              <div class="step-num">3.1</div>
+              <div class="step-title">Cloud Storage Paradigms</div>
+              <div class="step-duration">~25 min</div>
+              <span class="step-chevron">▼</span>
+            </div>
+            <div class="step-body">
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>Type</th><th>Mechanism</th><th>Strengths</th><th>Weaknesses</th><th>Example Services</th></tr></thead>
+                  <tbody>
+                    <tr>
+                      <td><strong>Object Storage</strong></td>
+                      <td>Files stored as discrete objects with metadata and a unique key</td>
+                      <td>Massive scalability, low cost, ideal for unstructured data</td>
+                      <td>Not suitable for frequent random writes</td>
+                      <td>AWS S3, Azure Blob, <a href="https://min.io/" target="_blank">MinIO</a></td>
+                    </tr>
+                    <tr>
+                      <td><strong>Block Storage</strong></td>
+                      <td>Data split into fixed-size blocks; appears as raw disk to the <abbr title="OS: Operating System">OS</abbr></td>
+                      <td>Low latency, high <abbr title="IOPS: Input/Output Operations Per Second — a measure of storage performance">IOPS</abbr>, excellent for databases</td>
+                      <td>Higher cost, typically tied to a single VM</td>
+                      <td>AWS EBS, Azure Disk</td>
+                    </tr>
+                    <tr>
+                      <td><strong>File Storage</strong></td>
+                      <td>Hierarchical filesystem via <abbr title="NFS: Network File System — a distributed file system protocol">NFS</abbr> or <abbr title="SMB: Server Message Block — a network communication protocol for shared access to files">SMB</abbr></td>
+                      <td>Familiar shared-access model, easy to mount</td>
+                      <td>Does not scale as well as object storage</td>
+                      <td>AWS EFS, Azure Files, <a href="https://ceph.io/" target="_blank">Ceph</a></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="tip-box"><strong>💡 Your task:</strong> For each storage type, write one paragraph (3–4 sentences) describing a real-world scenario where it is the best choice. Not just a product name — a concrete use case.</div>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-header" onclick="toggleStep(this)">
+              <div class="step-num">3.2</div>
+              <div class="step-title">Cloud Service Categories</div>
+              <div class="step-duration">~20 min</div>
+              <span class="step-chevron">▼</span>
+            </div>
+            <div class="step-body">
+              <p>Research and complete this table with your own findings:</p>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>Abbreviation</th><th>Full Name</th><th>What It Delivers</th><th>Find an Example</th></tr></thead>
+                  <tbody>
+                    <tr><td><strong><abbr title="CDN: Content Delivery Network — a geographically distributed network of servers that delivers content closer to users">CDN</abbr></strong></td><td>Content Delivery Network</td><td>Caches content geographically near users to reduce latency</td><td><a href="https://www.cloudflare.com/" target="_blank">Cloudflare</a>, Fastly</td></tr>
+                    <tr><td><strong><abbr title="DBaaS: Database as a Service — managed database hosting">DBaaS</abbr></strong></td><td>Database as a Service</td><td>?</td><td>Research and add here</td></tr>
+                    <tr><td><strong><abbr title="FaaS: Function as a Service — event-driven, serverless execution of discrete functions">FaaS</abbr></strong></td><td>Function as a Service</td><td>?</td><td>Research and add here</td></tr>
+                    <tr><td><strong><abbr title="MLaaS: Machine Learning as a Service — managed ML model training and inference">MLaaS</abbr></strong></td><td>Machine Learning as a Service</td><td>?</td><td>Research and add here</td></tr>
+                    <tr><td><strong><abbr title="BaaS: Backend as a Service — managed backend infrastructure for mobile/web apps">BaaS</abbr></strong></td><td>Backend as a Service</td><td>?</td><td>Research and add here</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <p>Useful references: <a href="https://www.opengroup.org/" target="_blank" class="ext-link">The Open Group</a> <a href="https://cloudcomputing.ieee.org/" target="_blank" class="ext-link">IEEE Cloud Computing</a></p>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-header" onclick="toggleStep(this)">
+              <div class="step-num">3.3</div>
+              <div class="step-title">Hands-On — Local Object Storage with MinIO</div>
+              <div class="step-duration">~45 min</div>
+              <span class="step-chevron">▼</span>
+            </div>
+            <div class="step-body">
+              <p>Run a local <abbr title="S3-compatible: adhering to the same API as Amazon Simple Storage Service, the de facto standard for object storage">S3-compatible</abbr> object storage server. Tool options (open, replaceable): <a href="https://min.io/" target="_blank" class="ext-link">MinIO</a> | <a href="https://ceph.io/" target="_blank" class="ext-link">Ceph</a> | <a href="https://github.com/seaweedfs/seaweedfs" target="_blank" class="ext-link">SeaweedFS</a></p>
+              <h4>START MINIO:</h4>
+              <div class="code-wrap">
+                <div class="code-header">
+                  <span class="code-lang">BASH</span>
+                  <button class="copy-btn" onclick="copyCode(this)">copy</button>
+                </div>
+                <pre>docker run -d \
+  -p 9000:9000 \
+  -p 9090:9090 \
+  --name minio-lab \
+  -e <span class="str">"MINIO_ROOT_USER=labadmin"</span> \
+  -e <span class="str">"MINIO_ROOT_PASSWORD=LabPass123!"</span> \
+  minio/minio server /data --console-address <span class="str">":9090"</span></pre>
+              </div>
+              <p>Open: <strong>http://localhost:9090</strong> — login with the credentials above (local lab only!).</p>
+              <ul class="checklist" id="d3-tasks">
+                <li onclick="toggleCheck(this)"><div class="checkbox"></div>Create a bucket (a logical container for objects, analogous to a top-level folder)</li>
+                <li onclick="toggleCheck(this)"><div class="checkbox"></div>Upload a file of your choice (text, CSV, image — anything)</li>
+                <li onclick="toggleCheck(this)"><div class="checkbox"></div>Retrieve and screenshot the file's metadata (creation date, size, content type)</li>
+                <li onclick="toggleCheck(this)"><div class="checkbox"></div>Explain in 5–8 sentences: how does this differ from a traditional file system?</li>
+              </ul>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- DAY 4 -->
+      <div id="d4" class="day-panel">
+        <div class="day-header">
+          <div class="day-number">04</div>
+          <div class="day-info">
+            <h2>Cloud Security &amp; Service-Oriented Architecture</h2>
+            <p>Security is not optional — it is architectural. Understand who is responsible for what, and how services communicate safely.</p>
+          </div>
+          <div class="day-time">⏱ ~90 min</div>
+        </div>
+        <div class="steps">
+
+          <div class="step open">
+            <div class="step-header" onclick="toggleStep(this)">
+              <div class="step-num">4.1</div>
+              <div class="step-title">The Shared Responsibility Model</div>
+              <div class="step-duration">~20 min</div>
+              <span class="step-chevron">▼</span>
+            </div>
+            <div class="step-body">
+              <p>One of the most misunderstood concepts in cloud security: <em>who secures what?</em> Study and compare the Shared Responsibility Models from multiple providers:</p>
+              <p>
+                <a href="https://aws.amazon.com/compliance/shared-responsibility-model/" target="_blank" class="ext-link">AWS Shared Responsibility</a>
+                <a href="https://learn.microsoft.com/en-us/azure/security/fundamentals/shared-responsibility" target="_blank" class="ext-link">Azure Model</a>
+                <a href="https://cloud.google.com/architecture/framework/security/shared-responsibility-shared-fate" target="_blank" class="ext-link">Google Cloud Model</a>
+              </p>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>Layer</th><th>IaaS — Who Manages?</th><th>PaaS — Who Manages?</th><th>SaaS — Who Manages?</th></tr></thead>
+                  <tbody>
+                    <tr><td>Physical hardware</td><td>Provider</td><td>Provider</td><td>Provider</td></tr>
+                    <tr><td>Network controls</td><td>Provider</td><td>Provider</td><td>Provider</td></tr>
+                    <tr><td>Host OS</td><td>Customer</td><td>Provider</td><td>Provider</td></tr>
+                    <tr><td>Application</td><td>Customer</td><td>Customer</td><td>Provider</td></tr>
+                    <tr><td>Data &amp; identity</td><td>Customer</td><td>Customer</td><td>Customer</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="tip-box"><strong>💡 Your task:</strong> Draw this diagram for at least one provider, annotated with your own words. Write 4–6 sentences comparing two providers' approaches.</div>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-header" onclick="toggleStep(this)">
+              <div class="step-num">4.2</div>
+              <div class="step-title">Core Cloud Security Concepts</div>
+              <div class="step-duration">~25 min</div>
+              <span class="step-chevron">▼</span>
+            </div>
+            <div class="step-body">
+              <p>Research and explain each concept in your own words (2–4 sentences each):</p>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>Abbreviation / Term</th><th>Full Name</th><th>Your Explanation (fill in)</th></tr></thead>
+                  <tbody>
+                    <tr><td><abbr title="IAM: Identity and Access Management — framework for managing digital identities and their access to resources">IAM</abbr></td><td>Identity and Access Management</td><td>?</td></tr>
+                    <tr><td><abbr title="MFA: Multi-Factor Authentication — requiring two or more verification methods">MFA</abbr></td><td>Multi-Factor Authentication</td><td>?</td></tr>
+                    <tr><td><abbr title="RBAC: Role-Based Access Control — granting access based on a user's role within an organisation">RBAC</abbr></td><td>Role-Based Access Control</td><td>?</td></tr>
+                    <tr><td>Encryption at Rest</td><td>—</td><td>?</td></tr>
+                    <tr><td>Encryption in Transit</td><td>—</td><td>?</td></tr>
+                    <tr><td>Zero Trust Architecture</td><td>—</td><td>?</td></tr>
+                    <tr><td><abbr title="SIEM: Security Information and Event Management — a system that aggregates and analyses security data from across an organisation">SIEM</abbr></td><td>Security Information and Event Management</td><td>?</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <p>Standards to reference: <a href="https://www.iso.org/standard/43757.html" target="_blank" class="ext-link">ISO/IEC 27017 — Cloud Security Controls</a> <a href="https://owasp.org/" target="_blank" class="ext-link">OWASP — Application Security</a></p>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-header" onclick="toggleStep(this)">
+              <div class="step-num">4.3</div>
+              <div class="step-title">Service-Oriented Architecture (SOA) &amp; Its Evolution</div>
+              <div class="step-duration">~25 min</div>
+              <span class="step-chevron">▼</span>
+            </div>
+            <div class="step-body">
+              <p><strong><abbr title="SOA: Service-Oriented Architecture — a design paradigm where application components provide services to other components via a communication protocol">SOA</abbr></strong> is a software design paradigm in which components provide services to each other via a protocol over a network. Research these key terms:</p>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>Term / Abbreviation</th><th>What It Is</th></tr></thead>
+                  <tbody>
+                    <tr><td><strong><abbr title="WSDL: Web Services Description Language — an XML format for describing network services">WSDL</abbr></strong></td><td>Web Services Description Language — describes web service interfaces. Standard by: <a href="https://www.oasis-open.org/" target="_blank">OASIS</a></td></tr>
+                    <tr><td><strong><abbr title="SOAP: Simple Object Access Protocol — an XML-based protocol for exchanging structured information">SOAP</abbr></strong></td><td>Simple Object Access Protocol — XML-based messaging protocol</td></tr>
+                    <tr><td><strong><abbr title="REST: Representational State Transfer — an architectural style for building APIs using HTTP">REST</abbr></strong></td><td>Representational State Transfer — architectural style for <abbr title="API: Application Programming Interface">API</abbr>s using <abbr title="HTTP: HyperText Transfer Protocol — the foundation of data communication on the web">HTTP</abbr></td></tr>
+                    <tr><td><strong><abbr title="ESB: Enterprise Service Bus — middleware for routing, transforming, and mediating messages between services">ESB</abbr></strong></td><td>Enterprise Service Bus — middleware for routing messages between services</td></tr>
+                    <tr><td><strong>API Gateway</strong></td><td>Entry point that routes, authenticates, and manages requests to microservices</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="tip-box"><strong>💡 Your task:</strong> Draw a SOA diagram showing at least 3 services communicating via an ESB or API Gateway. Annotate each service with the protocol it uses. Reference: <a href="https://www.oasis-open.org/" target="_blank" class="ext-link">OASIS Open Standards</a></div>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-header" onclick="toggleStep(this)">
+              <div class="step-num">4.4</div>
+              <div class="step-title">Hands-On — Build a Minimal REST API</div>
+              <div class="step-duration">~20 min</div>
+              <span class="step-chevron">▼</span>
+            </div>
+            <div class="step-body">
+              <p>Expose a tiny <abbr title="REST API: Representational State Transfer Application Programming Interface — a web service following REST principles">REST API</abbr>. Any language or framework you prefer — the example below uses Python + Flask (open-source). Research and use alternatives: <a href="https://expressjs.com/" target="_blank" class="ext-link">Node.js + Express</a> | <a href="https://go.dev/" target="_blank" class="ext-link">Go stdlib</a> | <a href="https://actix.rs/" target="_blank" class="ext-link">Rust + Actix</a></p>
+              <div class="code-wrap">
+                <div class="code-header">
+                  <span class="code-lang">PYTHON — app.py</span>
+                  <button class="copy-btn" onclick="copyCode(this)">copy</button>
+                </div>
+                <pre><span class="cm"># Minimal REST API (Application Programming Interface) — educational demo</span>
+<span class="kw">from</span> flask <span class="kw">import</span> Flask, jsonify
+
+app = Flask(__name__)
+
+<span class="cm"># In-memory store — in production, this would be a cloud data service</span>
+cloud_services = [
+    {<span class="str">"id"</span>: <span class="nu">1</span>, <span class="str">"name"</span>: <span class="str">"Compute"</span>, <span class="str">"type"</span>: <span class="str">"IaaS"</span>},
+    {<span class="str">"id"</span>: <span class="nu">2</span>, <span class="str">"name"</span>: <span class="str">"Object Storage"</span>, <span class="str">"type"</span>: <span class="str">"IaaS"</span>},
+    {<span class="str">"id"</span>: <span class="nu">3</span>, <span class="str">"name"</span>: <span class="str">"Managed Kubernetes"</span>, <span class="str">"type"</span>: <span class="str">"PaaS"</span>},
+]
+
+@app.route(<span class="str">"/services"</span>, methods=[<span class="str">"GET"</span>])
+<span class="kw">def</span> <span class="fn">get_services</span>():
+    <span class="str">"""Return all cloud service entries."""</span>
+    <span class="kw">return</span> jsonify(cloud_services)
+
+@app.route(<span class="str">"/services/&lt;int:service_id&gt;"</span>, methods=[<span class="str">"GET"</span>])
+<span class="kw">def</span> <span class="fn">get_service</span>(service_id):
+    service = next((s <span class="kw">for</span> s <span class="kw">in</span> cloud_services <span class="kw">if</span> s[<span class="str">"id"</span>] == service_id), <span class="kw">None</span>)
+    <span class="kw">if</span> service:
+        <span class="kw">return</span> jsonify(service)
+    <span class="kw">return</span> jsonify({<span class="str">"error"</span>: <span class="str">"Service not found"</span>}), <span class="nu">404</span>
+
+<span class="kw">if</span> __name__ == <span class="str">"__main__"</span>:
+    <span class="cm"># DEBUG mode — NEVER use debug=True in a real production deployment</span>
+    app.run(debug=<span class="kw">True</span>, port=<span class="nu">5000</span>)</pre>
+              </div>
+              <div class="code-wrap">
+                <div class="code-header">
+                  <span class="code-lang">BASH — Test the API</span>
+                  <button class="copy-btn" onclick="copyCode(this)">copy</button>
+                </div>
+                <pre>pip install flask
+python app.py
+
+<span class="cm"># In a second terminal — using curl (command-line HTTP tool)</span>
+curl http://localhost:5000/services
+curl http://localhost:5000/services/2</pre>
+              </div>
+              <div class="tip-box"><strong>💡 In your report:</strong> Include a screenshot and explain how this API relates to SOA principles. What would you need to add to make this production-ready? (4–6 sentences)</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- REPORT GUIDE -->
+<section id="report">
+  <div class="container">
+    <div class="section-label">SUBMISSION GUIDE</div>
+    <h2 class="section-title">Writing Your 5-Page Report</h2>
+    <p class="section-sub">Maximum 5 pages A4. Cover page, table of contents, and references are excluded from the page count.</p>
+
+    <div class="report-section">
+      <div class="report-structure">
+        <div class="report-item">
+          <div class="report-num">01 — NOT COUNTED</div>
+          <div class="report-title">Cover Page</div>
+          <div class="report-detail">Title, your name, student ID, date, course name, programme</div>
+        </div>
+        <div class="report-item">
+          <div class="report-num">02 — NOT COUNTED</div>
+          <div class="report-title">Table of Contents</div>
+          <div class="report-detail">Auto-generated or manually written</div>
+        </div>
+        <div class="report-item">
+          <div class="report-num">03 — ≈0.5 page</div>
+          <div class="report-title">Introduction</div>
+          <div class="report-detail">Why cloud computing matters today. Brief overview of what you did this week.</div>
+        </div>
+        <div class="report-item">
+          <div class="report-num">04 — ≈1 page</div>
+          <div class="report-title">Day 1 — Architecture</div>
+          <div class="report-detail">Service models explained, Figure 1 (annotated stack), screenshot + geographic reflection</div>
+        </div>
+        <div class="report-item">
+          <div class="report-num">05 — ≈1 page</div>
+          <div class="report-title">Day 2 — Virtualisation</div>
+          <div class="report-detail">Hypervisor diagram, VM vs Container table, Dockerfile + terminal screenshot</div>
+        </div>
+        <div class="report-item">
+          <div class="report-num">06 — ≈1 page</div>
+          <div class="report-title">Day 3 — Storage</div>
+          <div class="report-detail">Storage paradigm scenarios, cloud services table, MinIO screenshots + explanation</div>
+        </div>
+        <div class="report-item">
+          <div class="report-num">07 — ≈1 page</div>
+          <div class="report-title">Day 4 — Security &amp; SOA</div>
+          <div class="report-detail">Shared responsibility diagram, security table, SOA diagram, REST API screenshot</div>
+        </div>
+        <div class="report-item">
+          <div class="report-num">08 — ≈0.5 page</div>
+          <div class="report-title">Critical Reflection</div>
+          <div class="report-detail">What surprised you? What would you do differently in a real system? What questions remain?</div>
+        </div>
+        <div class="report-item">
+          <div class="report-num">09 — NOT COUNTED</div>
+          <div class="report-title">References</div>
+          <div class="report-detail">IEEE or APA format. Cite ALL tools, standards, and documents consulted.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- REFERENCES -->
+<section id="refs">
+  <div class="container">
+    <div class="section-label">FURTHER READING</div>
+    <h2 class="section-title">Key References &amp; Resources</h2>
+    <p class="section-sub">These are starting points — research further, discover your own sources, and cite everything.</p>
+
+    <div class="refs-section">
+      <div class="refs-grid">
+        <div class="ref-card">
+          <div class="ref-name">NIST SP 800-145</div>
+          <div class="ref-why">Canonical definition of cloud computing</div>
+          <a href="https://csrc.nist.gov/publications/detail/sp/800-145/final" target="_blank" class="ext-link">csrc.nist.gov</a>
+        </div>
+        <div class="ref-card">
+          <div class="ref-name">CNCF Landscape</div>
+          <div class="ref-why">Overview of the entire cloud-native ecosystem</div>
+          <a href="https://landscape.cncf.io/" target="_blank" class="ext-link">landscape.cncf.io</a>
+        </div>
+        <div class="ref-card">
+          <div class="ref-name">Xen Project</div>
+          <div class="ref-why">Open-source Type 1 hypervisor reference</div>
+          <a href="https://xenproject.org/" target="_blank" class="ext-link">xenproject.org</a>
+        </div>
+        <div class="ref-card">
+          <div class="ref-name">Docker Documentation</div>
+          <div class="ref-why">Official container platform docs</div>
+          <a href="https://docs.docker.com/" target="_blank" class="ext-link">docs.docker.com</a>
+        </div>
+        <div class="ref-card">
+          <div class="ref-name">Podman</div>
+          <div class="ref-why">Daemonless, rootless Docker alternative</div>
+          <a href="https://podman.io/" target="_blank" class="ext-link">podman.io</a>
+        </div>
+        <div class="ref-card">
+          <div class="ref-name">MinIO</div>
+          <div class="ref-why">Open-source S3-compatible object storage</div>
+          <a href="https://min.io/" target="_blank" class="ext-link">min.io</a>
+        </div>
+        <div class="ref-card">
+          <div class="ref-name">Ceph</div>
+          <div class="ref-why">Open-source distributed storage system</div>
+          <a href="https://ceph.io/" target="_blank" class="ext-link">ceph.io</a>
+        </div>
+        <div class="ref-card">
+          <div class="ref-name">OWASP</div>
+          <div class="ref-why">Open application security best practices</div>
+          <a href="https://owasp.org/" target="_blank" class="ext-link">owasp.org</a>
+        </div>
+        <div class="ref-card">
+          <div class="ref-name">ISO/IEC 27017</div>
+          <div class="ref-why">International cloud security controls standard</div>
+          <a href="https://www.iso.org/standard/43757.html" target="_blank" class="ext-link">iso.org</a>
+        </div>
+        <div class="ref-card">
+          <div class="ref-name">OASIS Open</div>
+          <div class="ref-why">SOA standards: WSDL, SOAP, and more</div>
+          <a href="https://www.oasis-open.org/" target="_blank" class="ext-link">oasis-open.org</a>
+        </div>
+        <div class="ref-card">
+          <div class="ref-name">The Open Group</div>
+          <div class="ref-why">Open architecture &amp; cloud standards body</div>
+          <a href="https://www.opengroup.org/" target="_blank" class="ext-link">opengroup.org</a>
+        </div>
+        <div class="ref-card">
+          <div class="ref-name">IEEE Cloud Computing</div>
+          <div class="ref-why">Academic &amp; industry cloud research</div>
+          <a href="https://cloudcomputing.ieee.org/" target="_blank" class="ext-link">cloudcomputing.ieee.org</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>Cloud Computing &amp; Big Data Analytics — Digital Science Graduate Programme</p>
+  <p>Week 01 of 04 | <span>All tools and techniques are open and replaceable — research, experiment, create.</span></p>
+</footer>
+
+<script>
+  // ── TAB SWITCHER ──
+  function showDay(id, btn) {
+    document.querySelectorAll('.day-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.day-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  // ── STEP ACCORDION ──
+  function toggleStep(header) {
+    const step = header.closest('.step');
+    step.classList.toggle('open');
+  }
+
+  // ── CHECKLIST ──
+  function toggleCheck(item) {
+    item.classList.toggle('done');
+    const cb = item.querySelector('.checkbox');
+    cb.textContent = item.classList.contains('done') ? '✓' : '';
+  }
+
+  // ── COPY CODE ──
+  function copyCode(btn) {
+    const pre = btn.closest('.code-wrap').querySelector('pre');
+    const text = pre.innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = 'copied!';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 2000);
+    });
+  }
+
+  function scrollToSection(id) {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  // ── SCROLL PROGRESS DOTS ──
+  const sections = ['hero','overview','grading','lab','report','refs'];
+  const dots = document.querySelectorAll('.prog-dot');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const idx = sections.indexOf(entry.target.id);
+        if (idx !== -1) {
+          dots.forEach((d, i) => d.classList.toggle('active', i === idx));
+        }
+      }
+    });
+  }, { threshold: 0.4 });
+
+  sections.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) observer.observe(el);
+  });
+
+  // ── OPEN ALL STEPS ON DAY SWITCH ──
+  document.querySelectorAll('.day-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      setTimeout(() => {
+        const panel = document.querySelector('.day-panel.active');
+        if (panel) {
+          const first = panel.querySelector('.step');
+          if (first && !first.classList.contains('open')) first.classList.add('open');
+        }
+      }, 50);
+    });
+  });
+</script>
+</body>
+</html>
