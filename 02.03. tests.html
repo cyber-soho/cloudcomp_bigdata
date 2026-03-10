@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Storage & Cloud Services - Study App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for 3D flip animation */
+        .perspective {
+            perspective: 1000px;
+        }
+        .transform-style-3d {
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+        }
+        .backface-hidden {
+            backface-visibility: hidden;
+        }
+        .rotate-y-180 {
+            transform: rotateY(180deg);
+        }
+        
+        /* Hide scrollbar for a cleaner look but allow scrolling */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen">
+
+    <!-- Header & Navigation -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-center py-4">
+                <div class="flex items-center mb-4 md:mb-0">
+                    <svg class="w-8 h-8 text-blue-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                    <h1 class="text-xl font-bold text-slate-900">Cloud & Data Storage Study Guide</h1>
+                </div>
+                
+                <!-- Tabs -->
+                <nav class="flex space-x-1 bg-slate-100 p-1 rounded-lg">
+                    <button onclick="switchTab('flashcards')" id="tab-btn-flashcards" class="px-6 py-2 rounded-md text-sm font-medium transition-colors duration-200 bg-white shadow text-blue-700">
+                        Flashcards (25)
+                    </button>
+                    <button onclick="switchTab('quiz')" id="tab-btn-quiz" class="px-6 py-2 rounded-md text-sm font-medium transition-colors duration-200 text-slate-600 hover:text-slate-900 hover:bg-slate-200">
+                        Practice Quiz (10)
+                    </button>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- FLASHCARDS TAB -->
+        <div id="flashcards-tab" class="block">
+            <div class="mb-6 text-center">
+                <h2 class="text-2xl font-bold text-slate-800">Flashcards</h2>
+                <p class="text-slate-500 mt-1">Click any card to flip it and reveal the answer.</p>
+            </div>
+            
+            <div id="flashcards-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Flashcards will be injected here by JS -->
+            </div>
+        </div>
+
+        <!-- QUIZ TAB -->
+        <div id="quiz-tab" class="hidden">
+            <div class="mb-6 text-center">
+                <h2 class="text-2xl font-bold text-slate-800">Practice Quiz</h2>
+                <p class="text-slate-500 mt-1">Test your knowledge with scenario-based questions.</p>
+                
+                <div class="mt-4 inline-flex items-center px-4 py-2 bg-blue-50 text-blue-700 rounded-full text-sm font-semibold">
+                    Score: <span id="quiz-score" class="ml-2">0</span> / 10
+                </div>
+            </div>
+
+            <div id="quiz-container" class="space-y-8">
+                <!-- Quiz questions will be injected here by JS -->
+            </div>
+            
+            <div class="mt-10 text-center hidden" id="quiz-completion">
+                <h3 class="text-2xl font-bold text-green-600 mb-2">Quiz Complete!</h3>
+                <button onclick="resetQuiz()" class="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">
+                    Retake Quiz
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // --- DATA ---
+        
+        const flashcardsData = [
+            { front: "Two levels of data storage operation", back: "The hardware layer (physical media) and the software layer (file systems and databases)." },
+            { front: "Core operations of any storage system (CRUD)", back: "Create, Read, Update, Delete." },
+            { front: "Storage architecture with the lowest latency and highest IOPS", back: "Block Storage." },
+            { front: "Storage architecture best suited for massive data lakes and ML datasets", back: "Object Storage." },
+            { front: "Percentage of global data that is unstructured", back: "Approximately 80%." },
+            { front: "ACID properties of relational databases", back: "Atomicity, Consistency, Isolation, and Durability." },
+            { front: "Meaning of the acronym \"NoSQL\"", back: "Not Only SQL." },
+            { front: "Four main types of NoSQL databases", back: "Document, Key-Value, Column-Family, and Graph." },
+            { front: "CAP Theorem guarantees", back: "Consistency, Availability, and Partition Tolerance (a distributed database can guarantee at most 2 of the 3)." },
+            { front: "Loading pattern difference between Data Warehouses and Data Lakes", back: "Data Warehouses use ETL (Extract, Transform, Load), while Data Lakes use ELT (Extract, Load, Transform)." },
+            { front: "Data Lakehouse", back: "An architecture that combines low-cost data lake storage with the fast querying and ACID guarantees of a data warehouse." },
+            { front: "Five essential characteristics of cloud computing according to NIST", back: "On-demand self-service, Broad network access, Resource pooling, Rapid elasticity, and Measured service." },
+            { front: "Cloud service model analogous to \"renting an empty apartment\"", back: "IaaS (Infrastructure as a Service)." },
+            { front: "Cloud service model analogous to \"staying at a hotel\"", back: "SaaS (Software as a Service)." },
+            { front: "Components managed by the user in an IaaS model", back: "The Operating System (OS), middleware, runtime, applications, and data." },
+            { front: "Primary use cases for PaaS (Platform as a Service)", back: "Web apps, APIs, microservices, and rapid prototyping." },
+            { front: "Primary benefit of storage tiering", back: "It can save 70-95% on storage costs by moving infrequently accessed data to cheaper, colder storage." },
+            { front: "Economics of Serverless Computing", back: "Event-driven, pay-per-millisecond execution that scales to zero when idle." },
+            { front: "Core rule of Cloud Security", back: "Security is a shared responsibility; the provider secures the infrastructure, but the user secures their data and configurations." },
+            { front: "IAM in the context of cloud security", back: "Identity & Access Management, which dictates who can access what using the principle of Least Privilege." },
+            { front: "VPC in cloud infrastructure", back: "Virtual Private Cloud, an isolated network that you control." },
+            { front: "Storage architecture analogous to a shared filing cabinet", back: "File Storage." },
+            { front: "Difference between a Primary Key (PK) and a Foreign Key (FK)", back: "A PK uniquely identifies each row in a table, while an FK references another table's PK to create a relationship." },
+            { front: "Rapid elasticity in cloud computing", back: "The ability to scale computing resources up or down instantly to match demand." },
+            { front: "Primary strength of the Google Cloud Platform (GCP)", back: "Data analytics and Artificial Intelligence (AI)." }
+        ];
+
+        const quizData = [
+            {
+                id: 1,
+                question: "A healthcare startup is building a massive repository to store millions of high-resolution MRI scans for training a new diagnostic AI model. Which storage architecture provides the most cost-effective and scalable solution for this unstructured data?",
+                hint: "Consider which storage type utilizes a flat namespace and is the backbone for modern data lakes.",
+                options: [
+                    { text: "Block Storage", rationale: "While highly performant, this architecture is far too expensive for massive archives of static images.", isCorrect: false },
+                    { text: "File Storage", rationale: "Hierarchical directories become incredibly slow and difficult to manage when dealing with millions of individual media files.", isCorrect: false },
+                    { text: "Object Storage", rationale: "This architecture treats data as discrete units within a flat namespace, offering virtually unlimited scale and the lowest cost per gigabyte for unstructured media.", isCorrect: true },
+                    { text: "Relational Database", rationale: "Storing massive raw media files directly inside rows and columns of a highly structured system leads to severe performance degradation.", isCorrect: false }
+                ]
+            },
+            {
+                id: 2,
+                question: "A social networking application needs a database that can quickly map complex relationships between users, their friends, groups they belong to, and posts they have interacted with to generate a real-time recommendation feed. Which NoSQL database type is best suited for this?",
+                hint: "Think about how nodes and edges represent entities and their connections.",
+                options: [
+                    { text: "Document Store", rationale: "While great for storing flexible JSON user profiles, traversing complex multi-layered connections can become inefficient.", isCorrect: false },
+                    { text: "Key-Value Store", rationale: "This is optimal for ultra-fast, simple lookups like session caching, not for mapping intricate webs of relationships.", isCorrect: false },
+                    { text: "Column-Family Store", rationale: "This architecture excels at writing massive amounts of time-series data, like IoT sensor readings, rather than analyzing relationship webs.", isCorrect: false },
+                    { text: "Graph Database", rationale: "Designed specifically to store and navigate relationships natively, making tasks like finding 'friends of friends' extremely fast.", isCorrect: true }
+                ]
+            },
+            {
+                id: 3,
+                question: "A global e-commerce platform relies on a distributed database for its shopping cart. To ensure customers can always add items even during network outages between data centers, they configured the system to prioritize Availability and Partition Tolerance. According to the CAP theorem, what must this system sacrifice?",
+                hint: "If a network splits and both sides keep accepting writes, what happens to the synchronized state of the data?",
+                options: [
+                    { text: "Consistency", rationale: "When a partitioned system remains available for writes on both sides, it cannot guarantee that a read immediately reflects the most recent write across all nodes.", isCorrect: true },
+                    { text: "Atomicity", rationale: "This is an ACID property related to transaction execution, not one of the distributed system trade-offs modeled by Eric Brewer.", isCorrect: false },
+                    { text: "Durability", rationale: "A system can still guarantee that committed data survives crashes without necessarily sacrificing its ability to stay available during network partitions.", isCorrect: false },
+                    { text: "Isolation", rationale: "This refers to how concurrent transactions interfere with one another locally, rather than global state synchronization across a network.", isCorrect: false }
+                ]
+            },
+            {
+                id: 4,
+                question: "A data engineering team is establishing an infrastructure to dump raw, unprocessed application logs, JSON payloads, and CSV exports immediately upon generation. Analysts will later decide how to parse and structure the data when they run queries. What concept does this 'schema-on-read' approach describe?",
+                hint: "Contrast this with a highly structured environment that requires ETL processing before data can even be saved.",
+                options: [
+                    { text: "Data Warehouse", rationale: "This architecture requires data to be heavily transformed and fitted to a rigid schema before it is written (schema-on-write).", isCorrect: false },
+                    { text: "Data Lake", rationale: "This approach stores raw data natively and cheaply, applying structure and transformations only when the data is queried (ELT).", isCorrect: true },
+                    { text: "Block Storage Array", rationale: "While it could technically store the data, this is a low-level hardware virtualization concept rather than an analytics storage architecture.", isCorrect: false },
+                    { text: "Relational Database", rationale: "This strictly enforces rigid tables and columns, rejecting raw unstructured data that doesn't fit its predefined model.", isCorrect: false }
+                ]
+            },
+            {
+                id: 5,
+                question: "A software development team wants to deploy a new web application rapidly. They want to upload their code and let the cloud provider automatically handle the underlying operating systems, server provisioning, load balancing, and runtime environments. Which cloud service model should they choose?",
+                hint: "Think of the analogy of renting a furnished apartment versus an empty one.",
+                options: [
+                    { text: "IaaS (Infrastructure as a Service)", rationale: "In this model, the team would still be responsible for installing, patching, and managing the operating systems and runtimes.", isCorrect: false },
+                    { text: "PaaS (Platform as a Service)", rationale: "This abstraction layer removes the burden of infrastructure management, allowing teams to focus exclusively on their application code and data.", isCorrect: true },
+                    { text: "SaaS (Software as a Service)", rationale: "This provides a fully built, ready-to-use application to end-users, rather than an environment for developers to host their own custom code.", isCorrect: false },
+                    { text: "On-Premises", rationale: "This requires the team to purchase and manage the physical hardware, hypervisors, and all software layers themselves.", isCorrect: false }
+                ]
+            },
+            {
+                id: 6,
+                question: "A streaming media company configures its cloud environment to automatically provision 50 additional servers every Friday evening when viewership spikes, and seamlessly terminate them by Monday morning to save costs. Which of NIST's five essential cloud characteristics does this primarily demonstrate?",
+                hint: "This characteristic describes the system's ability to stretch and shrink its capacity instantly.",
+                options: [
+                    { text: "Measured service", rationale: "This characteristic ensures you only pay for what you use, but doesn't describe the automatic scaling mechanism itself.", isCorrect: false },
+                    { text: "Resource pooling", rationale: "This refers to multiple tenants sharing the same physical hardware dynamically, not the automated scaling of those resources.", isCorrect: false },
+                    { text: "Rapid elasticity", rationale: "This is the ability of cloud computing to scale resources outward or inward automatically and seamlessly in response to real-time demand.", isCorrect: true },
+                    { text: "Broad network access", rationale: "This ensures the resources can be reached over the internet via standard protocols, regardless of the scale.", isCorrect: false }
+                ]
+            },
+            {
+                id: 7,
+                question: "A financial institution must retain millions of transaction records for 10 years due to regulatory compliance. These records are almost never accessed after the first 90 days. What is the most cost-effective way to store this data in the cloud?",
+                hint: "Look for a solution that trades retrieval speed for massive cost reductions.",
+                options: [
+                    { text: "Keep all records in a fast Data Warehouse", rationale: "Warehouses use expensive, highly optimized storage designed for rapid querying, making this a very costly choice for idle data.", isCorrect: false },
+                    { text: "Move the records to High-IOPS Block Storage", rationale: "This is the most expensive storage tier, designed for databases requiring instant read/write latency, not long-term archiving.", isCorrect: false },
+                    { text: "Implement lifecycle policies to transition data to Deep Archive", rationale: "Automating the movement of aging data to frozen, ultra-cheap storage tiers can reduce operational costs by up to 95%.", isCorrect: true },
+                    { text: "Store the records in a Document NoSQL database", rationale: "While flexible, running active database nodes simply to hold compliance archives incurs unnecessary compute and storage costs.", isCorrect: false }
+                ]
+            },
+            {
+                id: 8,
+                question: "You write a Python script that automatically generates a thumbnail whenever a user uploads an image to a storage bucket. You only want to incur cloud charges for the exact milliseconds the script runs, avoiding any costs when traffic is zero. Which execution model is required?",
+                hint: "This execution model relies heavily on event triggers rather than running permanent servers.",
+                options: [
+                    { text: "Virtual Machines (IaaS)", rationale: "A VM accrues charges for every hour it runs, regardless of whether it is actively processing an image or sitting idle.", isCorrect: false },
+                    { text: "Serverless Computing", rationale: "This event-driven model provisions resources instantly when triggered, charges by the millisecond of execution, and scales to zero when idle.", isCorrect: true },
+                    { text: "Relational Database Management System", rationale: "This is a technology for storing and querying structured data, not an environment for executing custom application logic scripts.", isCorrect: false },
+                    { text: "Data Warehouse", rationale: "This is designed for massive analytical queries on structured data, not lightweight, event-triggered image processing.", isCorrect: false }
+                ]
+            },
+            {
+                id: 9,
+                question: "A company hosts a database on a cloud provider's IaaS platform. A developer accidentally misconfigures the database's Virtual Private Cloud (VPC) firewall, leaving it open to the public without a password, resulting in a massive data breach. Under the Shared Responsibility Model, who is primarily at fault?",
+                hint: "Consider the phrase: 'If you configured it wrong, it is YOUR fault.'",
+                options: [
+                    { text: "The Cloud Provider", rationale: "The provider guarantees the security of the physical data center and hardware, but they do not manage customer network rules.", isCorrect: false },
+                    { text: "The Company (User)", rationale: "In the shared responsibility model, securing data, configuring access controls, and setting firewall rules fall entirely on the customer.", isCorrect: true },
+                    { text: "Shared equally between both parties", rationale: "Responsibilities are divided logically, not shared equally; the provider secures the infrastructure, while the user secures what is built on it.", isCorrect: false },
+                    { text: "The database software vendor", rationale: "Software vendors provide the tools, but securing the deployment environment and restricting network access is the user's operational duty.", isCorrect: false }
+                ]
+            },
+            {
+                id: 10,
+                question: "During a digital funds transfer, an application deducts $500 from Account A. Before it can add the funds to Account B, the database server crashes. Upon reboot, the system cancels the deduction, reverting Account A to its original state to prevent missing money. Which ACID property guarantees this behavior?",
+                hint: "This property ensures a multi-step transaction is treated as a single, indivisible 'all-or-nothing' unit.",
+                options: [
+                    { text: "Atomicity", rationale: "This guarantees that transactions either succeed entirely or fail entirely, preventing partial updates that would corrupt the data state.", isCorrect: true },
+                    { text: "Consistency", rationale: "This ensures that a transaction only moves the database from one valid state to another according to predefined rules, but doesn't govern the 'all or nothing' rollback mechanism.", isCorrect: false },
+                    { text: "Isolation", rationale: "This prevents multiple transactions running at the same time from interfering with each other's incomplete data.", isCorrect: false },
+                    { text: "Durability", rationale: "This ensures that once a transaction is successfully completed and committed, the data will survive a system crash, rather than handling the rollback of a failed one.", isCorrect: false }
+                ]
+            }
+        ];
+
+        let currentScore = 0;
+        let answeredQuestions = new Set();
+
+        // --- APP LOGIC ---
+
+        function switchTab(tabName) {
+            const flashcardsTab = document.getElementById('flashcards-tab');
+            const quizTab = document.getElementById('quiz-tab');
+            const btnFlashcards = document.getElementById('tab-btn-flashcards');
+            const btnQuiz = document.getElementById('tab-btn-quiz');
+
+            if (tabName === 'flashcards') {
+                flashcardsTab.classList.remove('hidden');
+                quizTab.classList.add('hidden');
+                
+                btnFlashcards.classList.replace('text-slate-600', 'text-blue-700');
+                btnFlashcards.classList.replace('hover:bg-slate-200', 'bg-white');
+                btnFlashcards.classList.add('shadow');
+                
+                btnQuiz.classList.replace('text-blue-700', 'text-slate-600');
+                btnQuiz.classList.replace('bg-white', 'hover:bg-slate-200');
+                btnQuiz.classList.remove('shadow');
+            } else {
+                flashcardsTab.classList.add('hidden');
+                quizTab.classList.remove('hidden');
+                
+                btnQuiz.classList.replace('text-slate-600', 'text-blue-700');
+                btnQuiz.classList.replace('hover:bg-slate-200', 'bg-white');
+                btnQuiz.classList.add('shadow');
+                
+                btnFlashcards.classList.replace('text-blue-700', 'text-slate-600');
+                btnFlashcards.classList.replace('bg-white', 'hover:bg-slate-200');
+                btnFlashcards.classList.remove('shadow');
+            }
+        }
+
+        function toggleFlashcard(cardElement) {
+            const innerCard = cardElement.querySelector('.transform-style-3d');
+            innerCard.classList.toggle('rotate-y-180');
+        }
+
+        function renderFlashcards() {
+            const container = document.getElementById('flashcards-container');
+            container.innerHTML = '';
+            
+            flashcardsData.forEach((card, index) => {
+                const cardHTML = `
+                    <div class="perspective cursor-pointer h-56" onclick="toggleFlashcard(this)">
+                        <div class="transform-style-3d relative w-full h-full rounded-xl shadow-md border border-slate-200 bg-white">
+                            <!-- Front -->
+                            <div class="backface-hidden absolute w-full h-full flex items-center justify-center p-6 text-center text-lg font-semibold text-slate-800 rounded-xl bg-white">
+                                <span class="absolute top-3 left-4 text-xs font-bold text-slate-400">#${index + 1}</span>
+                                ${card.front}
+                            </div>
+                            <!-- Back -->
+                            <div class="backface-hidden rotate-y-180 absolute w-full h-full flex flex-col items-center justify-center p-6 text-center rounded-xl bg-blue-600 text-white shadow-inner">
+                                <span class="absolute top-3 right-4 text-xs font-bold text-blue-300">Answer</span>
+                                <p class="text-md sm:text-lg font-medium leading-tight overflow-y-auto no-scrollbar">${card.back}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += cardHTML;
+            });
+        }
+
+        function toggleHint(questionId) {
+            const hintDiv = document.getElementById(`hint-${questionId}`);
+            if (hintDiv.classList.contains('hidden')) {
+                hintDiv.classList.remove('hidden');
+            } else {
+                hintDiv.classList.add('hidden');
+            }
+        }
+
+        function selectAnswer(questionId, optionIndex) {
+            if (answeredQuestions.has(questionId)) return; // Prevent multiple clicks
+            answeredQuestions.add(questionId);
+
+            const question = quizData.find(q => q.id === questionId);
+            const selectedOption = question.options[optionIndex];
+            
+            // Update Score
+            if (selectedOption.isCorrect) {
+                currentScore++;
+                document.getElementById('quiz-score').innerText = currentScore;
+            }
+
+            // Update UI for all options in this question
+            const optionsContainer = document.getElementById(`options-${questionId}`);
+            const buttons = optionsContainer.querySelectorAll('button');
+            
+            buttons.forEach((btn, idx) => {
+                const opt = question.options[idx];
+                btn.disabled = true;
+                btn.classList.remove('hover:bg-slate-50', 'hover:border-blue-400', 'cursor-pointer');
+                
+                if (opt.isCorrect) {
+                    btn.classList.add('bg-green-50', 'border-green-500', 'text-green-800');
+                    btn.innerHTML = `<span class="flex items-center"><svg class="w-5 h-5 mr-2 text-green-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>${opt.text}</span>`;
+                } else if (idx === optionIndex && !opt.isCorrect) {
+                    btn.classList.add('bg-red-50', 'border-red-400', 'text-red-800');
+                    btn.innerHTML = `<span class="flex items-center"><svg class="w-5 h-5 mr-2 text-red-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>${opt.text}</span>`;
+                } else {
+                    btn.classList.add('bg-gray-50', 'text-gray-400', 'border-gray-200', 'opacity-50');
+                }
+            });
+
+            // Show rationale
+            const rationaleContainer = document.getElementById(`rationale-${questionId}`);
+            rationaleContainer.classList.remove('hidden');
+            
+            const isCorrectText = selectedOption.isCorrect ? 
+                '<span class="font-bold text-green-700">Correct!</span>' : 
+                '<span class="font-bold text-red-600">Incorrect.</span>';
+                
+            rationaleContainer.innerHTML = `
+                <div class="p-4 ${selectedOption.isCorrect ? 'bg-green-50 border-l-4 border-green-500' : 'bg-orange-50 border-l-4 border-orange-500'} rounded-r-lg">
+                    <p class="text-sm text-slate-800 mb-1">${isCorrectText}</p>
+                    <p class="text-sm text-slate-700">${selectedOption.rationale}</p>
+                </div>
+            `;
+
+            // Check completion
+            if (answeredQuestions.size === quizData.length) {
+                document.getElementById('quiz-completion').classList.remove('hidden');
+            }
+        }
+
+        function renderQuiz() {
+            const container = document.getElementById('quiz-container');
+            container.innerHTML = '';
+            
+            quizData.forEach((q, index) => {
+                let optionsHTML = '';
+                q.options.forEach((opt, optIndex) => {
+                    optionsHTML += `
+                        <button onclick="selectAnswer(${q.id}, ${optIndex})" 
+                                class="w-full text-left p-4 border border-slate-200 rounded-lg bg-white transition-all duration-200 hover:bg-slate-50 hover:border-blue-400 hover:shadow-sm">
+                            <span class="flex items-center text-slate-700 font-medium">${opt.text}</span>
+                        </button>
+                    `;
+                });
+
+                const questionHTML = `
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="text-lg font-bold text-slate-800">
+                                <span class="text-blue-600 mr-2">Q${index + 1}.</span> 
+                                ${q.question}
+                            </h3>
+                            <button onclick="toggleHint(${q.id})" class="ml-4 flex-shrink-0 text-slate-400 hover:text-yellow-500 transition-colors" title="Show Hint">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+                            </button>
+                        </div>
+                        
+                        <div id="hint-${q.id}" class="hidden mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-yellow-800">
+                            <strong>Hint:</strong> ${q.hint}
+                        </div>
+
+                        <div id="options-${q.id}" class="space-y-3">
+                            ${optionsHTML}
+                        </div>
+                        
+                        <div id="rationale-${q.id}" class="hidden mt-4">
+                            <!-- Rationale injected here -->
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += questionHTML;
+            });
+        }
+
+        function resetQuiz() {
+            currentScore = 0;
+            answeredQuestions.clear();
+            document.getElementById('quiz-score').innerText = '0';
+            document.getElementById('quiz-completion').classList.add('hidden');
+            
+            // Randomize options for a fresh take
+            quizData.forEach(q => {
+                for (let i = q.options.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [q.options[i], q.options[j]] = [q.options[j], q.options[i]];
+                }
+            });
+            
+            renderQuiz();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', () => {
+            renderFlashcards();
+            resetQuiz(); // Also calls renderQuiz initially and scrambles options
+        });
+
+    </script>
+</body>
+</html>
