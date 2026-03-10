@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud Security for Data Science</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Chosen Palette: Warm Neutrals with Cyber Teal/Slate Accents (Backgrounds: stone-50/100, Text: slate-800, Accents: teal-600, rose-600) -->
+    
+    <!-- Application Structure Plan: The application is structured as a single-page dashboard with a persistent side navigation menu (bottom bar on mobile). This layout was chosen to allow non-linear exploration of the complex Cloud Security topics presented in the source report. Instead of a linear slide deck, users can jump directly to "Responsibility", "CIA Triad", or "Compliance" based on their immediate learning needs. The content is logically grouped into 5 thematic sections: Home (Context), Shared Responsibility (Core Model), The CIA Triad (Foundational Pillars), Defenses (IAM, Encryption, Network), and Governance (Compliance & Threats). Each section uses targeted interactions (charts, toggles, clickable reveals) to make abstract security concepts concrete. -->
+    
+    <!-- Visualization & Content Choices: 
+    1. Shared Responsibility: Goal -> Show shift in duties. Viz -> Stacked Bar Chart (Chart.js). Interaction -> Hover for exact breakdown. Justification -> Visually quantifies the abstract IaaS/PaaS/SaaS shift. 
+    2. The Flat Analogy: Goal -> Relate cloud concept to real world. Viz -> HTML/CSS structured cards. Justification -> Side-by-side textual comparison is clearest.
+    3. CIA Triad: Goal -> Explain 3 pillars and pipeline mapping. Viz -> Interactive HTML Tabs. Interaction -> Click pillar to reveal details & breaches. Justification -> Prevents text overload; groups related controls/breaches contextually.
+    4. Compliance: Goal -> Compare framework impact. Viz -> Horizontal Bar Chart (Chart.js) for max fines. Justification -> Highlights the severe financial impact of non-compliance (GDPR vs HIPAA).
+    5. Network Security (VPC): Goal -> Show isolation. Viz -> CSS Grid block diagram. Justification -> Strict adherence to NO SVG, using styled HTML blocks to represent subnets. 
+    NO SVG or Mermaid JS used. -->
+    
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #fafaf9; color: #1e293b; }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 350px;
+        }
+        @media (min-width: 768px) {
+            .chart-container { height: 350px; max-height: 400px; }
+        }
+        .section-content { display: none; animation: fadeIn 0.3s ease-in-out; }
+        .section-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .nav-item.active { background-color: #0d9488; color: white; }
+        .nav-item:hover:not(.active) { background-color: #e2e8f0; }
+        
+        /* CSS-based graphical elements to avoid SVG */
+        .css-icon-container { display: inline-flex; align-items: center; justify-content: center; width: 3rem; height: 3rem; border-radius: 9999px; }
+        .vpc-diagram { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; border: 2px dashed #94a3b8; padding: 1rem; border-radius: 0.5rem; background: #f8fafc; }
+        .subnet-public { background: #e0f2fe; border: 1px solid #7dd3fc; padding: 1rem; border-radius: 0.5rem; }
+        .subnet-private { background: #fee2e2; border: 1px solid #fca5a5; padding: 1rem; border-radius: 0.5rem; }
+    </style>
+</head>
+<body class="flex flex-col md:flex-row min-h-screen">
+
+    <nav class="w-full md:w-64 bg-slate-900 text-slate-300 flex-shrink-0 md:h-screen md:sticky top-0 shadow-xl z-20 overflow-y-auto">
+        <div class="p-6">
+            <h1 class="text-xl font-bold text-white mb-2">&#x2601;&#xFE0F; CloudSec<span class="text-teal-400">.SoHo</span></h1>
+            <p class="text-xs text-slate-400">Data Science Security Primer</p>
+        </div>
+        <ul class="flex flex-row md:flex-col overflow-x-auto md:overflow-x-hidden p-4 gap-2">
+            <li><button onclick="nav('home')" id="nav-home" class="nav-item active w-full text-left px-4 py-3 rounded-lg font-medium whitespace-nowrap md:whitespace-normal transition-colors">&#x1F3E0; Overview</button></li>
+            <li><button onclick="nav('responsibility')" id="nav-responsibility" class="nav-item w-full text-left px-4 py-3 rounded-lg font-medium whitespace-nowrap md:whitespace-normal transition-colors">&#x1F91D; Shared Responsibility</button></li>
+            <li><button onclick="nav('cia')" id="nav-cia" class="nav-item w-full text-left px-4 py-3 rounded-lg font-medium whitespace-nowrap md:whitespace-normal transition-colors">&#x26F6;&#xFE0F; The CIA Triad</button></li>
+            <li><button onclick="nav('defenses')" id="nav-defenses" class="nav-item w-full text-left px-4 py-3 rounded-lg font-medium whitespace-nowrap md:whitespace-normal transition-colors">&#x1F512; Access & Defenses</button></li>
+            <li><button onclick="nav('governance')" id="nav-governance" class="nav-item w-full text-left px-4 py-3 rounded-lg font-medium whitespace-nowrap md:whitespace-normal transition-colors">&#x1F4DC; Governance & Threats</button></li>
+        </ul>
+    </nav>
+
+    <main class="flex-1 p-6 md:p-10 overflow-y-auto w-full">
+        
+        <section id="home" class="section-content active max-w-5xl mx-auto">
+            <header class="mb-8">
+                <span class="bg-teal-100 text-teal-800 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wide">Day 03</span>
+                <h2 class="text-4xl font-extrabold text-slate-900 mt-4 mb-2">Cloud Computing & Big Data Security</h2>
+                <p class="text-xl text-slate-600 font-light border-l-4 border-teal-500 pl-4 italic">"The cloud is just someone else's computer — and someone else's security headache... unless you take ownership."</p>
+            </header>
+
+            <div class="prose max-w-none mb-8 text-slate-700 text-lg">
+                <p>Welcome to the interactive Cloud Security dashboard tailored for Data Scientists. This module translates the critical policies, technologies, controls, and practices of cloud security into actionable insights. Here, you will explore why security is woven into every stage of the data lifecycle and how to protect your infrastructure.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
+                    <div class="css-icon-container bg-rose-100 text-rose-600 text-2xl mb-4">&#x26A0;&#xFE0F;</div>
+                    <h3 class="text-lg font-bold text-slate-800 mb-2">Scale & Elasticity</h3>
+                    <p class="text-sm text-slate-600">Vulnerabilities replicate as fast as auto-scaling. A single flaw can multiply instantly across your infrastructure.</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
+                    <div class="css-icon-container bg-blue-100 text-blue-600 text-2xl mb-4">&#x1F3E2;</div>
+                    <h3 class="text-lg font-bold text-slate-800 mb-2">Multi-Tenancy</h3>
+                    <p class="text-sm text-slate-600">Your Virtual Machine shares physical hardware with strangers. Isolation relies entirely on logical controls.</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
+                    <div class="css-icon-container bg-teal-100 text-teal-600 text-2xl mb-4">&#x1F517;</div>
+                    <h3 class="text-lg font-bold text-slate-800 mb-2">You Are the Chain</h3>
+                    <p class="text-sm text-slate-600">A leaked API key or a misconfigured S3 bucket by a Data Scientist can expose millions of records and cost thousands.</p>
+                </div>
+            </div>
+            
+            <div class="bg-slate-900 text-white rounded-xl p-8 text-center shadow-lg">
+                <h3 class="text-2xl font-bold mb-4">Ready to take ownership of your cloud environment?</h3>
+                <button onclick="nav('responsibility')" class="bg-teal-500 hover:bg-teal-400 text-slate-900 font-bold py-3 px-6 rounded-lg transition-colors">Start with Shared Responsibility &#x2192;</button>
+            </div>
+        </section>
+
+        <section id="responsibility" class="section-content max-w-5xl mx-auto">
+            <header class="mb-8">
+                <h2 class="text-3xl font-extrabold text-slate-900 mb-2">The Shared Responsibility Model</h2>
+                <p class="text-lg text-slate-600">Understanding where the provider's job ends and yours begins.</p>
+            </header>
+
+            <div class="prose max-w-none mb-8 text-slate-700 text-lg">
+                <p>This section explores the fundamental boundary in cloud computing. The provider secures the infrastructure <strong>"OF the Cloud"</strong>, while you must secure what you put <strong>"IN the Cloud"</strong>. Misunderstanding this line is the #1 cause of cloud breaches. Interact with the chart below to see how your responsibility shifts depending on the type of service you provision.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start mb-10">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <h3 class="text-xl font-bold text-slate-800 mb-4">Responsibility Shift by Service Model</h3>
+                    <div class="chart-container">
+                        <canvas id="responsibilityChart"></canvas>
+                    </div>
+                    <p class="text-sm text-slate-500 mt-4 text-center">Key Insight: The higher up the stack, the less you manage — but you <em>always</em> own your data and access controls.</p>
+                </div>
+
+                <div class="flex flex-col gap-6">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-teal-500">
+                        <h3 class="text-lg font-bold text-slate-800 mb-2">&#x1F3E2; The "Flat" Analogy</h3>
+                        <p class="text-sm text-slate-600 mb-3">Think of Cloud Security like renting an apartment in a large building.</p>
+                        <ul class="text-sm text-slate-700 space-y-2">
+                            <li><span class="font-semibold text-slate-900">Building Management (Provider):</span> Secures the structure, main entrance, and fire escapes. If a burglar enters the main gate, it's their fault.</li>
+                            <li><span class="font-semibold text-slate-900">You, the Tenant (Customer):</span> Responsible for locking your door, closing windows, and not storing hazards. If a burglar enters through your open window, it's your fault.</li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-slate-100 p-6 rounded-xl shadow-sm">
+                        <h4 class="font-bold text-slate-800 mb-3">Specific Duties</h4>
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <h5 class="font-semibold text-blue-700 border-b border-blue-200 pb-1 mb-2">Provider Handles</h5>
+                                <ul class="list-disc pl-4 text-slate-600 space-y-1">
+                                    <li>Physical Data Centres</li>
+                                    <li>Hypervisor Patching</li>
+                                    <li>Hardware Decommissioning</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h5 class="font-semibold text-teal-700 border-b border-teal-200 pb-1 mb-2">Customer Handles</h5>
+                                <ul class="list-disc pl-4 text-slate-600 space-y-1">
+                                    <li>IAM Policies</li>
+                                    <li>Data Encryption</li>
+                                    <li>App-level Security</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="cia" class="section-content max-w-5xl mx-auto">
+            <header class="mb-8">
+                <h2 class="text-3xl font-extrabold text-slate-900 mb-2">The CIA Triad</h2>
+                <p class="text-lg text-slate-600">The three foundational pillars of security evaluation.</p>
+            </header>
+
+            <div class="prose max-w-none mb-8 text-slate-700 text-lg">
+                <p>Every security decision should be evaluated through the CIA lens. All three pillars must hold simultaneously; sacrificing one creates unacceptable risk. Click on each pillar below to explore its specific goals, cloud controls, real-world breach examples, and how it maps to a standard data pipeline.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                <button onclick="setCIA('confidentiality')" id="btn-confidentiality" class="cia-btn bg-white border-2 border-slate-200 p-4 rounded-xl font-bold text-lg text-slate-700 hover:border-teal-500 hover:text-teal-700 transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500 active-cia">
+                    &#x1F512; Confidentiality
+                </button>
+                <button onclick="setCIA('integrity')" id="btn-integrity" class="cia-btn bg-white border-2 border-slate-200 p-4 rounded-xl font-bold text-lg text-slate-700 hover:border-teal-500 hover:text-teal-700 transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500">
+                    &#x1F50E; Integrity
+                </button>
+                <button onclick="setCIA('availability')" id="btn-availability" class="cia-btn bg-white border-2 border-slate-200 p-4 rounded-xl font-bold text-lg text-slate-700 hover:border-teal-500 hover:text-teal-700 transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500">
+                    &#x23F1;&#xFE0F; Availability
+                </button>
+            </div>
+
+            <div class="bg-white p-8 rounded-xl shadow-md border border-slate-200 min-h-[350px]">
+                <div id="cia-content-confidentiality" class="cia-pane block">
+                    <h3 class="text-2xl font-bold text-teal-700 mb-2">Confidentiality</h3>
+                    <p class="text-xl text-slate-500 italic mb-6">"Who can see the data?"</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            <h4 class="font-bold text-slate-800 mb-2 border-b pb-1">Goal & Pipeline Stage</h4>
+                            <p class="text-slate-600 mb-2">Prevent unauthorised disclosure of information.</p>
+                            <p class="bg-slate-100 inline-block px-3 py-1 rounded text-sm text-slate-700 mt-2"><strong>Pipeline mapping:</strong> Data Ingestion</p>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-slate-800 mb-2 border-b pb-1">Cloud Controls</h4>
+                            <ul class="list-disc pl-5 text-sm text-slate-600 space-y-1">
+                                <li>AES-256 encryption at rest</li>
+                                <li>TLS 1.3 in transit</li>
+                                <li>IAM policies & MFA</li>
+                                <li>VPC isolation & KMS</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="mt-6 bg-rose-50 border-l-4 border-rose-500 p-4 rounded-r">
+                        <p class="text-sm text-rose-800"><strong>Breach Example:</strong> An unauthorised nurse accesses a celebrity's medical records.</p>
+                    </div>
+                </div>
+
+                <div id="cia-content-integrity" class="cia-pane hidden">
+                    <h3 class="text-2xl font-bold text-teal-700 mb-2">Integrity</h3>
+                    <p class="text-xl text-slate-500 italic mb-6">"Has the data been altered?"</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            <h4 class="font-bold text-slate-800 mb-2 border-b pb-1">Goal & Pipeline Stage</h4>
+                            <p class="text-slate-600 mb-2">Detect and prevent tampering or unauthorised modification.</p>
+                            <p class="bg-slate-100 inline-block px-3 py-1 rounded text-sm text-slate-700 mt-2"><strong>Pipeline mapping:</strong> Processing (ETL)</p>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-slate-800 mb-2 border-b pb-1">Cloud Controls</h4>
+                            <ul class="list-disc pl-5 text-sm text-slate-600 space-y-1">
+                                <li>SHA-256 checksums & hash digests</li>
+                                <li>S3 versioning & immutable backups</li>
+                                <li>CloudTrail logging</li>
+                                <li>Database constraints & input validation</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="mt-6 bg-rose-50 border-l-4 border-rose-500 p-4 rounded-r">
+                        <p class="text-sm text-rose-800"><strong>Breach Example:</strong> An attacker changes a patient's blood type in the database (data poisoning).</p>
+                    </div>
+                </div>
+
+                <div id="cia-content-availability" class="cia-pane hidden">
+                    <h3 class="text-2xl font-bold text-teal-700 mb-2">Availability</h3>
+                    <p class="text-xl text-slate-500 italic mb-6">"Can we access the data when needed?"</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            <h4 class="font-bold text-slate-800 mb-2 border-b pb-1">Goal & Pipeline Stage</h4>
+                            <p class="text-slate-600 mb-2">Maintain system and data uptime under all conditions.</p>
+                            <p class="bg-slate-100 inline-block px-3 py-1 rounded text-sm text-slate-700 mt-2"><strong>Pipeline mapping:</strong> Storage (Warehouse)</p>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-slate-800 mb-2 border-b pb-1">Cloud Controls</h4>
+                            <ul class="list-disc pl-5 text-sm text-slate-600 space-y-1">
+                                <li>Multi-AZ deployment & Auto-scaling</li>
+                                <li>CDN distribution</li>
+                                <li>DDoS protection (AWS Shield)</li>
+                                <li>Health checks & disaster recovery</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="mt-6 bg-rose-50 border-l-4 border-rose-500 p-4 rounded-r">
+                        <p class="text-sm text-rose-800"><strong>Breach Example:</strong> Ransomware locks doctors out of the system during a medical emergency.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="defenses" class="section-content max-w-5xl mx-auto">
+            <header class="mb-8">
+                <h2 class="text-3xl font-extrabold text-slate-900 mb-2">Access, Data & Network Defenses</h2>
+                <p class="text-lg text-slate-600">The triad of IAM, Encryption, and VPC architecture.</p>
+            </header>
+
+            <div class="prose max-w-none mb-8 text-slate-700 text-lg">
+                <p>Defense in depth requires protecting identity, encrypting data states, and isolating network environments. This section covers Identity and Access Management (IAM), the difference between data at rest and in transit, and how Virtual Private Clouds (VPCs) structure your network perimeter. Use the toggle to switch between these three critical defensive layers.</p>
+            </div>
+
+            <div class="flex justify-center mb-6 bg-slate-200 p-1 rounded-lg w-fit mx-auto">
+                <button onclick="setDefense('iam')" id="btn-def-iam" class="def-btn px-6 py-2 rounded-md font-semibold text-sm transition-colors bg-white shadow text-teal-700">IAM & Privilege</button>
+                <button onclick="setDefense('crypto')" id="btn-def-crypto" class="def-btn px-6 py-2 rounded-md font-semibold text-sm transition-colors text-slate-600 hover:text-slate-900">Encryption</button>
+                <button onclick="setDefense('vpc')" id="btn-def-vpc" class="def-btn px-6 py-2 rounded-md font-semibold text-sm transition-colors text-slate-600 hover:text-slate-900">VPC & Network</button>
+            </div>
+
+            <!-- IAM View -->
+            <div id="def-view-iam" class="def-view block">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 mb-6">
+                    <h3 class="text-xl font-bold text-slate-800 mb-4">Identity and Access Management (The Gatekeeper)</h3>
+                    <p class="text-slate-600 mb-4">IAM answers two questions: <strong>Authentication</strong> <em>("Who are you?")</em> and <strong>Authorisation</strong> <em>("What can you do?")</em>. The foundational rule is the <strong>Principle of Least Privilege (PoLP)</strong>.</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="border border-green-200 bg-green-50 p-4 rounded-lg">
+                            <h4 class="font-bold text-green-800 mb-2">&#x2705; Good Practice</h4>
+                            <ul class="text-sm text-green-700 space-y-2 font-mono">
+                                <li>s3:GetObject on *one specific bucket*</li>
+                                <li>sagemaker:CreatePresignedUrl on *one notebook*</li>
+                            </ul>
+                        </div>
+                        <div class="border border-red-200 bg-red-50 p-4 rounded-lg">
+                            <h4 class="font-bold text-red-800 mb-2">&#x274C; Bad Practice</h4>
+                            <ul class="text-sm text-red-700 space-y-2 font-mono">
+                                <li>s3:* (all actions on all buckets)</li>
+                                <li>Using the admin account "because it's easier"</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-slate-900 text-slate-300 p-6 rounded-xl">
+                    <h4 class="text-white font-bold mb-2">Real-World Breach: Capital One (2019)</h4>
+                    <p class="text-sm mb-2"><span class="text-rose-400 font-semibold">Impact:</span> 106 million records exposed.</p>
+                    <p class="text-sm mb-2"><span class="text-rose-400 font-semibold">Cause:</span> Overly permissive IAM role on a firewall. Attacker accessed metadata service, retrieved temp credentials, and accessed S3.</p>
+                    <p class="text-sm font-semibold text-white">Lesson: A single misconfigured role compromises the entire account.</p>
+                </div>
+            </div>
+
+            <!-- Encryption View -->
+            <div id="def-view-crypto" class="def-view hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                        <h3 class="text-xl font-bold text-slate-800 mb-2">&#x1F4BE; Data At Rest</h3>
+                        <p class="text-sm text-slate-600 mb-4">Data on disk (databases, object stores). Standard: <strong>AES-256</strong>.</p>
+                        <table class="w-full text-sm text-left">
+                            <thead class="bg-slate-100 text-slate-700">
+                                <tr><th class="p-2 rounded-tl">Model</th><th class="p-2 rounded-tr">Key Manager</th></tr>
+                            </thead>
+                            <tbody class="divide-y text-slate-600">
+                                <tr><td class="p-2 font-semibold">SSE-S3</td><td class="p-2">Provider</td></tr>
+                                <tr><td class="p-2 font-semibold">SSE-KMS</td><td class="p-2">Customer (Managed)</td></tr>
+                                <tr><td class="p-2 font-semibold">SSE-C</td><td class="p-2">Customer (Fully)</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                        <h3 class="text-xl font-bold text-slate-800 mb-2">&#x1F6E4;&#xFE0F; Data In Transit</h3>
+                        <p class="text-sm text-slate-600 mb-4">Data moving between systems. Standard: <strong>TLS 1.2 / 1.3</strong>.</p>
+                        <ul class="text-sm text-slate-600 space-y-3">
+                            <li><span class="font-semibold text-slate-800">OWASP Recommends:</span> AES-256 (symmetric) + RSA &#x2265; 2048-bit (asymmetric).</li>
+                            <li><span class="font-semibold text-rose-600">Golden Rule:</span> Never store encryption keys alongside the data they protect. A single breach exposes both.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VPC View -->
+            <div id="def-view-vpc" class="def-view hidden">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 mb-6">
+                    <h3 class="text-xl font-bold text-slate-800 mb-4">Secure VPC Architecture</h3>
+                    <p class="text-sm text-slate-600 mb-6">A Virtual Private Cloud is your private floor in the provider's building. <strong>Zero Trust</strong> architecture dictates: "Never Trust, Always Verify."</p>
+                    
+                    <div class="vpc-diagram mb-4">
+                        <div class="col-span-2 text-center text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Internet Gateway (IGW)</div>
+                        
+                        <div class="subnet-public">
+                            <h4 class="font-bold text-blue-800 text-sm mb-2">Public Subnet</h4>
+                            <ul class="text-xs text-blue-900 space-y-1">
+                                <li>&#x1F310; Load Balancer</li>
+                                <li>&#x1F6E1;&#xFE0F; Bastion Host (Jump Box)</li>
+                                <li>&#x1F504; NAT Gateway</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="subnet-private relative">
+                            <div class="absolute -left-6 top-1/2 transform -translate-y-1/2 text-slate-400 text-xl">&#x2192;</div>
+                            <h4 class="font-bold text-rose-800 text-sm mb-2">Private Subnet</h4>
+                            <ul class="text-xs text-rose-900 space-y-1">
+                                <li>&#x1F9E0; ML Training Cluster</li>
+                                <li>&#x1F5C4;&#xFE0F; Database (RDS)</li>
+                                <li>&#x1F4BB; App Servers</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <p class="text-sm font-semibold text-rose-600 text-center">Rule: Training instances should never be directly reachable from the internet.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="governance" class="section-content max-w-5xl mx-auto">
+            <header class="mb-8">
+                <h2 class="text-3xl font-extrabold text-slate-900 mb-2">Governance, Monitoring & Threats</h2>
+                <p class="text-lg text-slate-600">Navigating rules, keeping watch, and anticipating the future.</p>
+            </header>
+
+            <div class="prose max-w-none mb-8 text-slate-700 text-lg">
+                <p>Security goes beyond technical controls. This section examines Incident Response protocols (NIST), mandatory Compliance frameworks depending on your data type, and the Emerging Threats targeting modern infrastructure. Review the compliance impact chart to understand the financial stakes of data governance.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                <!-- Compliance Chart -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <h3 class="text-xl font-bold text-slate-800 mb-1">Compliance & Penalties</h3>
+                    <p class="text-xs text-slate-500 mb-4">Maximum potential fines for severe violations.</p>
+                    <div class="chart-container" style="height: 200px;">
+                        <canvas id="complianceChart"></canvas>
+                    </div>
+                    <div class="mt-4 grid grid-cols-3 gap-2 text-center text-xs">
+                        <div class="bg-slate-50 p-2 rounded"><strong>GDPR</strong><br>EU Personal Data</div>
+                        <div class="bg-slate-50 p-2 rounded"><strong>HIPAA</strong><br>US Health (PHI)</div>
+                        <div class="bg-slate-50 p-2 rounded"><strong>PCI DSS</strong><br>Payment Cards</div>
+                    </div>
+                </div>
+
+                <!-- Incident Response & Threats -->
+                <div class="flex flex-col gap-6">
+                    <div class="bg-slate-800 text-white p-6 rounded-xl shadow-sm">
+                        <h3 class="text-lg font-bold mb-3">NIST Incident Response (4 Phases)</h3>
+                        <ol class="list-decimal pl-5 text-sm space-y-2 text-slate-300">
+                            <li><strong class="text-teal-400">Preparation:</strong> Policies & trained team.</li>
+                            <li><strong class="text-teal-400">Detection & Analysis:</strong> Log alerts (CloudTrail, SIEM).</li>
+                            <li><strong class="text-teal-400">Containment & Recovery:</strong> Stop the bleeding.</li>
+                            <li><strong class="text-teal-400">Post-Incident:</strong> Lessons learned.</li>
+                        </ol>
+                    </div>
+
+                    <div class="bg-rose-50 border border-rose-200 p-6 rounded-xl shadow-sm">
+                        <h3 class="text-lg font-bold text-rose-900 mb-3">&#x1F52D; Emerging Threats</h3>
+                        <div class="space-y-3">
+                            <div>
+                                <h4 class="font-bold text-sm text-rose-800">Supply Chain Attacks</h4>
+                                <p class="text-xs text-rose-700">Targeting dependencies (e.g., PyPI packages). Defence: Hash verification, lock files.</p>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-sm text-rose-800">Container/Serverless Escapes</h4>
+                                <p class="text-xs text-rose-700">Exploiting shared host OS kernels or ephemeral function-level IAM weaknesses.</p>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-sm text-rose-800">AI-Powered Arms Race</h4>
+                                <p class="text-xs text-rose-700">Automated vulnerability discovery vs. SIEM anomaly detection (MITRE ATT&CK).</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // --- State Management & Navigation ---
+        const sections = ['home', 'responsibility', 'cia', 'defenses', 'governance'];
+        
+        function nav(targetId) {
+            // Hide all, remove active nav classes
+            sections.forEach(id => {
+                document.getElementById(id).classList.remove('active');
+                document.getElementById('nav-' + id).classList.remove('active', 'bg-teal-600', 'text-white');
+            });
+            // Show target, add active nav class
+            document.getElementById(targetId).classList.add('active');
+            const navBtn = document.getElementById('nav-' + targetId);
+            navBtn.classList.add('active');
+            navBtn.style.backgroundColor = '#0f766e'; // teal-700
+            navBtn.style.color = 'white';
+            
+            // Re-trigger chart rendering if needed based on visibility
+            if(targetId === 'responsibility') initResponsibilityChart();
+            if(targetId === 'governance') initComplianceChart();
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // --- CIA Triad Interaction ---
+        function setCIA(pillar) {
+            const pillars = ['confidentiality', 'integrity', 'availability'];
+            pillars.forEach(p => {
+                document.getElementById('cia-content-' + p).classList.add('hidden');
+                document.getElementById('cia-content-' + p).classList.remove('block');
+                
+                const btn = document.getElementById('btn-' + p);
+                btn.classList.remove('border-teal-500', 'text-teal-700', 'bg-teal-50');
+            });
+            
+            document.getElementById('cia-content-' + pillar).classList.remove('hidden');
+            document.getElementById('cia-content-' + pillar).classList.add('block');
+            
+            const activeBtn = document.getElementById('btn-' + pillar);
+            activeBtn.classList.add('border-teal-500', 'text-teal-700', 'bg-teal-50');
+        }
+
+        // --- Defenses Sub-navigation ---
+        function setDefense(view) {
+            const views = ['iam', 'crypto', 'vpc'];
+            views.forEach(v => {
+                document.getElementById('def-view-' + v).classList.add('hidden');
+                document.getElementById('def-view-' + v).classList.remove('block');
+                
+                const btn = document.getElementById('btn-def-' + v);
+                btn.classList.remove('bg-white', 'shadow', 'text-teal-700');
+                btn.classList.add('text-slate-600');
+            });
+            
+            document.getElementById('def-view-' + view).classList.remove('hidden');
+            document.getElementById('def-view-' + view).classList.add('block');
+            
+            const activeBtn = document.getElementById('btn-def-' + view);
+            activeBtn.classList.remove('text-slate-600');
+            activeBtn.classList.add('bg-white', 'shadow', 'text-teal-700');
+        }
+
+        // --- Chart.js Implementations ---
+        let respChartInstance = null;
+        let compChartInstance = null;
+
+        function initResponsibilityChart() {
+            const ctx = document.getElementById('responsibilityChart');
+            if(!ctx) return;
+            
+            if(respChartInstance) { respChartInstance.destroy(); }
+            
+            respChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['IaaS', 'PaaS', 'SaaS'],
+                    datasets: [
+                        {
+                            label: 'Customer Responsibility',
+                            data: [80, 50, 20],
+                            backgroundColor: '#0d9488', // teal-600
+                        },
+                        {
+                            label: 'Provider Responsibility',
+                            data: [20, 50, 80],
+                            backgroundColor: '#94a3b8', // slate-400
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    scales: {
+                        x: { stacked: true, max: 100, ticks: { callback: function(value){return value+"%"} } },
+                        y: { stacked: true }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) { return context.dataset.label + ': ' + context.parsed.x + '%'; }
+                            }
+                        },
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+        }
+
+        function initComplianceChart() {
+            const ctx = document.getElementById('complianceChart');
+            if(!ctx) return;
+            
+            if(compChartInstance) { compChartInstance.destroy(); }
+            
+            compChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['HIPAA ($1.9M)', 'GDPR (€20M)'],
+                    datasets: [{
+                        label: 'Max Fine (Millions USD/EUR)',
+                        data: [1.9, 20],
+                        backgroundColor: ['#38bdf8', '#fb7185'], // light blue, rose
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    scales: {
+                        x: { beginAtZero: true, title: { display: true, text: 'Millions' } }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) { 
+                                    return context.parsed.x + ' Million'; 
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize state on load
+        window.onload = () => {
+            // Initial styling for the first active nav item
+            const homeBtn = document.getElementById('nav-home');
+            homeBtn.style.backgroundColor = '#0f766e';
+            homeBtn.style.color = 'white';
+        };
+
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud Security Study App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for 3D card flip effect */
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+        .transform-style-3d {
+            transform-style: preserve-3d;
+        }
+        .backface-hidden {
+            backface-visibility: hidden;
+        }
+        .rotate-y-180 {
+            transform: rotateY(180deg);
+        }
+        /* Smooth transitions */
+        .transition-transform {
+            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+        }
+        
+        /* Hide scrollbar for clean UI */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col items-center py-10 px-4">
+
+    <div class="max-w-4xl w-full bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col min-h-[600px]">
+        
+        <!-- Header & Tabs -->
+        <div class="bg-indigo-600 text-white p-6">
+            <h1 class="text-3xl font-bold text-center mb-6">Cloud Security Mastery</h1>
+            <div class="flex justify-center space-x-2 bg-indigo-700/50 p-1 rounded-lg w-max mx-auto">
+                <button id="tab-flashcards" onclick="switchTab('flashcards')" class="px-6 py-2 rounded-md bg-white text-indigo-700 font-semibold shadow transition-all">
+                    Flashcards
+                </button>
+                <button id="tab-quiz" onclick="switchTab('quiz')" class="px-6 py-2 rounded-md text-indigo-100 hover:text-white font-medium transition-all">
+                    Practice Quiz
+                </button>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="flex-grow relative p-6 md:p-10 flex flex-col justify-center items-center">
+            
+            <!-- FLASHCARDS VIEW -->
+            <div id="view-flashcards" class="w-full max-w-2xl flex flex-col items-center w-full">
+                <div class="text-sm font-semibold text-slate-400 mb-4 tracking-wider uppercase" id="flashcard-counter">Card 1 of 25</div>
+                
+                <!-- Card Container -->
+                <div class="w-full h-80 perspective-1000 cursor-pointer group" onclick="flipCard()">
+                    <div id="flashcard-inner" class="relative w-full h-full transform-style-3d transition-transform duration-500 rounded-2xl shadow-lg ring-1 ring-slate-200">
+                        
+                        <!-- Front of Card -->
+                        <div class="absolute w-full h-full backface-hidden bg-white rounded-2xl flex items-center justify-center p-8 text-center">
+                            <h2 id="fc-front-text" class="text-2xl md:text-3xl font-bold text-slate-800 leading-snug">
+                                Cloud Security Definition
+                            </h2>
+                            <div class="absolute bottom-4 text-xs text-slate-400 flex items-center">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"></path></svg>
+                                Click to flip
+                            </div>
+                        </div>
+
+                        <!-- Back of Card -->
+                        <div class="absolute w-full h-full backface-hidden bg-indigo-50 rounded-2xl flex items-center justify-center p-8 text-center rotate-y-180 ring-1 ring-indigo-100">
+                            <p id="fc-back-text" class="text-xl md:text-2xl text-indigo-900 leading-relaxed font-medium">
+                                The collection of policies, technologies, controls, and practices designed to protect cloud-based systems, data, and infrastructure.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Controls -->
+                <div class="flex justify-between items-center w-full mt-8">
+                    <button onclick="prevCard()" class="p-3 rounded-full hover:bg-slate-100 text-slate-600 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                    </button>
+                    <span class="text-sm text-slate-500">Use arrows or click to navigate</span>
+                    <button onclick="nextCard()" class="p-3 rounded-full hover:bg-slate-100 text-slate-600 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- QUIZ VIEW -->
+            <div id="view-quiz" class="hidden w-full max-w-3xl flex flex-col">
+                
+                <!-- Quiz Header -->
+                <div class="flex justify-between items-center mb-6 pb-4 border-b border-slate-200">
+                    <h2 class="text-lg font-bold text-slate-700 uppercase tracking-wide">Scenario Practice</h2>
+                    <div class="bg-indigo-100 text-indigo-800 text-sm font-bold px-3 py-1 rounded-full">
+                        Score: <span id="quiz-score">0</span> / 10
+                    </div>
+                </div>
+
+                <div id="quiz-content">
+                    <!-- Progress -->
+                    <div class="mb-6 flex space-x-1" id="quiz-progress-bar">
+                        <!-- Progress dots generated by JS -->
+                    </div>
+
+                    <!-- Question -->
+                    <h3 id="quiz-question-text" class="text-xl md:text-2xl font-semibold text-slate-800 mb-6 leading-relaxed">
+                        Question text goes here?
+                    </h3>
+
+                    <!-- Hint Toggle -->
+                    <div class="mb-6">
+                        <button onclick="toggleHint()" class="text-sm font-medium text-amber-600 hover:text-amber-700 flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+                            Show Hint
+                        </button>
+                        <p id="quiz-hint-text" class="hidden mt-2 text-sm bg-amber-50 text-amber-900 p-3 rounded-md border border-amber-200">
+                            Hint goes here.
+                        </p>
+                    </div>
+
+                    <!-- Options -->
+                    <div id="quiz-options-container" class="space-y-3">
+                        <!-- Buttons generated by JS -->
+                    </div>
+
+                    <!-- Feedback / Rationale -->
+                    <div id="quiz-feedback-container" class="hidden mt-6 p-5 rounded-xl border">
+                        <div class="flex items-start">
+                            <div id="feedback-icon" class="mr-3 mt-1 flex-shrink-0">
+                                <!-- Icon SVG injected here -->
+                            </div>
+                            <div>
+                                <h4 id="feedback-title" class="font-bold text-lg mb-1">Result</h4>
+                                <p id="feedback-rationale" class="text-slate-700 leading-relaxed"></p>
+                            </div>
+                        </div>
+                        <div class="mt-6 flex justify-end">
+                            <button id="next-question-btn" onclick="nextQuizQuestion()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors">
+                                Next Question
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quiz Completion Summary -->
+                <div id="quiz-summary" class="hidden flex-col items-center justify-center py-10 text-center">
+                    <div class="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mb-6">
+                        <svg class="w-12 h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                    <h2 class="text-3xl font-bold text-slate-800 mb-2">Quiz Completed!</h2>
+                    <p class="text-xl text-slate-600 mb-8">You scored <span id="final-score" class="font-bold text-indigo-600">0</span> out of 10.</p>
+                    <button onclick="restartQuiz()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-8 rounded-lg shadow-md transition-colors">
+                        Restart Quiz
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // --- DATA ---
+        const flashcards = [
+            { front: "Cloud Security Definition", back: "The collection of policies, technologies, controls, and practices designed to protect cloud-based systems, data, and infrastructure." },
+            { front: "Three Unique Challenges of Cloud Security", back: "Scale & Elasticity, Multi-Tenancy, and Shared Responsibility." },
+            { front: "Shared Responsibility Model", back: "The provider secures the infrastructure 'of the cloud', while the customer secures what is 'in the cloud'." },
+            { front: "Customer responsibility in IaaS (Infrastructure as a Service)", back: "The customer manages almost everything above the hypervisor, including OS, applications, data, and access." },
+            { front: "Leading cause of cloud breaches", back: "Misunderstanding the Shared Responsibility Model and where the provider's responsibility ends." },
+            { front: "The CIA Triad", back: "Confidentiality, Integrity, and Availability—the three foundational pillars of security." },
+            { front: "Confidentiality (CIA Triad)", back: "Ensuring data is accessible only to authorised parties." },
+            { front: "Integrity (CIA Triad)", back: "Ensuring data has not been tampered with or altered in an unauthorised way." },
+            { front: "Availability (CIA Triad)", back: "Ensuring systems and data are accessible and usable when needed." },
+            { front: "Cloud controls for Confidentiality", back: "AES-256 encryption at rest, TLS 1.3 in transit, IAM policies, and VPC isolation." },
+            { front: "Cloud controls for Integrity", back: "SHA-256 checksums, immutable backups, CloudTrail logging, and database constraints." },
+            { front: "Cloud controls for Availability", back: "Multi-AZ deployment, Auto-scaling groups, CDNs, and DDoS protection." },
+            { front: "IAM Authentication vs. Authorisation", back: "Authentication verifies 'Who you are', while Authorisation determines 'What you are allowed to do'." },
+            { front: "Principle of Least Privilege (PoLP)", back: "Granting the absolute minimum permissions necessary for a user or service to perform its task." },
+            { front: "Standard protocol for Encryption at Rest", back: "AES-256." },
+            { front: "Standard protocol for Encryption in Transit", back: "TLS 1.2 or TLS 1.3." },
+            { front: "Golden Rule of Key Management", back: "Never store encryption keys alongside the data they protect." },
+            { front: "VPC (Virtual Private Cloud)", back: "A logically isolated section of the cloud provider's network dedicated to your account." },
+            { front: "Security Groups vs. NACLs (Statefulness)", back: "Security Groups are stateful (return traffic is auto-allowed), while NACLs are stateless (rules must define both directions)." },
+            { front: "Zero Trust Architecture Core Principle", back: "Never Trust, Always Verify—no user, device, or network segment is automatically trusted, even if inside the perimeter." },
+            { front: "SIEM (Security Information and Event Management)", back: "A tool that aggregates logs from multiple sources, applies correlation rules, and generates security alerts." },
+            { front: "NIST Incident Response Phases", back: "1. Preparation, 2. Detection & Analysis, 3. Containment, Eradication & Recovery, 4. Post-Incident Activity." },
+            { front: "GDPR Penalty", back: "Up to 4% of global revenue or €20M for violations concerning EU personal data." },
+            { front: "HIPAA", back: "The compliance framework governing US health data (Protected Health Information)." },
+            { front: "Supply Chain Attack in Cloud Computing", back: "Targeting and compromising the software dependencies (like open-source packages) that cloud applications rely on." }
+        ];
+
+        const quizQuestions = [
+            {
+                question: "You are running a predictive machine learning model on an AWS EC2 instance (Infrastructure as a Service). An attacker exploits a known vulnerability in the Linux operating system you installed to steal the training data. According to the Shared Responsibility Model, who is primarily at fault?",
+                options: [
+                    { text: "The cloud provider, because they own and operate the physical infrastructure the instance runs on.", rationale: "While the provider secures the physical hardware and the hypervisor, they do not manage the guest operating system in an IaaS environment.", isCorrect: false },
+                    { text: "The customer, because in an IaaS model, patching the guest operating system is a customer responsibility.", rationale: "In Infrastructure as a Service, the customer is responsible for securing everything above the hypervisor layer, including the operating system, applications, and data.", isCorrect: true },
+                    { text: "Both the provider and the customer equally, as security is always a shared endeavour regardless of the specific layer compromised.", rationale: "The model delineates specific boundaries of responsibility; an unpatched guest OS falls entirely within the customer's defined area of control.", isCorrect: false },
+                    { text: "The cloud provider, because they failed to provide adequate network firewall protection (Security Groups) by default.", rationale: "Even if network controls were misconfigured, the root vulnerability exploited was an unpatched OS, which the customer must maintain in IaaS.", isCorrect: false }
+                ],
+                hint: "Recall the 'Flat Analogy' and consider who is responsible for locking the windows of the rented apartment versus the main building gate."
+            },
+            {
+                question: "A hospital's cloud-based data warehouse containing patient histories is suddenly subjected to a massive influx of traffic from a botnet. The system becomes completely unresponsive, preventing doctors from looking up critical records during emergencies. Which pillar of the CIA triad has been directly compromised?",
+                options: [
+                    { text: "Confidentiality", rationale: "There is no indication that the attackers actually viewed or stole the patient records, only that they disrupted access to them.", isCorrect: false },
+                    { text: "Integrity", rationale: "The data itself was not altered, tampered with, or poisoned by the influx of traffic.", isCorrect: false },
+                    { text: "Availability", rationale: "The Distributed Denial of Service (DDoS) attack successfully prevented authorised users from accessing the systems and data when they needed it.", isCorrect: true },
+                    { text: "Authentication", rationale: "While related to identity, the attack targets the system's uptime and capacity rather than bypassing user verification mechanisms.", isCorrect: false }
+                ],
+                hint: "Focus on the ultimate impact of the attack on the medical staff's ability to perform their duties at that exact moment."
+            },
+            {
+                question: "You are building an ETL pipeline that transfers financial transaction records from an on-premise database to a cloud data warehouse. You need a mechanism to mathematically verify that the records aren't altered or corrupted during the transfer process. Which control is most appropriate?",
+                options: [
+                    { text: "Implementing TLS 1.3 encryption for the data in transit.", rationale: "Encryption protects data from being read by unauthorized parties (Confidentiality), but it doesn't inherently verify that the data wasn't modified before or after encryption.", isCorrect: false },
+                    { text: "Applying SHA-256 checksums to the transferred files.", rationale: "Hash digests act as a digital fingerprint; comparing the hash of the file before and after transfer confirms that not a single bit has been changed, ensuring Integrity.", isCorrect: true },
+                    { text: "Enabling Multi-AZ (Availability Zone) deployment for the data warehouse.", rationale: "Deploying across multiple zones ensures the database remains online during a localized outage, addressing Availability rather than data tampering.", isCorrect: false },
+                    { text: "Restricting IAM access policies for the data warehouse.", rationale: "Limiting access helps prevent unauthorized changes, but it does not provide a mathematical verification that corruption didn't occur during the automated transfer itself.", isCorrect: false }
+                ],
+                hint: "Look for a specific technical control designed to act as a 'digital fingerprint' to detect tampering or accidental corruption."
+            },
+            {
+                question: "A junior data scientist needs to read a specific CSV file named 'q3_results.csv' from an S3 bucket named 'marketing-data-2024' to train a model. Which IAM policy represents the strict application of the Principle of Least Privilege (PoLP)?",
+                options: [
+                    { text: "Allow the 's3:*' action on the 'marketing-data-2024' bucket.", rationale: "This grants permission to delete, overwrite, and alter bucket settings, far exceeding the simple read access required.", isCorrect: false },
+                    { text: "Allow the 's3:GetObject' action on all S3 buckets within the AWS account.", rationale: "While limiting the action to reading, this exposes potentially sensitive data in other buckets that the data scientist does not need to access.", isCorrect: false },
+                    { text: "Allow the 's3:GetObject' action specifically on the 'marketing-data-2024/q3_results.csv' object.", rationale: "This grants the exact action needed (read) on the exact resource needed (one specific file), perfectly aligning with PoLP.", isCorrect: true },
+                    { text: "Allow AdministratorAccess, but implement a condition that restricts login to standard business hours.", rationale: "Time-based restrictions do not mitigate the massive risk of granting full administrative control to a user who only needs to read a single file.", isCorrect: false }
+                ],
+                hint: "Evaluate which option grants the absolute minimum access required (both in terms of actions and resources) to complete the task."
+            },
+            {
+                question: "Your organization wants to encrypt highly sensitive proprietary algorithms stored in cloud object storage. Corporate policy dictates that the company must retain full, exclusive control over the cryptographic key material, refusing to let the cloud provider generate or manage the keys. Which encryption model must be used?",
+                options: [
+                    { text: "SSE-S3 (Server-Side Encryption with Provider Keys)", rationale: "In this model, the cloud provider handles the entire encryption process, including generating and rotating the keys.", isCorrect: false },
+                    { text: "SSE-KMS (Server-Side Encryption with Key Management Service)", rationale: "While the customer defines policies and usage, the provider's managed service still ultimately holds and generates the underlying key material.", isCorrect: false },
+                    { text: "SSE-C (Server-Side Encryption with Customer-Provided Keys)", rationale: "This model forces the customer to supply the encryption key with every read/write request, keeping the master key material entirely out of the provider's control.", isCorrect: true },
+                    { text: "TLS 1.3 Encryption", rationale: "This protocol secures data only while it is moving across the network (in transit), not when it is stored on disk (at rest).", isCorrect: false }
+                ],
+                hint: "Focus on the option where the customer is solely responsible for generating, supplying, and storing the keys outside of the provider's native managed services."
+            },
+            {
+                question: "You detect anomalous traffic originating from a specific, known malicious IP address and need to block it from reaching your entire private subnet where your databases reside. Which cloud network security tool is designed for this explicit 'deny' rule at the subnet boundary?",
+                options: [
+                    { text: "Security Groups", rationale: "These operate at the instance level and act as a whitelist (allow rules only), making them incapable of explicitly denying a specific IP address.", isCorrect: false },
+                    { text: "Network Access Control Lists (NACLs)", rationale: "These act as a firewall at the subnet level and uniquely support explicit 'deny' rules to block specific IP addresses or ranges.", isCorrect: true },
+                    { text: "Internet Gateway (IGW)", rationale: "This component simply provides a target in your route tables for internet-routable traffic, it does not filter traffic based on IP addresses.", isCorrect: false },
+                    { text: "NAT Gateway", rationale: "This service allows resources in a private subnet to initiate outbound connections, but it does not function as an inbound firewall filter.", isCorrect: false }
+                ],
+                hint: "Recall the differences in granularity and the ability to define explicit block rules between the two main cloud firewall layers."
+            },
+            {
+                question: "You are deploying a machine learning training cluster that processes raw, highly sensitive user data. To adhere to secure, two-tier VPC architecture design patterns, how should network access for this cluster be configured?",
+                options: [
+                    { text: "Placed in a public subnet with a strictly configured Security Group.", rationale: "Even with strong rules, placing sensitive compute resources in a public subnet exposes them to unnecessary risk if a misconfiguration occurs.", isCorrect: false },
+                    { text: "Placed in a private subnet, routing any necessary outbound internet traffic through a NAT Gateway.", rationale: "This ensures the cluster cannot be reached directly from the internet, protecting the sensitive data while still allowing the cluster to download necessary updates.", isCorrect: true },
+                    { text: "Placed directly behind the Internet Gateway to ensure fast data ingestion speeds.", rationale: "Attaching processing nodes directly to an Internet Gateway makes them publicly routable, severely violating isolation best practices.", isCorrect: false },
+                    { text: "Placed in a public subnet but accessed exclusively via a Bastion Host.", rationale: "While a Bastion Host is good for access, the cluster itself should reside in a private subnet to prevent direct internet exposure.", isCorrect: false }
+                ],
+                hint: "Consider the core rule regarding internet reachability for systems handling internal processing or sensitive data."
+            },
+            {
+                question: "The security team notices an unexpected surge in cloud compute costs. They need to determine exactly which user identity or service account spun up 50 expensive GPU instances over the weekend. Which cloud service provides the necessary audit log to investigate this?",
+                options: [
+                    { text: "An application-level error logging service.", rationale: "Application logs capture software errors and application logic events, not infrastructure provisioning actions at the cloud provider level.", isCorrect: false },
+                    { text: "VPC Flow Logs.", rationale: "These logs record IP traffic going to and from network interfaces, but they do not record the API calls that provisioned the infrastructure.", isCorrect: false },
+                    { text: "Infrastructure performance metrics dashboards.", rationale: "Metrics show CPU utilization and network throughput, which would confirm the instances are running, but won't identify the user who created them.", isCorrect: false },
+                    { text: "AWS CloudTrail (or an equivalent provider API logging service).", rationale: "This service meticulously records every API call made within the account, providing a detailed history of who did what, when, and from where.", isCorrect: true }
+                ],
+                hint: "Think about which service acts as the definitive record-keeper for infrastructure management commands and user actions within the cloud environment."
+            },
+            {
+                question: "Your data science team is developing a predictive model using anonymized electronic health records sourced from hospitals across the United States. Which primary compliance framework dictates the security controls you must implement for this data?",
+                options: [
+                    { text: "GDPR (General Data Protection Regulation)", rationale: "This framework specifically governs the personal data of individuals residing within the European Union.", isCorrect: false },
+                    { text: "PCI DSS (Payment Card Industry Data Security Standard)", rationale: "This standard applies exclusively to entities that store, process, or transmit credit card and cardholder information.", isCorrect: false },
+                    { text: "HIPAA (Health Insurance Portability and Accountability Act)", rationale: "This is the specific regulatory framework established to protect sensitive patient health information (PHI) within the United States.", isCorrect: true },
+                    { text: "SOC 2 (Service Organization Control 2)", rationale: "While useful for demonstrating security to clients, it is a voluntary auditing procedure for service providers, not the legal mandate governing US healthcare data.", isCorrect: false }
+                ],
+                hint: "Identify the specific region and the exact type of data being processed to determine the applicable legal framework."
+            },
+            {
+                question: "A data scientist installs a popular, seemingly benign open-source Python package for data visualization via 'pip install'. Unbeknownst to them, attackers recently compromised the package's repository to inject code that silently exfiltrates AWS environment variables. What type of threat is this?",
+                options: [
+                    { text: "Container Escape", rationale: "This involves breaking out of an isolated container to access the host operating system, which is different from executing malicious code via a trusted library.", isCorrect: false },
+                    { text: "Supply Chain Attack", rationale: "The attacker compromised a trusted third-party dependency (a link in the software supply chain) to bypass the organization's perimeter defenses.", isCorrect: true },
+                    { text: "Data Poisoning", rationale: "This attack involves altering the training data to manipulate a machine learning model's output, rather than stealing credentials via software libraries.", isCorrect: false },
+                    { text: "Zero Trust Violation", rationale: "While it represents a failure of security, 'Zero Trust' is an architectural philosophy, not a specific categorization of an attack vector.", isCorrect: false }
+                ],
+                hint: "Consider the source of the vulnerability and how the attacker leveraged the inherent trust placed in third-party software dependencies."
+            }
+        ];
+
+        // --- APP STATE ---
+        let currentTab = 'flashcards';
+        let fcIndex = 0;
+        let isFlipped = false;
+        
+        let quizIndex = 0;
+        let quizScore = 0;
+        let isQuestionAnswered = false;
+
+        // --- TAB LOGIC ---
+        function switchTab(tabId) {
+            currentTab = tabId;
+            
+            const btnFc = document.getElementById('tab-flashcards');
+            const btnQuiz = document.getElementById('tab-quiz');
+            const viewFc = document.getElementById('view-flashcards');
+            const viewQuiz = document.getElementById('view-quiz');
+
+            if (tabId === 'flashcards') {
+                btnFc.className = "px-6 py-2 rounded-md bg-white text-indigo-700 font-semibold shadow transition-all";
+                btnQuiz.className = "px-6 py-2 rounded-md text-indigo-100 hover:text-white font-medium transition-all";
+                viewFc.classList.remove('hidden');
+                viewQuiz.classList.add('hidden');
+            } else {
+                btnQuiz.className = "px-6 py-2 rounded-md bg-white text-indigo-700 font-semibold shadow transition-all";
+                btnFc.className = "px-6 py-2 rounded-md text-indigo-100 hover:text-white font-medium transition-all";
+                viewQuiz.classList.remove('hidden');
+                viewFc.classList.add('hidden');
+                
+                // Init quiz if first time
+                if (quizIndex === 0 && !isQuestionAnswered) renderQuizQuestion();
+            }
+        }
+
+        // --- FLASHCARD LOGIC ---
+        function renderFlashcard() {
+            const card = flashcards[fcIndex];
+            document.getElementById('fc-front-text').innerText = card.front;
+            document.getElementById('fc-back-text').innerText = card.back;
+            document.getElementById('flashcard-counter').innerText = `Card ${fcIndex + 1} of ${flashcards.length}`;
+            
+            // Ensure card is front-facing
+            if(isFlipped) {
+                document.getElementById('flashcard-inner').classList.remove('rotate-y-180');
+                isFlipped = false;
+            }
+        }
+
+        function flipCard() {
+            isFlipped = !isFlipped;
+            const inner = document.getElementById('flashcard-inner');
+            if(isFlipped) {
+                inner.classList.add('rotate-y-180');
+            } else {
+                inner.classList.remove('rotate-y-180');
+            }
+        }
+
+        function nextCard() {
+            fcIndex = (fcIndex + 1) % flashcards.length;
+            renderFlashcard();
+        }
+
+        function prevCard() {
+            fcIndex = (fcIndex - 1 + flashcards.length) % flashcards.length;
+            renderFlashcard();
+        }
+
+        // Add keyboard navigation for flashcards
+        document.addEventListener('keydown', (e) => {
+            if (currentTab === 'flashcards') {
+                if (e.key === 'ArrowRight') nextCard();
+                if (e.key === 'ArrowLeft') prevCard();
+                if (e.key === ' ' || e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    flipCard();
+                }
+            }
+        });
+
+        // --- QUIZ LOGIC ---
+        function renderQuizQuestion() {
+            const q = quizQuestions[quizIndex];
+            
+            // Progress dots
+            const progressContainer = document.getElementById('quiz-progress-bar');
+            progressContainer.innerHTML = '';
+            for(let i=0; i<quizQuestions.length; i++) {
+                const dot = document.createElement('div');
+                dot.className = `flex-1 h-2 rounded-full ${i < quizIndex ? 'bg-indigo-600' : (i === quizIndex ? 'bg-indigo-400' : 'bg-slate-200')}`;
+                progressContainer.appendChild(dot);
+            }
+
+            document.getElementById('quiz-score').innerText = quizScore;
+            document.getElementById('quiz-question-text').innerText = q.question;
+            
+            // Hint
+            document.getElementById('quiz-hint-text').innerText = q.hint;
+            document.getElementById('quiz-hint-text').classList.add('hidden');
+
+            // Options
+            const optsContainer = document.getElementById('quiz-options-container');
+            optsContainer.innerHTML = '';
+            
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left p-4 rounded-xl border-2 border-slate-200 hover:border-indigo-400 hover:bg-indigo-50 transition-colors font-medium text-slate-700 bg-white";
+                btn.innerText = opt.text;
+                btn.onclick = () => handleAnswer(idx);
+                btn.id = `opt-${idx}`;
+                optsContainer.appendChild(btn);
+            });
+
+            // Hide feedback
+            document.getElementById('quiz-feedback-container').classList.add('hidden');
+            isQuestionAnswered = false;
+        }
+
+        function toggleHint() {
+            const hint = document.getElementById('quiz-hint-text');
+            hint.classList.toggle('hidden');
+        }
+
+        function handleAnswer(selectedIndex) {
+            if (isQuestionAnswered) return; // Prevent multiple clicks
+            isQuestionAnswered = true;
+
+            const q = quizQuestions[quizIndex];
+            const isCorrect = q.options[selectedIndex].isCorrect;
+
+            if (isCorrect) quizScore++;
+            document.getElementById('quiz-score').innerText = quizScore;
+
+            // Highlight buttons
+            q.options.forEach((opt, idx) => {
+                const btn = document.getElementById(`opt-${idx}`);
+                btn.disabled = true;
+                btn.classList.remove('hover:border-indigo-400', 'hover:bg-indigo-50');
+                
+                if (opt.isCorrect) {
+                    btn.classList.replace('border-slate-200', 'border-green-500');
+                    btn.classList.replace('bg-white', 'bg-green-50');
+                } else if (idx === selectedIndex && !isCorrect) {
+                    btn.classList.replace('border-slate-200', 'border-red-500');
+                    btn.classList.replace('bg-white', 'bg-red-50');
+                } else {
+                    btn.classList.add('opacity-50');
+                }
+            });
+
+            // Show Feedback
+            const feedbackContainer = document.getElementById('quiz-feedback-container');
+            const feedbackTitle = document.getElementById('feedback-title');
+            const feedbackRationale = document.getElementById('feedback-rationale');
+            const feedbackIcon = document.getElementById('feedback-icon');
+
+            feedbackContainer.classList.remove('hidden', 'border-green-200', 'bg-green-50', 'border-red-200', 'bg-red-50');
+            
+            if (isCorrect) {
+                feedbackContainer.classList.add('border-green-200', 'bg-green-50');
+                feedbackTitle.innerText = "Correct!";
+                feedbackTitle.className = "font-bold text-lg mb-1 text-green-800";
+                feedbackRationale.className = "text-green-900 leading-relaxed";
+                feedbackIcon.innerHTML = `<svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+            } else {
+                feedbackContainer.classList.add('border-red-200', 'bg-red-50');
+                feedbackTitle.innerText = "Incorrect";
+                feedbackTitle.className = "font-bold text-lg mb-1 text-red-800";
+                feedbackRationale.className = "text-red-900 leading-relaxed";
+                feedbackIcon.innerHTML = `<svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+            }
+
+            feedbackRationale.innerText = q.options[selectedIndex].rationale;
+            
+            // Change next button text if it's the last question
+            if (quizIndex === quizQuestions.length - 1) {
+                document.getElementById('next-question-btn').innerText = "Finish Quiz";
+            }
+        }
+
+        function nextQuizQuestion() {
+            if (quizIndex < quizQuestions.length - 1) {
+                quizIndex++;
+                renderQuizQuestion();
+            } else {
+                // Show summary
+                document.getElementById('quiz-content').classList.add('hidden');
+                document.getElementById('quiz-summary').classList.remove('hidden');
+                document.getElementById('quiz-summary').classList.add('flex');
+                document.getElementById('final-score').innerText = quizScore;
+            }
+        }
+
+        function restartQuiz() {
+            quizIndex = 0;
+            quizScore = 0;
+            document.getElementById('quiz-summary').classList.add('hidden');
+            document.getElementById('quiz-summary').classList.remove('flex');
+            document.getElementById('quiz-content').classList.remove('hidden');
+            document.getElementById('next-question-btn').innerText = "Next Question";
+            renderQuizQuestion();
+        }
+
+        // Initialize first flashcard on load
+        renderFlashcard();
+
+    </script>
+</body>
+</html>
+
+
+
