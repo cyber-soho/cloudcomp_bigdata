@@ -1,0 +1,1594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day 02 — Data Storage and Cloud Services | Cloud Computing & Big Data Analytics</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700&family=JetBrains+Mono:wght@400;500&family=Playfair+Display:wght@700;900&display=swap');
+
+:root {
+  --deep: #0a1628;
+  --primary: #065a82;
+  --secondary: #1c7293;
+  --accent: #00a896;
+  --accent-glow: #00d4aa;
+  --surface: #f0f4f8;
+  --card: #ffffff;
+  --text: #1e293b;
+  --text-mid: #475569;
+  --text-light: #94a3b8;
+  --gold: #f9e795;
+  --red: #dc2626;
+  --green: #16a34a;
+  --border: #e2e8f0;
+  --code-bg: #0f172a;
+  --gradient-hero: linear-gradient(135deg, #0a1628 0%, #065a82 50%, #1c7293 100%);
+  --gradient-section: linear-gradient(135deg, #065a82 0%, #00a896 100%);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+  --shadow-md: 0 4px 14px rgba(0,0,0,0.1);
+  --shadow-lg: 0 10px 40px rgba(0,0,0,0.12);
+  --shadow-glow: 0 0 30px rgba(0,168,150,0.15);
+  --radius: 12px;
+  --radius-lg: 20px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; font-size: 16px; }
+
+body {
+  font-family: 'DM Sans', -apple-system, sans-serif;
+  color: var(--text);
+  background: var(--surface);
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--deep); }
+::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 4px; }
+
+/* ===== HERO ===== */
+.hero {
+  background: var(--gradient-hero);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+  padding: 2rem;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at 30% 40%, rgba(0,168,150,0.08) 0%, transparent 50%),
+              radial-gradient(circle at 70% 60%, rgba(28,114,147,0.1) 0%, transparent 50%);
+  animation: drift 20s ease-in-out infinite;
+}
+@keyframes drift {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  50% { transform: translate(-2%, 1%) rotate(1deg); }
+}
+.hero-content { position: relative; z-index: 2; max-width: 900px; }
+.hero-badge {
+  display: inline-block;
+  padding: 0.4rem 1.2rem;
+  border: 1px solid rgba(0,168,150,0.4);
+  border-radius: 100px;
+  color: var(--accent);
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  margin-bottom: 2rem;
+  backdrop-filter: blur(10px);
+  animation: fadeUp 0.8s ease-out;
+}
+.hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2.8rem, 6vw, 5rem);
+  font-weight: 900;
+  color: #fff;
+  line-height: 1.1;
+  margin-bottom: 1.5rem;
+  animation: fadeUp 0.8s ease-out 0.2s both;
+}
+.hero h1 span { color: var(--accent-glow); }
+.hero p {
+  font-size: 1.2rem;
+  color: rgba(255,255,255,0.7);
+  max-width: 600px;
+  margin: 0 auto 2.5rem;
+  animation: fadeUp 0.8s ease-out 0.4s both;
+}
+.hero-meta {
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  animation: fadeUp 0.8s ease-out 0.6s both;
+}
+.hero-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: rgba(255,255,255,0.5);
+  font-size: 0.9rem;
+}
+.hero-meta-item strong { color: var(--accent); }
+.hero-scroll {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgba(255,255,255,0.3);
+  font-size: 0.8rem;
+  animation: bounce 2s infinite;
+  cursor: pointer;
+  text-decoration: none;
+}
+@keyframes bounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(8px); }
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== NAV ===== */
+.sticky-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(10, 22, 40, 0.95);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(0,168,150,0.15);
+  padding: 0;
+}
+.nav-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  overflow-x: auto;
+  gap: 0;
+  scrollbar-width: none;
+}
+.nav-inner::-webkit-scrollbar { display: none; }
+.nav-link {
+  padding: 1rem 1.5rem;
+  color: rgba(255,255,255,0.6);
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 500;
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  transition: all 0.3s;
+}
+.nav-link:hover, .nav-link.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+/* ===== MAIN CONTAINER ===== */
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+/* ===== SECTION DIVIDERS ===== */
+.lesson-divider {
+  background: var(--gradient-section);
+  padding: 5rem 2rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  margin: 4rem 0 0;
+}
+.lesson-divider::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--accent-glow);
+}
+.lesson-divider .lesson-tag {
+  display: inline-block;
+  padding: 0.3rem 1rem;
+  background: rgba(255,255,255,0.1);
+  border-radius: 100px;
+  color: var(--gold);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  margin-bottom: 1rem;
+}
+.lesson-divider h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  color: #fff;
+  font-weight: 900;
+}
+
+/* ===== SECTIONS ===== */
+.section {
+  padding: 4rem 0 2rem;
+}
+.section-header {
+  margin-bottom: 2rem;
+}
+.section-number {
+  display: inline-block;
+  background: var(--gradient-section);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.8rem;
+  padding: 0.25rem 0.8rem;
+  border-radius: 100px;
+  margin-bottom: 0.75rem;
+}
+.section h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.8rem, 3vw, 2.4rem);
+  color: var(--primary);
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+/* ===== CARDS ===== */
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 2rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+/* ===== TABLES ===== */
+.table-wrapper {
+  overflow-x: auto;
+  margin: 1.5rem 0;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--card);
+  font-size: 0.92rem;
+}
+thead th {
+  background: var(--primary);
+  color: #fff;
+  padding: 0.9rem 1rem;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+}
+tbody td {
+  padding: 0.8rem 1rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+tbody tr:nth-child(even) { background: var(--surface); }
+tbody tr:hover { background: rgba(0,168,150,0.04); }
+tbody td strong { color: var(--primary); }
+
+/* ===== KEY TAKEAWAY ===== */
+.takeaway {
+  background: linear-gradient(135deg, rgba(0,168,150,0.06) 0%, rgba(6,90,130,0.06) 100%);
+  border-left: 4px solid var(--accent);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 1.5rem 2rem;
+  margin: 2rem 0;
+  position: relative;
+}
+.takeaway::before {
+  content: '⚡';
+  position: absolute;
+  top: -12px;
+  left: 12px;
+  background: var(--card);
+  padding: 0 0.5rem;
+  font-size: 1.2rem;
+}
+.takeaway strong {
+  color: var(--secondary);
+  display: block;
+  margin-bottom: 0.3rem;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* ===== CODE BLOCKS ===== */
+.code-block {
+  background: var(--code-bg);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin: 1.5rem 0;
+  box-shadow: var(--shadow-md);
+}
+.code-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1.25rem;
+  background: rgba(255,255,255,0.05);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.code-lang {
+  color: var(--accent);
+  font-size: 0.8rem;
+  font-weight: 600;
+  font-family: 'JetBrains Mono', monospace;
+}
+.code-filename {
+  color: rgba(255,255,255,0.4);
+  font-size: 0.8rem;
+  font-family: 'JetBrains Mono', monospace;
+}
+.code-copy {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.6);
+  padding: 0.3rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'DM Sans', sans-serif;
+}
+.code-copy:hover { background: rgba(0,168,150,0.2); color: var(--accent); }
+pre {
+  padding: 1.25rem;
+  overflow-x: auto;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82rem;
+  line-height: 1.65;
+  color: #e2e8f0;
+}
+pre .comment { color: #64748b; font-style: italic; }
+pre .keyword { color: #c084fc; }
+pre .string { color: #86efac; }
+pre .function { color: #67e8f9; }
+pre .number { color: #fbbf24; }
+
+/* ===== EXAMPLE BOX ===== */
+.example-box {
+  background: var(--card);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin: 2rem 0;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border);
+}
+.example-header {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  padding: 1.25rem 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.example-icon {
+  width: 36px;
+  height: 36px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+.example-header h4 {
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+}
+.example-header p {
+  color: rgba(255,255,255,0.7);
+  font-size: 0.85rem;
+  margin-top: 0.15rem;
+}
+.example-body { padding: 2rem; }
+
+/* ===== DIAGRAM ===== */
+.diagram {
+  background: var(--code-bg);
+  border-radius: var(--radius);
+  padding: 2rem;
+  margin: 1.5rem 0;
+  overflow-x: auto;
+}
+.diagram pre {
+  padding: 0;
+  color: var(--accent-glow);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+/* ===== STEP EXPLANATION ===== */
+.step-list {
+  list-style: none;
+  counter-reset: step;
+  margin: 1.5rem 0;
+}
+.step-list li {
+  counter-increment: step;
+  padding: 0.8rem 0 0.8rem 3rem;
+  position: relative;
+  border-bottom: 1px solid var(--border);
+}
+.step-list li:last-child { border-bottom: none; }
+.step-list li::before {
+  content: counter(step);
+  position: absolute;
+  left: 0;
+  top: 0.8rem;
+  width: 28px;
+  height: 28px;
+  background: var(--gradient-section);
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+/* ===== ACCORDION (for code explanations) ===== */
+.accordion { margin: 1rem 0; }
+.accordion-toggle {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--primary);
+  transition: all 0.2s;
+}
+.accordion-toggle:hover { background: rgba(0,168,150,0.06); }
+.accordion-toggle .arrow { transition: transform 0.3s; font-size: 0.8rem; }
+.accordion-toggle.open .arrow { transform: rotate(180deg); }
+.accordion-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease-out;
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 var(--radius) var(--radius);
+}
+.accordion-content.open { max-height: 3000px; }
+.accordion-inner { padding: 1.5rem; }
+
+/* ===== GRID LAYOUTS ===== */
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin: 1.5rem 0;
+}
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+  margin: 1.5rem 0;
+}
+
+/* ===== STAT CARDS ===== */
+.stat-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  text-align: center;
+  border: 1px solid var(--border);
+  transition: all 0.3s;
+}
+.stat-card:hover {
+  border-color: var(--accent);
+  box-shadow: var(--shadow-glow);
+}
+.stat-value {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: var(--primary);
+  line-height: 1;
+}
+.stat-label {
+  color: var(--text-mid);
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+}
+
+/* ===== SERVICE MODEL CARDS ===== */
+.model-card {
+  background: var(--card);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  transition: all 0.3s;
+}
+.model-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+.model-card-header {
+  padding: 1.5rem;
+  color: #fff;
+}
+.model-card-header h4 { font-size: 1.1rem; margin-bottom: 0.25rem; }
+.model-card-header p { font-size: 0.85rem; opacity: 0.8; }
+.model-card-body { padding: 1.5rem; }
+.model-card-body li { padding: 0.3rem 0; font-size: 0.9rem; color: var(--text-mid); }
+
+/* ===== LINKS SECTION ===== */
+.link-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.8rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.link-item:last-child { border-bottom: none; }
+.link-item a {
+  color: var(--primary);
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.link-item a:hover { color: var(--accent); }
+.link-desc { color: var(--text-mid); font-size: 0.85rem; }
+
+/* ===== PROGRESS BAR ===== */
+.progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  background: var(--accent-glow);
+  z-index: 1000;
+  transition: width 0.1s;
+  box-shadow: 0 0 10px var(--accent);
+}
+
+/* ===== DISCLAIMER ===== */
+.disclaimer {
+  background: var(--deep);
+  color: rgba(255,255,255,0.6);
+  padding: 4rem 2rem;
+  margin-top: 4rem;
+  font-size: 0.85rem;
+  line-height: 1.8;
+}
+.disclaimer h3 { color: var(--accent); margin-bottom: 0.8rem; font-size: 1rem; }
+.disclaimer a { color: var(--accent); }
+.disclaimer .grid-2 { gap: 3rem; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .hero { min-height: 80vh; padding: 2rem 1rem; }
+  .hero h1 { font-size: 2.2rem; }
+  .card, .example-body { padding: 1.25rem; }
+  .nav-link { padding: 0.8rem 1rem; font-size: 0.8rem; }
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  pre { font-size: 0.75rem; }
+}
+
+/* ===== ANIMATIONS ===== */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+</style>
+</head>
+<body>
+
+<!-- Progress Bar -->
+<div class="progress-bar" id="progressBar"></div>
+
+<!-- ===== HERO ===== -->
+<section class="hero" id="top">
+  <div class="hero-content">
+    <div class="hero-badge">DAY 02 · CLOUD COMPUTING & BIG DATA ANALYTICS</div>
+    <h1>Data Storage &amp;<br><span>Cloud Services</span></h1>
+    <p>From the NAND flash chips in your phone to petabyte-scale data lakes in the cloud — master the foundations that power every data science pipeline.</p>
+    <div class="hero-meta">
+      <div class="hero-meta-item">📚 <strong>Program</strong>&nbsp; Digital Science — Graduate</div>
+      <div class="hero-meta-item">⏱ <strong>Duration</strong>&nbsp; 90 Minutes</div>
+      <div class="hero-meta-item">✍️ <strong>Author</strong>&nbsp; Cyber.SoHo © 2026</div>
+    </div>
+  </div>
+  <a href="#nav" class="hero-scroll">↓ Scroll to begin</a>
+</section>
+
+<!-- ===== NAVIGATION ===== -->
+<nav class="sticky-nav" id="nav">
+  <div class="nav-inner">
+    <a href="#L1" class="nav-link">Lesson 1: Data Storage</a>
+    <a href="#s1-1" class="nav-link">1.1 Foundations</a>
+    <a href="#s1-2" class="nav-link">1.2 Architectures</a>
+    <a href="#s1-3" class="nav-link">1.3 Data Types</a>
+    <a href="#s1-4" class="nav-link">1.4 SQL</a>
+    <a href="#s1-5" class="nav-link">1.5 NoSQL</a>
+    <a href="#s1-6" class="nav-link">1.6 Lake vs Warehouse</a>
+    <a href="#L2" class="nav-link">Lesson 2: Cloud Services</a>
+    <a href="#s2-1" class="nav-link">2.1 Cloud Basics</a>
+    <a href="#s2-2" class="nav-link">2.2 IaaS/PaaS/SaaS</a>
+    <a href="#s2-3" class="nav-link">2.3 Big Three</a>
+    <a href="#s2-4" class="nav-link">2.4 Storage Services</a>
+    <a href="#s2-5" class="nav-link">2.5 Serverless</a>
+    <a href="#s2-6" class="nav-link">2.6 Security</a>
+    <a href="#resources" class="nav-link">Resources</a>
+  </div>
+</nav>
+
+<!-- ============================================================ -->
+<!-- LESSON 1: DATA STORAGE                                        -->
+<!-- ============================================================ -->
+
+<div class="lesson-divider" id="L1">
+  <div class="lesson-tag">LESSON 1</div>
+  <h2>Data Storage</h2>
+</div>
+
+<div class="container">
+
+<!-- ===== 1.1 ===== -->
+<section class="section reveal" id="s1-1">
+  <div class="section-header">
+    <div class="section-number">SECTION 1.1</div>
+    <h2>What Is Data Storage? — The Foundation of Everything</h2>
+  </div>
+
+  <div class="card">
+    <p>Data storage refers to the recording and preservation of digital information using technology specifically designed for keeping that data accessible for future use. Every photograph on your phone, every transaction in your bank account, every heartbeat recorded by a smartwatch — all of this is <strong>data</strong> that must be <strong>stored</strong> somewhere.</p>
+    <p style="margin-top:1rem;">At the hardware level, storage devices translate information into electromagnetic, optical, or electronic signals. At the software level, storage systems organize those signals into files, records, tables, and objects that applications can read and write efficiently.</p>
+  </div>
+
+  <h3 style="color:var(--primary); margin: 2rem 0 1rem; font-size:1.2rem;">Why Should a Data Scientist Care About Storage?</h3>
+
+  <div class="grid-2">
+    <div class="stat-card"><div class="stat-value" style="color:var(--primary)">Speed</div><div class="stat-label">How fast you can query 10 billion rows</div></div>
+    <div class="stat-card"><div class="stat-value" style="color:var(--accent)">Cost</div><div class="stat-label">$50/month vs. $50,000/month</div></div>
+    <div class="stat-card"><div class="stat-value" style="color:var(--green)">Reliability</div><div class="stat-label">Silent failure recovery vs. data loss</div></div>
+    <div class="stat-card"><div class="stat-value" style="color:var(--secondary)">Scalability</div><div class="stat-label">Handles 2× growth without breaking</div></div>
+  </div>
+
+  <!-- Example 1.1 -->
+  <div class="example-box">
+    <div class="example-header">
+      <div class="example-icon">📱</div>
+      <div>
+        <h4>Real-Life Example — Your Smartphone as a Storage System</h4>
+        <p>Understand data storage by examining a device you already own</p>
+      </div>
+    </div>
+    <div class="example-body">
+      <p>Your smartphone contains between 64 GB (Gigabytes) and 1 TB (Terabyte) of storage. When you take a photograph, the camera sensor captures light, the processor compresses it into JPEG (Joint Photographic Experts Group) or HEIF (High Efficiency Image File Format), and the operating system writes that file to NAND (Negative-AND logic gate) flash memory. The file system — APFS (Apple File System) on iPhones or ext4 (Fourth Extended File System) on Android — keeps an index so you can find that photo later without searching every cell.</p>
+
+      <div class="diagram">
+<pre>┌─────────────────────────────────────────────────┐
+│              APPLICATION LAYER                   │
+│   (Photos App, Messages, Social Media, etc.)     │
+├─────────────────────────────────────────────────┤
+│             FILE SYSTEM LAYER                    │
+│   (APFS / ext4 / F2FS — organizes data into     │
+│    files, folders, and metadata indexes)          │
+├─────────────────────────────────────────────────┤
+│          FLASH TRANSLATION LAYER (FTL)           │
+│   (Maps logical addresses to physical NAND       │
+│    cells; handles wear leveling)                  │
+├─────────────────────────────────────────────────┤
+│           PHYSICAL STORAGE LAYER                 │
+│   (NAND Flash Memory Chips — stores bits as      │
+│    electrical charges in transistors)             │
+└─────────────────────────────────────────────────┘</pre>
+      </div>
+
+      <!-- Code Example -->
+      <div class="code-block">
+        <div class="code-header">
+          <div><span class="code-lang">Python</span> <span class="code-filename">simple_storage_simulator.py</span></div>
+          <button class="code-copy" onclick="copyCode(this)">Copy</button>
+        </div>
+<pre><span class="comment"># Import modules for file system operations, JSON serialization, and timestamps</span>
+<span class="keyword">import</span> os, json
+<span class="keyword">from</span> datetime <span class="keyword">import</span> datetime
+
+<span class="keyword">class</span> <span class="function">SimpleStorageSystem</span>:
+    <span class="keyword">def</span> <span class="function">__init__</span>(self, storage_path=<span class="string">"my_data_store"</span>):
+        <span class="comment"># Create the storage directory (like provisioning a cloud bucket)</span>
+        self.storage_path = storage_path
+        os.makedirs(self.storage_path, exist_ok=<span class="keyword">True</span>)
+
+    <span class="keyword">def</span> <span class="function">store</span>(self, filename, data):
+        <span class="comment"># Write data with metadata (timestamp, size) as JSON</span>
+        record = {<span class="string">"metadata"</span>: {<span class="string">"created"</span>: <span class="function">str</span>(datetime.now())}, <span class="string">"data"</span>: data}
+        <span class="keyword">with</span> <span class="function">open</span>(os.path.join(self.storage_path, filename), <span class="string">'w'</span>) <span class="keyword">as</span> f:
+            json.dump(record, f, indent=<span class="number">4</span>)
+
+    <span class="keyword">def</span> <span class="function">retrieve</span>(self, filename):
+        <span class="comment"># Read data back from disk by filename</span>
+        <span class="keyword">with</span> <span class="function">open</span>(os.path.join(self.storage_path, filename), <span class="string">'r'</span>) <span class="keyword">as</span> f:
+            <span class="keyword">return</span> json.load(f)[<span class="string">"data"</span>]
+
+<span class="comment"># Demo: store, retrieve, and list files</span>
+storage = SimpleStorageSystem()
+storage.store(<span class="string">"student.json"</span>, {<span class="string">"name"</span>: <span class="string">"Alice"</span>, <span class="string">"grade"</span>: <span class="string">"A"</span>})
+<span class="function">print</span>(storage.retrieve(<span class="string">"student.json"</span>))</pre>
+      </div>
+
+      <div class="accordion">
+        <button class="accordion-toggle" onclick="toggleAccordion(this)">
+          Step-by-Step Explanation <span class="arrow">▼</span>
+        </button>
+        <div class="accordion-content">
+          <div class="accordion-inner">
+            <ol class="step-list">
+              <li><strong>Imports:</strong> <code>os</code> for file system operations, <code>json</code> for data serialization, <code>datetime</code> for timestamps — standard Python libraries.</li>
+              <li><strong>Class Definition:</strong> <code>SimpleStorageSystem</code> bundles all storage logic, mirroring how cloud storage services expose an API (Application Programming Interface).</li>
+              <li><strong><code>store()</code> — Writing Data:</strong> Wraps data with metadata and writes it as JSON. This illustrates the "Create" operation in CRUD (Create, Read, Update, Delete).</li>
+              <li><strong><code>retrieve()</code> — Reading Data:</strong> Looks up a file by name, deserializes it, and returns the data. This is the "Read" operation.</li>
+              <li><strong>Demo Block:</strong> Creates a storage instance, stores a student record, and retrieves it — showing the complete lifecycle.</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="takeaway">
+    <strong>Key Takeaway</strong>
+    Storage is not just an IT concern — it directly shapes what analytics are <em>possible</em> and <em>affordable</em>. The same write-index-retrieve principles apply from phones to petabyte data centers.
+  </div>
+</section>
+
+<!-- ===== 1.2 ===== -->
+<section class="section reveal" id="s1-2">
+  <div class="section-header">
+    <div class="section-number">SECTION 1.2</div>
+    <h2>The Three Fundamental Storage Architectures</h2>
+  </div>
+
+  <div class="table-wrapper">
+    <table>
+      <thead><tr><th>Architecture</th><th>Analogy</th><th>Best For</th><th>Cloud Examples</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Block Storage</strong></td><td>Blank hard drive split into chunks</td><td>Databases, VMs, OS boot volumes</td><td>AWS EBS (Elastic Block Store), Azure Managed Disks</td></tr>
+        <tr><td><strong>File Storage</strong></td><td>Shared filing cabinet</td><td>Collaboration, home directories, media</td><td>AWS EFS (Elastic File System), Azure Files, NFS (Network File System)</td></tr>
+        <tr><td><strong>Object Storage</strong></td><td>Warehouse of labeled boxes</td><td>Data lakes, backups, ML datasets, media archives</td><td><a href="https://aws.amazon.com/s3/" target="_blank">AWS S3</a>, <a href="https://azure.microsoft.com/en-us/products/storage/blobs" target="_blank">Azure Blob</a>, <a href="https://cloud.google.com/storage" target="_blank">GCS</a></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="grid-3">
+    <div class="card">
+      <h4 style="color:var(--primary); margin-bottom:0.5rem;">Block Storage</h4>
+      <p>Fixed-size blocks (512 B — 4 KB), unique addresses, lowest latency (~1 ms), highest IOPS (Input/Output Operations Per Second) — up to 64,000. Used by <a href="https://www.postgresql.org/" target="_blank">PostgreSQL</a>, <a href="https://www.mysql.com/" target="_blank">MySQL</a>.</p>
+    </div>
+    <div class="card">
+      <h4 style="color:var(--secondary); margin-bottom:0.5rem;">File Storage</h4>
+      <p>Hierarchical directories and files. Access via NFS (Network File System) or SMB (Server Message Block). Multiple users read/write simultaneously. Most intuitive model.</p>
+    </div>
+    <div class="card">
+      <h4 style="color:var(--accent); margin-bottom:0.5rem;">Object Storage</h4>
+      <p>Each object = data + metadata + unique ID. Flat namespace in buckets. Scales to petabytes. 99.999999999% durability (eleven nines). Backbone of the modern data lake.</p>
+    </div>
+  </div>
+
+  <!-- Example 1.2 -->
+  <div class="example-box">
+    <div class="example-header">
+      <div class="example-icon">🎬</div>
+      <div>
+        <h4>Real-Life Example — Netflix and the Three Storage Types</h4>
+        <p>How a streaming platform uses all three architectures simultaneously</p>
+      </div>
+    </div>
+    <div class="example-body">
+      <p><a href="https://www.netflix.com/" target="_blank">Netflix</a> stores petabytes of video in <strong>Object Storage</strong> (S3) for cheap, durable content delivery. Their ML recommendation engine uses <strong>Block Storage</strong> (EBS) for fast database I/O. Internal teams share configs via <strong>File Storage</strong> (EFS) for concurrent collaboration.</p>
+      <div class="diagram">
+<pre>                    ┌──────────────────────────┐
+                    │     NETFLIX PLATFORM      │
+                    └──────────┬───────────────┘
+            ┌──────────────────┼──────────────────┐
+            ▼                  ▼                   ▼
+   ┌─────────────────┐ ┌──────────────┐  ┌──────────────────┐
+   │  OBJECT STORAGE  │ │BLOCK STORAGE │  │  FILE STORAGE    │
+   │    (AWS S3)      │ │  (AWS EBS)   │  │   (AWS EFS)      │
+   ├─────────────────┤ ├──────────────┤  ├──────────────────┤
+   │ Video files      │ │ ML databases │  │ Shared configs   │
+   │ Petabyte scale   │ │ High IOPS    │  │ Multi-user       │
+   │ 11 nines durable │ │ Low latency  │  │ concurrent R/W   │
+   └─────────────────┘ └──────────────┘  └──────────────────┘</pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <div><span class="code-lang">Python</span> <span class="code-filename">storage_types_benchmark.py</span></div>
+          <button class="code-copy" onclick="copyCode(this)">Copy</button>
+        </div>
+<pre><span class="keyword">import</span> random
+
+<span class="comment"># Performance profiles based on real cloud benchmarks</span>
+PROFILES = {
+    <span class="string">"Block (EBS)"</span>:  {<span class="string">"latency_ms"</span>: <span class="number">1.0</span>,  <span class="string">"cost_gb"</span>: <span class="number">0.10</span>,  <span class="string">"iops"</span>: <span class="number">64000</span>},
+    <span class="string">"File (EFS)"</span>:   {<span class="string">"latency_ms"</span>: <span class="number">5.0</span>,  <span class="string">"cost_gb"</span>: <span class="number">0.30</span>,  <span class="string">"iops"</span>: <span class="number">35000</span>},
+    <span class="string">"Object (S3)"</span>:  {<span class="string">"latency_ms"</span>: <span class="number">20.0</span>, <span class="string">"cost_gb"</span>: <span class="number">0.023</span>, <span class="string">"iops"</span>: <span class="number">5500</span>},
+}
+
+<span class="comment"># Simulate 5 reads per type with ±30% variance</span>
+<span class="keyword">for</span> name, p <span class="keyword">in</span> PROFILES.items():
+    reads = [<span class="function">round</span>(p[<span class="string">"latency_ms"</span>] * random.uniform(<span class="number">0.7</span>, <span class="number">1.3</span>), <span class="number">2</span>) <span class="keyword">for</span> _ <span class="keyword">in</span> <span class="function">range</span>(<span class="number">5</span>)]
+    cost_500gb = p[<span class="string">"cost_gb"</span>] * <span class="number">500</span>
+    <span class="function">print</span>(<span class="string">f"{name:15} | Latencies: {reads} ms | 500GB: ${cost_500gb:.2f}/mo"</span>)</pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="takeaway">
+    <strong>Key Takeaway</strong>
+    No single storage type does everything. <strong>Block = fastest</strong> (databases). <strong>Object = cheapest</strong> (data lakes). <strong>File = most collaborative</strong> (shared access). Choose by workload.
+  </div>
+</section>
+
+<!-- ===== 1.3 ===== -->
+<section class="section reveal" id="s1-3">
+  <div class="section-header">
+    <div class="section-number">SECTION 1.3</div>
+    <h2>Structured vs. Unstructured vs. Semi-Structured Data</h2>
+  </div>
+
+  <div class="table-wrapper">
+    <table>
+      <thead><tr><th>Category</th><th>Structure</th><th>% of Global Data</th><th>Examples</th><th>Best Storage</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Structured</strong></td><td>Rows &amp; columns, fixed schema</td><td>~20%</td><td>Bank transactions, employee records</td><td>Relational DB (PostgreSQL, MySQL)</td></tr>
+        <tr><td><strong>Unstructured</strong></td><td>No predefined schema</td><td>~80%</td><td>Images, video, audio, PDFs, emails</td><td>Object Storage (S3, Azure Blob)</td></tr>
+        <tr><td><strong>Semi-Structured</strong></td><td>Tags/keys, no rigid table</td><td>Growing rapidly</td><td>JSON, XML, YAML, log files, CSV</td><td>Document DB / Data Lake</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="example-box">
+    <div class="example-header">
+      <div class="example-icon">🏥</div>
+      <div>
+        <h4>Real-Life Example — A Hospital's Data Ecosystem</h4>
+        <p>All three data types coexist in a single organization</p>
+      </div>
+    </div>
+    <div class="example-body">
+      <p><strong>Structured:</strong> Patient demographics in the EHR (Electronic Health Record) — name, DOB, insurance ID. <strong>Unstructured:</strong> X-ray images, MRI (Magnetic Resonance Imaging) scans, audio recordings. <strong>Semi-Structured:</strong> HL7 (Health Level Seven) messages, JSON lab results, XML discharge summaries.</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <div><span class="code-lang">Python</span> <span class="code-filename">data_classifier.py</span></div>
+          <button class="code-copy" onclick="copyCode(this)">Copy</button>
+        </div>
+<pre><span class="keyword">import</span> os
+
+<span class="comment"># Map file extensions to data categories</span>
+EXT_MAP = {
+    <span class="string">".csv"</span>: <span class="string">"Structured"</span>, <span class="string">".parquet"</span>: <span class="string">"Structured"</span>, <span class="string">".sql"</span>: <span class="string">"Structured"</span>,
+    <span class="string">".json"</span>: <span class="string">"Semi-Structured"</span>, <span class="string">".xml"</span>: <span class="string">"Semi-Structured"</span>, <span class="string">".log"</span>: <span class="string">"Semi-Structured"</span>,
+    <span class="string">".jpg"</span>: <span class="string">"Unstructured"</span>, <span class="string">".mp4"</span>: <span class="string">"Unstructured"</span>, <span class="string">".pdf"</span>: <span class="string">"Unstructured"</span>,
+}
+
+<span class="comment"># Classify a list of hospital files</span>
+<span class="keyword">for</span> f <span class="keyword">in</span> [<span class="string">"patient_records.csv"</span>, <span class="string">"mri_scan.jpg"</span>, <span class="string">"lab_results.json"</span>]:
+    ext = os.path.splitext(f)[<span class="number">1</span>].lower()
+    category = EXT_MAP.get(ext, <span class="string">"Unknown"</span>)
+    <span class="function">print</span>(<span class="string">f"{f:25} → {category}"</span>)</pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="takeaway">
+    <strong>Key Takeaway</strong>
+    The <em>nature</em> of your data dictates the <em>type</em> of storage. 80% of the world's data is unstructured — that's where the biggest opportunities in data science live.
+  </div>
+</section>
+
+<!-- ===== 1.4 ===== -->
+<section class="section reveal" id="s1-4">
+  <div class="section-header">
+    <div class="section-number">SECTION 1.4</div>
+    <h2>Relational Databases and SQL — The Workhorse of Structured Data</h2>
+  </div>
+
+  <div class="card">
+    <p>Invented by Edgar F. Codd at <a href="https://www.ibm.com/" target="_blank">IBM</a> (International Business Machines Corporation) in 1970, the relational model organizes data into <strong>tables</strong> where rows = records and columns = attributes. <strong>SQL</strong> (Structured Query Language), standardized by <a href="https://www.ansi.org/" target="_blank">ANSI</a> (American National Standards Institute) and <a href="https://www.iso.org/" target="_blank">ISO</a> (International Organization for Standardization), remains the most widely used data query language in the world.</p>
+  </div>
+
+  <h3 style="color:var(--primary); margin:2rem 0 1rem; font-size:1.1rem;">Core Concepts</h3>
+  <div class="grid-2">
+    <div class="card"><strong>Primary Key:</strong> Unique identifier per row (e.g., StudentID)</div>
+    <div class="card"><strong>Foreign Key:</strong> Links tables via referential relationships</div>
+    <div class="card"><strong>JOINs:</strong> Reconstruct complex relationships from simple tables</div>
+    <div class="card"><strong>Normalization:</strong> Reduce redundancy, improve integrity</div>
+  </div>
+
+  <h3 style="color:var(--primary); margin:2rem 0 1rem; font-size:1.1rem;">ACID (Atomicity, Consistency, Isolation, Durability) Properties</h3>
+  <div class="grid-2">
+    <div class="stat-card"><div class="stat-value" style="font-size:1.5rem; color:var(--primary)">A</div><div class="stat-label"><strong>Atomicity</strong> — All or nothing</div></div>
+    <div class="stat-card"><div class="stat-value" style="font-size:1.5rem; color:var(--secondary)">C</div><div class="stat-label"><strong>Consistency</strong> — Valid state → valid state</div></div>
+    <div class="stat-card"><div class="stat-value" style="font-size:1.5rem; color:var(--accent)">I</div><div class="stat-label"><strong>Isolation</strong> — Concurrent txns don't interfere</div></div>
+    <div class="stat-card"><div class="stat-value" style="font-size:1.5rem; color:var(--green)">D</div><div class="stat-label"><strong>Durability</strong> — Committed data survives crashes</div></div>
+  </div>
+
+  <div class="table-wrapper" style="margin-top:2rem;">
+    <table>
+      <thead><tr><th>Platform</th><th>License</th><th>Strength</th></tr></thead>
+      <tbody>
+        <tr><td><a href="https://www.postgresql.org/" target="_blank"><strong>PostgreSQL</strong></a></td><td>Open-source</td><td>Feature-rich, extensible, data science friendly</td></tr>
+        <tr><td><a href="https://www.mysql.com/" target="_blank"><strong>MySQL</strong></a></td><td>Open-source</td><td>Speed, simplicity, web applications</td></tr>
+        <tr><td><a href="https://www.microsoft.com/en-us/sql-server" target="_blank"><strong>SQL Server</strong></a></td><td>Commercial</td><td>Enterprise Microsoft integration</td></tr>
+        <tr><td><a href="https://www.oracle.com/database/" target="_blank"><strong>Oracle DB</strong></a></td><td>Commercial</td><td>High-performance, banking/telco</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="example-box" style="margin-top:2rem;">
+    <div class="example-header">
+      <div class="example-icon">🎓</div>
+      <div>
+        <h4>Real-Life Example — University Registration System</h4>
+        <p>The database behind your enrollment in this very course</p>
+      </div>
+    </div>
+    <div class="example-body">
+      <div class="code-block">
+        <div class="code-header">
+          <div><span class="code-lang">Python + SQL</span> <span class="code-filename">university_registration_db.py</span></div>
+          <button class="code-copy" onclick="copyCode(this)">Copy</button>
+        </div>
+<pre><span class="keyword">import</span> sqlite3
+
+conn = sqlite3.connect(<span class="string">":memory:"</span>)
+cur = conn.cursor()
+cur.execute(<span class="string">"PRAGMA foreign_keys = ON"</span>)
+
+<span class="comment"># Create tables with primary and foreign keys</span>
+cur.execute(<span class="string">"""CREATE TABLE students (
+    student_id INTEGER PRIMARY KEY, first_name TEXT, last_name TEXT)"""</span>)
+cur.execute(<span class="string">"""CREATE TABLE courses (
+    course_id INTEGER PRIMARY KEY, name TEXT, credits INTEGER)"""</span>)
+cur.execute(<span class="string">"""CREATE TABLE enrollments (
+    student_id INTEGER, course_id INTEGER, grade TEXT,
+    FOREIGN KEY (student_id) REFERENCES students(student_id),
+    FOREIGN KEY (course_id) REFERENCES courses(course_id))"""</span>)
+
+<span class="comment"># Insert sample data</span>
+cur.execute(<span class="string">"INSERT INTO students VALUES (1, 'Alice', 'Moreau')"</span>)
+cur.execute(<span class="string">"INSERT INTO courses VALUES (1, 'Cloud Computing', 3)"</span>)
+cur.execute(<span class="string">"INSERT INTO enrollments VALUES (1, 1, 'A')"</span>)
+
+<span class="comment"># JOIN query — the fundamental power of relational databases</span>
+cur.execute(<span class="string">"""SELECT s.first_name, c.name, e.grade
+    FROM enrollments e
+    JOIN students s ON e.student_id = s.student_id
+    JOIN courses c  ON e.course_id  = c.course_id"""</span>)
+<span class="keyword">for</span> row <span class="keyword">in</span> cur.fetchall():
+    <span class="function">print</span>(<span class="string">f"{row[0]} | {row[1]} | Grade: {row[2]}"</span>)</pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="takeaway">
+    <strong>Key Takeaway</strong>
+    Relational databases + SQL have been the workhorse of structured data for 50+ years. Master JOINs and ACID — they appear in every data pipeline you will ever build.
+  </div>
+</section>
+
+<!-- ===== 1.5 ===== -->
+<section class="section reveal" id="s1-5">
+  <div class="section-header">
+    <div class="section-number">SECTION 1.5</div>
+    <h2>NoSQL Databases — Beyond Tables and Rows</h2>
+  </div>
+
+  <div class="table-wrapper">
+    <table>
+      <thead><tr><th>Type</th><th>Data Model</th><th>Best For</th><th>Examples</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Document</strong></td><td>JSON/BSON documents</td><td>Content, catalogs, profiles</td><td><a href="https://www.mongodb.com/" target="_blank">MongoDB</a>, CouchDB</td></tr>
+        <tr><td><strong>Key-Value</strong></td><td>Key → Value pairs</td><td>Sessions, caching, carts</td><td><a href="https://redis.io/" target="_blank">Redis</a>, <a href="https://aws.amazon.com/dynamodb/" target="_blank">DynamoDB</a></td></tr>
+        <tr><td><strong>Column-Family</strong></td><td>Dynamic column groups</td><td>Time-series, IoT, analytics</td><td><a href="https://cassandra.apache.org/" target="_blank">Cassandra</a>, HBase</td></tr>
+        <tr><td><strong>Graph</strong></td><td>Nodes + Edges</td><td>Social networks, fraud detection</td><td><a href="https://neo4j.com/" target="_blank">Neo4j</a>, Neptune</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 style="color:var(--primary); margin:2rem 0 1rem; font-size:1.1rem;">The CAP Theorem (Eric Brewer, <a href="https://www.berkeley.edu/" target="_blank">UC Berkeley</a>, 2000)</h3>
+  <div class="card">
+    <p>Any <strong>distributed database</strong> can guarantee at most <strong>two of three</strong>:</p>
+    <div class="grid-3" style="margin-top:1rem;">
+      <div class="stat-card"><div class="stat-value" style="font-size:2rem; color:var(--primary)">C</div><div class="stat-label"><strong>Consistency</strong><br>Every read returns latest write</div></div>
+      <div class="stat-card"><div class="stat-value" style="font-size:2rem; color:var(--accent)">A</div><div class="stat-label"><strong>Availability</strong><br>Every request gets a response</div></div>
+      <div class="stat-card"><div class="stat-value" style="font-size:2rem; color:var(--secondary)">P</div><div class="stat-label"><strong>Partition Tolerance</strong><br>Works despite network splits</div></div>
+    </div>
+    <p style="margin-top:1rem; color:var(--text-mid);">MongoDB → CP | Cassandra → AP | Traditional RDBMS → CA (not distributed)</p>
+  </div>
+
+  <div class="takeaway">
+    <strong>Key Takeaway</strong>
+    There is no "best" database. SQL excels at structured, transactional data. NoSQL excels at flexibility and scale. The CAP theorem explains why distributed systems always involve trade-offs.
+  </div>
+</section>
+
+<!-- ===== 1.6 ===== -->
+<section class="section reveal" id="s1-6">
+  <div class="section-header">
+    <div class="section-number">SECTION 1.6</div>
+    <h2>Data Lakes, Data Warehouses, and the Lakehouse</h2>
+  </div>
+
+  <div class="grid-2">
+    <div class="model-card">
+      <div class="model-card-header" style="background:var(--primary);">
+        <h4>Data Warehouse</h4>
+        <p>Cleaned, structured, optimized for SQL</p>
+      </div>
+      <div class="model-card-body">
+        <ul>
+          <li>ETL (Extract, Transform, Load) pipeline</li>
+          <li>Schema-on-write — structure enforced at load time</li>
+          <li>Fastest queries (pre-optimized)</li>
+          <li>Higher cost per GB</li>
+          <li>Best for: BI reporting, dashboards</li>
+          <li><em><a href="https://www.snowflake.com/" target="_blank">Snowflake</a>, <a href="https://aws.amazon.com/redshift/" target="_blank">Redshift</a>, <a href="https://cloud.google.com/bigquery" target="_blank">BigQuery</a></em></li>
+        </ul>
+      </div>
+    </div>
+    <div class="model-card">
+      <div class="model-card-header" style="background:var(--secondary);">
+        <h4>Data Lake</h4>
+        <p>Raw, native format, all data types</p>
+      </div>
+      <div class="model-card-body">
+        <ul>
+          <li>ELT (Extract, Load, Transform) pattern</li>
+          <li>Schema-on-read — structure applied at query time</li>
+          <li>Variable query speed</li>
+          <li>Lower cost per GB</li>
+          <li>Best for: ML training, data exploration</li>
+          <li><em><a href="https://aws.amazon.com/s3/" target="_blank">AWS S3</a> + Glue, Azure Data Lake Storage</em></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="border-left: 4px solid var(--accent);">
+    <h4 style="color:var(--accent); margin-bottom:0.5rem;">The Data Lakehouse — Best of Both Worlds</h4>
+    <p>Combines lake storage costs with warehouse query performance. ACID guarantees on raw data. Pioneered by <a href="https://www.databricks.com/" target="_blank">Databricks</a> (Delta Lake), adopted by Apache Iceberg &amp; Hudi. Rapidly becoming the new standard.</p>
+  </div>
+
+  <div class="takeaway">
+    <strong>Key Takeaway</strong>
+    Data lakes store everything cheaply. Data warehouses query fast. The lakehouse gives you both. Understand ETL vs. ELT — it defines your pipeline architecture.
+  </div>
+</section>
+
+</div><!-- end container L1 -->
+
+<!-- ============================================================ -->
+<!-- LESSON 2: CLOUD SERVICES                                      -->
+<!-- ============================================================ -->
+
+<div class="lesson-divider" id="L2">
+  <div class="lesson-tag">LESSON 2</div>
+  <h2>Cloud Services</h2>
+</div>
+
+<div class="container">
+
+<!-- ===== 2.1 ===== -->
+<section class="section reveal" id="s2-1">
+  <div class="section-header">
+    <div class="section-number">SECTION 2.1</div>
+    <h2>What Are Cloud Services? — Computing as a Utility</h2>
+  </div>
+
+  <div class="card">
+    <p><strong>Cloud computing</strong> is the delivery of computing resources — servers, storage, databases, networking, software — over the internet on a <strong>pay-as-you-go</strong> basis. The <a href="https://www.nist.gov/" target="_blank">NIST</a> (National Institute of Standards and Technology) defines five essential characteristics:</p>
+  </div>
+
+  <div class="grid-3" style="margin-top:1rem;">
+    <div class="stat-card"><div class="stat-value" style="font-size:1.5rem">1</div><div class="stat-label"><strong>On-demand self-service</strong><br>Provision automatically, no human needed</div></div>
+    <div class="stat-card"><div class="stat-value" style="font-size:1.5rem">2</div><div class="stat-label"><strong>Broad network access</strong><br>Available via browsers, APIs (Application Programming Interfaces), CLIs (Command-Line Interfaces)</div></div>
+    <div class="stat-card"><div class="stat-value" style="font-size:1.5rem">3</div><div class="stat-label"><strong>Resource pooling</strong><br>Multi-tenant, dynamically assigned</div></div>
+    <div class="stat-card"><div class="stat-value" style="font-size:1.5rem">4</div><div class="stat-label"><strong>Rapid elasticity</strong><br>Scale up/down to match demand</div></div>
+    <div class="stat-card"><div class="stat-value" style="font-size:1.5rem">5</div><div class="stat-label"><strong>Measured service</strong><br>Pay-per-use billing</div></div>
+  </div>
+
+  <div class="table-wrapper" style="margin-top:2rem;">
+    <table>
+      <thead><tr><th>Electricity</th><th>Cloud Computing</th></tr></thead>
+      <tbody>
+        <tr><td>Power plant</td><td>Data center</td></tr>
+        <tr><td>Electric grid</td><td>The internet</td></tr>
+        <tr><td>Wall outlet</td><td>API / web console</td></tr>
+        <tr><td>Meter on your house</td><td>Usage dashboard / billing</td></tr>
+        <tr><td>Pay per kilowatt-hour</td><td>Pay per compute-hour / GB stored</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="takeaway">
+    <strong>Key Takeaway</strong>
+    Cloud computing did for IT what the electric grid did for factories. You stopped building your own generator; now stop buying your own servers.
+  </div>
+</section>
+
+<!-- ===== 2.2 ===== -->
+<section class="section reveal" id="s2-2">
+  <div class="section-header">
+    <div class="section-number">SECTION 2.2</div>
+    <h2>Cloud Service Models — IaaS, PaaS, SaaS</h2>
+  </div>
+
+  <div class="grid-3">
+    <div class="model-card">
+      <div class="model-card-header" style="background:var(--primary);">
+        <h4>IaaS</h4>
+        <p>Infrastructure as a Service</p>
+      </div>
+      <div class="model-card-body">
+        <p style="font-weight:600; color:var(--primary); margin-bottom:0.5rem;">🏗️ Empty Apartment</p>
+        <ul>
+          <li>You get: VMs, networking, storage</li>
+          <li>You manage: OS, middleware, apps</li>
+          <li><a href="https://aws.amazon.com/ec2/" target="_blank">AWS EC2</a>, Azure VMs, GCE</li>
+        </ul>
+      </div>
+    </div>
+    <div class="model-card">
+      <div class="model-card-header" style="background:var(--secondary);">
+        <h4>PaaS</h4>
+        <p>Platform as a Service</p>
+      </div>
+      <div class="model-card-body">
+        <p style="font-weight:600; color:var(--secondary); margin-bottom:0.5rem;">🛋️ Furnished Apartment</p>
+        <ul>
+          <li>You get: Dev/deploy environment</li>
+          <li>You manage: Just your code</li>
+          <li><a href="https://www.heroku.com/" target="_blank">Heroku</a>, <a href="https://cloud.google.com/appengine" target="_blank">App Engine</a>, Beanstalk</li>
+        </ul>
+      </div>
+    </div>
+    <div class="model-card">
+      <div class="model-card-header" style="background:var(--accent);">
+        <h4>SaaS</h4>
+        <p>Software as a Service</p>
+      </div>
+      <div class="model-card-body">
+        <p style="font-weight:600; color:var(--accent); margin-bottom:0.5rem;">🏨 Hotel Room</p>
+        <ul>
+          <li>You get: Fully functional app</li>
+          <li>You manage: Nothing — just use it</li>
+          <li><a href="https://workspace.google.com/" target="_blank">Google Workspace</a>, <a href="https://www.salesforce.com/" target="_blank">Salesforce</a>, <a href="https://slack.com/" target="_blank">Slack</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-wrapper" style="margin-top:2rem;">
+    <table>
+      <thead><tr><th>Layer</th><th>On-Premises</th><th>IaaS</th><th>PaaS</th><th>SaaS</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Applications</strong></td><td>You</td><td>You</td><td>You</td><td>Provider</td></tr>
+        <tr><td><strong>Data</strong></td><td>You</td><td>You</td><td>You</td><td>Shared</td></tr>
+        <tr><td><strong>Runtime / OS</strong></td><td>You</td><td>You</td><td>Provider</td><td>Provider</td></tr>
+        <tr><td><strong>Virtualization</strong></td><td>You</td><td>Provider</td><td>Provider</td><td>Provider</td></tr>
+        <tr><td><strong>Servers / Storage / Network</strong></td><td>You</td><td>Provider</td><td>Provider</td><td>Provider</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="takeaway">
+    <strong>Key Takeaway</strong>
+    More abstraction = less control but less responsibility. Choose IaaS for custom workloads, PaaS for rapid development, SaaS for ready-made solutions.
+  </div>
+</section>
+
+<!-- ===== 2.3 ===== -->
+<section class="section reveal" id="s2-3">
+  <div class="section-header">
+    <div class="section-number">SECTION 2.3</div>
+    <h2>Major Cloud Providers — The Big Three</h2>
+  </div>
+
+  <div class="grid-3">
+    <div class="stat-card"><div class="stat-value" style="color:#FF9900">~31%</div><div class="stat-label"><a href="https://aws.amazon.com/" target="_blank"><strong>AWS</strong></a><br>Broadest ecosystem</div></div>
+    <div class="stat-card"><div class="stat-value" style="color:#0078D4">~25%</div><div class="stat-label"><a href="https://azure.microsoft.com/" target="_blank"><strong>Azure</strong></a><br>Enterprise integration</div></div>
+    <div class="stat-card"><div class="stat-value" style="color:#4285F4">~11%</div><div class="stat-label"><a href="https://cloud.google.com/" target="_blank"><strong>GCP</strong></a><br>Data &amp; AI leadership</div></div>
+  </div>
+
+  <div class="table-wrapper" style="margin-top:1.5rem;">
+    <table>
+      <thead><tr><th>Service Category</th><th>AWS</th><th>Azure</th><th>GCP</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Compute</strong></td><td>EC2</td><td>Virtual Machines</td><td>Compute Engine</td></tr>
+        <tr><td><strong>Object Storage</strong></td><td>S3</td><td>Blob Storage</td><td>Cloud Storage</td></tr>
+        <tr><td><strong>Data Warehouse</strong></td><td>Redshift</td><td>Synapse Analytics</td><td>BigQuery</td></tr>
+        <tr><td><strong>ML Platform</strong></td><td>SageMaker</td><td>Azure ML</td><td>Vertex AI</td></tr>
+        <tr><td><strong>Serverless</strong></td><td>Lambda</td><td>Functions</td><td>Cloud Functions</td></tr>
+        <tr><td><strong>Kubernetes</strong></td><td>EKS</td><td>AKS</td><td>GKE</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="takeaway">
+    <strong>Key Takeaway</strong>
+    No universally "best" provider. Choose based on workload, team skills, existing tools, and pricing. Multi-cloud is increasingly common.
+  </div>
+</section>
+
+<!-- ===== 2.4 ===== -->
+<section class="section reveal" id="s2-4">
+  <div class="section-header">
+    <div class="section-number">SECTION 2.4</div>
+    <h2>Cloud Storage Services &amp; Cost Optimization</h2>
+  </div>
+
+  <div class="table-wrapper">
+    <table>
+      <thead><tr><th>Tier</th><th>Access Pattern</th><th>AWS S3 Price/GB/Month</th><th>Retrieval Time</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Standard (Hot)</strong></td><td>Frequent access</td><td>$0.023</td><td>Instant</td></tr>
+        <tr><td><strong>Infrequent Access (Warm)</strong></td><td>Monthly access</td><td>$0.0125</td><td>Instant</td></tr>
+        <tr><td><strong>Glacier (Cold)</strong></td><td>Yearly access</td><td>$0.004</td><td>3–5 hours</td></tr>
+        <tr><td><strong>Deep Archive (Frozen)</strong></td><td>Almost never</td><td>$0.00099</td><td>12–48 hours</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="grid-2" style="margin-top:1.5rem;">
+    <div class="stat-card" style="border:2px solid var(--red);"><div class="stat-value" style="color:var(--red)">$2,300</div><div class="stat-label">100 TB on Standard / month</div></div>
+    <div class="stat-card" style="border:2px solid var(--green);"><div class="stat-value" style="color:var(--green)">$99</div><div class="stat-label">100 TB on Deep Archive / month</div></div>
+  </div>
+
+  <div class="example-box" style="margin-top:2rem;">
+    <div class="example-header">
+      <div class="example-icon">📰</div>
+      <div>
+        <h4>Real-Life Example — A News Organization's Photo Archive</h4>
+        <p>How <a href="https://www.ap.org/" target="_blank" style="color:var(--gold)">Associated Press</a> saves millions with lifecycle policies</p>
+      </div>
+    </div>
+    <div class="example-body">
+      <p>Recent photos (30 days) → Standard. Last year → Infrequent Access. Past 5 years → Glacier. Pre-digital scans → Deep Archive. An <strong>S3 Lifecycle Policy</strong> automates all transitions — set rules once, save forever.</p>
+      <div class="diagram">
+<pre> Day 0              Day 30            Day 365           Day 1825+
+  │                  │                  │                  │
+  ▼                  ▼                  ▼                  ▼
+STANDARD ──────► INFREQUENT ──────► GLACIER ──────► DEEP ARCHIVE
+$0.023/GB        $0.0125/GB         $0.004/GB        $0.00099/GB
+Instant          Instant            3-5 hours        12-48 hours
+
+◄─────── S3 Lifecycle Policy automates all transitions ────────►</pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <div><span class="code-lang">Python</span> <span class="code-filename">storage_tier_optimizer.py</span></div>
+          <button class="code-copy" onclick="copyCode(this)">Copy</button>
+        </div>
+<pre><span class="comment"># Calculate savings from storage tiering</span>
+TIERS = {
+    <span class="string">"Standard"</span>:     <span class="number">0.023</span>,
+    <span class="string">"Infrequent"</span>:   <span class="number">0.0125</span>,
+    <span class="string">"Glacier"</span>:      <span class="number">0.004</span>,
+    <span class="string">"Deep Archive"</span>: <span class="number">0.00099</span>,
+}
+
+total_tb = <span class="number">100</span>
+total_gb = total_tb * <span class="number">1024</span>
+<span class="comment"># Distribution: 10% hot, 20% warm, 30% cold, 40% archive</span>
+dist = {<span class="string">"Standard"</span>: <span class="number">0.10</span>, <span class="string">"Infrequent"</span>: <span class="number">0.20</span>, <span class="string">"Glacier"</span>: <span class="number">0.30</span>, <span class="string">"Deep Archive"</span>: <span class="number">0.40</span>}
+
+all_standard = total_gb * TIERS[<span class="string">"Standard"</span>]
+tiered = <span class="function">sum</span>(total_gb * pct * TIERS[tier] <span class="keyword">for</span> tier, pct <span class="keyword">in</span> dist.items())
+<span class="function">print</span>(<span class="string">f"All Standard: ${all_standard:,.2f}/mo"</span>)
+<span class="function">print</span>(<span class="string">f"Tiered:       ${tiered:,.2f}/mo"</span>)
+<span class="function">print</span>(<span class="string">f"Savings:      ${all_standard - tiered:,.2f}/mo ({(1-tiered/all_standard)*100:.0f}%)"</span>)</pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="takeaway">
+    <strong>Key Takeaway</strong>
+    Storage tiering can reduce costs by <strong>75%+</strong>. Always implement lifecycle policies — they are the single easiest cost optimization in cloud infrastructure.
+  </div>
+</section>
+
+<!-- ===== 2.5 ===== -->
+<section class="section reveal" id="s2-5">
+  <div class="section-header">
+    <div class="section-number">SECTION 2.5</div>
+    <h2>Serverless Computing — The Future of Cloud</h2>
+  </div>
+
+  <div class="card">
+    <p><strong>Serverless computing</strong>: you write a <strong>function</strong>, define a <strong>trigger</strong>, and the cloud handles everything else. Pay only for actual compute time, measured in <strong>milliseconds</strong>. Scales from zero to millions and back to zero.</p>
+  </div>
+
+  <div class="grid-3" style="margin-top:1.5rem;">
+    <div class="stat-card"><div class="stat-value" style="font-size:1.3rem">$0.0000002</div><div class="stat-label">Per 200ms execution (128 MB)</div></div>
+    <div class="stat-card"><div class="stat-value" style="color:var(--green)">FREE</div><div class="stat-label">First 1M requests/month (Lambda)</div></div>
+    <div class="stat-card"><div class="stat-value">0 → ∞ → 0</div><div class="stat-label">Auto-scales, zero idle cost</div></div>
+  </div>
+
+  <div class="grid-2" style="margin-top:1.5rem;">
+    <div class="card" style="border-top:3px solid var(--green);">
+      <h4 style="color:var(--green);">Ideal For</h4>
+      <p>Event-driven image processing, API backends, data transformation triggers, IoT events, scheduled tasks (cron)</p>
+    </div>
+    <div class="card" style="border-top:3px solid var(--red);">
+      <h4 style="color:var(--red);">Not Ideal For</h4>
+      <p>Long-running processes (15 min max), persistent connections (WebSockets), heavy ML training</p>
+    </div>
+  </div>
+
+  <div class="example-box" style="margin-top:2rem;">
+    <div class="example-header">
+      <div class="example-icon">🖼️</div>
+      <div>
+        <h4>Real-Life Example — Automatic Thumbnail Generation</h4>
+        <p>Billions of executions daily across the internet</p>
+      </div>
+    </div>
+    <div class="example-body">
+      <div class="diagram">
+<pre>USER UPLOAD ──► S3 BUCKET ──► AWS LAMBDA ──► S3 OUTPUT
+ photo.jpg      (triggers     (resizes to     photo_sm.jpg
+  (5 MB)        Lambda)       150/300/600px)  photo_md.jpg
+                                              photo_lg.jpg
+                              Cost: ~$0.0000002 per execution</pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <div><span class="code-lang">Python</span> <span class="code-filename">serverless_thumbnail_simulator.py</span></div>
+          <button class="code-copy" onclick="copyCode(this)">Copy</button>
+        </div>
+<pre><span class="keyword">import</span> time, json
+
+<span class="keyword">def</span> <span class="function">lambda_handler</span>(event, context):
+    <span class="comment"># Standard Lambda entry point — receives event and context</span>
+    start = time.time()
+    filename = event[<span class="string">"filename"</span>]
+    sizes = [(<span class="string">"sm"</span>, <span class="number">150</span>), (<span class="string">"md"</span>, <span class="number">300</span>), (<span class="string">"lg"</span>, <span class="number">600</span>)]
+
+    <span class="keyword">for</span> label, px <span class="keyword">in</span> sizes:
+        time.sleep(px / <span class="number">10000</span>)  <span class="comment"># Simulate resize time</span>
+        <span class="function">print</span>(<span class="string">f"  Generated {filename}_{label}.jpg ({px}x{px})"</span>)
+
+    duration_ms = <span class="function">round</span>((time.time() - start) * <span class="number">1000</span>, <span class="number">2</span>)
+    cost = duration_ms * <span class="number">0.0000000020833</span>
+    <span class="keyword">return</span> {<span class="string">"duration_ms"</span>: duration_ms, <span class="string">"cost"</span>: <span class="string">f"${cost:.10f}"</span>}
+
+<span class="comment"># Simulate invocation</span>
+result = lambda_handler({<span class="string">"filename"</span>: <span class="string">"vacation_photo.jpg"</span>}, {})
+<span class="function">print</span>(json.dumps(result, indent=<span class="number">2</span>))</pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="takeaway">
+    <strong>Key Takeaway</strong>
+    Serverless = pay only for what runs. Perfect for event-driven, bursty workloads. Not ideal for long-running processes (15 min max on Lambda).
+  </div>
+</section>
+
+<!-- ===== 2.6 ===== -->
+<section class="section reveal" id="s2-6">
+  <div class="section-header">
+    <div class="section-number">SECTION 2.6</div>
+    <h2>Cloud Security and Compliance — Shared Responsibility</h2>
+  </div>
+
+  <div class="grid-2">
+    <div class="card" style="border-top:3px solid var(--red);">
+      <h4 style="color:var(--red);">Customer Secures (IN the Cloud)</h4>
+      <p>Customer data &amp; encryption config, IAM (Identity &amp; Access Management) policies &amp; MFA (Multi-Factor Authentication), application security, firewall rules, OS patching (IaaS)</p>
+      <p style="margin-top:0.8rem; font-style:italic; color:var(--text-mid);">"If you configured it wrong, it is YOUR fault."</p>
+    </div>
+    <div class="card" style="border-top:3px solid var(--green);">
+      <h4 style="color:var(--green);">Provider Secures (OF the Cloud)</h4>
+      <p>Physical data centers, networking hardware, hypervisor / host OS, storage drive destruction, power/cooling, global network</p>
+      <p style="margin-top:0.8rem; font-style:italic; color:var(--text-mid);">"If it's in the data center, it is OUR responsibility."</p>
+    </div>
+  </div>
+
+  <h3 style="color:var(--primary); margin:2rem 0 1rem; font-size:1.1rem;">Key Security Concepts</h3>
+  <div class="grid-3">
+    <div class="card"><strong>IAM:</strong> Who accesses what. Follow Principle of Least Privilege.</div>
+    <div class="card"><strong>Encryption at Rest:</strong> AES-256 (Advanced Encryption Standard, 256-bit keys)</div>
+    <div class="card"><strong>Encryption in Transit:</strong> TLS (Transport Layer Security)</div>
+    <div class="card"><strong>VPC:</strong> Virtual Private Cloud — your isolated network</div>
+    <div class="card"><strong>MFA:</strong> Multi-Factor Authentication — password + second factor</div>
+    <div class="card"><strong>Compliance:</strong> SOC 2, <a href="https://www.hhs.gov/hipaa/index.html" target="_blank">HIPAA</a>, <a href="https://gdpr.eu/" target="_blank">GDPR</a>, <a href="https://www.iso.org/standard/27001" target="_blank">ISO 27001</a></div>
+  </div>
+
+  <div class="example-box" style="margin-top:2rem;">
+    <div class="example-header" style="background:linear-gradient(135deg, #991b1b, #dc2626);">
+      <div class="example-icon">🔓</div>
+      <div>
+        <h4>Case Study — Capital One Data Breach (2019)</h4>
+        <p>100M+ records exposed through misconfiguration, not infrastructure failure</p>
+      </div>
+    </div>
+    <div class="example-body">
+      <p>A misconfigured WAF (Web Application Firewall) on <a href="https://www.capitalone.com/" target="_blank">Capital One's</a> AWS infrastructure allowed an attacker to exploit SSRF (Server-Side Request Forgery), retrieve temporary IAM credentials, and download S3 data. <strong>AWS was NOT breached — the customer's configuration was.</strong></p>
+      <p style="margin-top:1rem;"><strong>Prevention:</strong> Least-privilege IAM, VPC endpoints, CloudTrail audit logging, regular security audits (<a href="https://aws.amazon.com/security-hub/" target="_blank">AWS Security Hub</a>, <a href="https://github.com/prowler-cloud/prowler" target="_blank">Prowler</a>), encrypt everything.</p>
+    </div>
+  </div>
+
+  <div class="takeaway">
+    <strong>Key Takeaway</strong>
+    "Security OF the cloud" is the provider's job. "Security IN the cloud" is YOUR job. Most breaches come from misconfiguration, not infrastructure failure.
+  </div>
+</section>
+
+</div><!-- end container L2 -->
+
+<!-- ===== RESOURCES ===== -->
+<div class="lesson-divider" id="resources" style="background: var(--deep);">
+  <div class="lesson-tag">REFERENCE</div>
+  <h2>Hyperlinks &amp; Resources</h2>
+</div>
+
+<div class="container" style="padding-top:2rem; padding-bottom:2rem;">
+  <div class="card">
+    <div class="grid-2">
+      <div>
+        <h4 style="color:var(--primary); margin-bottom:1rem;">Cloud Providers &amp; Storage</h4>
+        <div class="link-item"><a href="https://aws.amazon.com/s3/" target="_blank">AWS S3</a> <span class="link-desc">— Amazon's object storage backbone</span></div>
+        <div class="link-item"><a href="https://azure.microsoft.com/en-us/products/storage/blobs" target="_blank">Azure Blob Storage</a> <span class="link-desc">— Microsoft object storage</span></div>
+        <div class="link-item"><a href="https://cloud.google.com/storage" target="_blank">Google Cloud Storage</a> <span class="link-desc">— GCP unified object storage</span></div>
+        <div class="link-item"><a href="https://www.snowflake.com/" target="_blank">Snowflake</a> <span class="link-desc">— Cloud-native data warehouse</span></div>
+        <div class="link-item"><a href="https://www.databricks.com/" target="_blank">Databricks</a> <span class="link-desc">— Unified analytics, Delta Lake</span></div>
+        <div class="link-item"><a href="https://cloud.google.com/bigquery" target="_blank">Google BigQuery</a> <span class="link-desc">— Serverless data warehouse</span></div>
+      </div>
+      <div>
+        <h4 style="color:var(--primary); margin-bottom:1rem;">Databases &amp; Tools</h4>
+        <div class="link-item"><a href="https://www.postgresql.org/" target="_blank">PostgreSQL</a> <span class="link-desc">— Open-source RDBMS</span></div>
+        <div class="link-item"><a href="https://www.mongodb.com/" target="_blank">MongoDB</a> <span class="link-desc">— NoSQL document database</span></div>
+        <div class="link-item"><a href="https://redis.io/" target="_blank">Redis</a> <span class="link-desc">— In-memory key-value store</span></div>
+        <div class="link-item"><a href="https://neo4j.com/" target="_blank">Neo4j</a> <span class="link-desc">— Graph database</span></div>
+        <div class="link-item"><a href="https://cassandra.apache.org/" target="_blank">Apache Cassandra</a> <span class="link-desc">— Distributed column-family DB</span></div>
+        <div class="link-item"><a href="https://db-engines.com/en/ranking" target="_blank">DB-Engines Ranking</a> <span class="link-desc">— Live database popularity ranking</span></div>
+      </div>
+    </div>
+    <div class="grid-2" style="margin-top:2rem;">
+      <div>
+        <h4 style="color:var(--primary); margin-bottom:1rem;">Security &amp; Standards</h4>
+        <div class="link-item"><a href="https://www.nist.gov/" target="_blank">NIST</a> <span class="link-desc">— Cloud computing standards</span></div>
+        <div class="link-item"><a href="https://gdpr.eu/" target="_blank">GDPR</a> <span class="link-desc">— EU data protection</span></div>
+        <div class="link-item"><a href="https://www.hhs.gov/hipaa/index.html" target="_blank">HIPAA</a> <span class="link-desc">— U.S. health data protection</span></div>
+        <div class="link-item"><a href="https://cloudsecurityalliance.org/" target="_blank">Cloud Security Alliance</a> <span class="link-desc">— Security best practices</span></div>
+        <div class="link-item"><a href="https://github.com/prowler-cloud/prowler" target="_blank">Prowler</a> <span class="link-desc">— Open-source cloud security audit</span></div>
+      </div>
+      <div>
+        <h4 style="color:var(--primary); margin-bottom:1rem;">Learning Resources</h4>
+        <div class="link-item"><a href="https://aws.amazon.com/architecture/well-architected/" target="_blank">AWS Well-Architected</a> <span class="link-desc">— Cloud design best practices</span></div>
+        <div class="link-item"><a href="https://cloud.google.com/architecture" target="_blank">GCP Architecture Center</a> <span class="link-desc">— Reference architectures</span></div>
+        <div class="link-item"><a href="https://dataintensive.net/" target="_blank">Designing Data-Intensive Apps</a> <span class="link-desc">— Essential textbook (Kleppmann)</span></div>
+        <div class="link-item"><a href="https://www.virustotal.com/gui/home/url" target="_blank">VirusTotal URL Scanner</a> <span class="link-desc">— Verify any URL's safety</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== DISCLAIMER ===== -->
+<footer class="disclaimer">
+  <div class="container">
+    <div class="grid-2">
+      <div>
+        <h3>Intellectual Property &amp; Copyright</h3>
+        <p>This lecture material is the intellectual property of <strong>Cyber.SoHo</strong>. All rights reserved. The author and Cyber.SoHo are <strong>not affiliated with, endorsed by, or sponsored by</strong> any company, organization, product, or service mentioned herein. All product names are property of their respective owners.</p>
+      </div>
+      <div>
+        <h3>External Links &amp; Safety</h3>
+        <p>External links are for reference only. <strong>Verify all URLs before visiting</strong> using <a href="https://www.virustotal.com/gui/home/url" target="_blank">VirusTotal</a>. The author accepts no responsibility for external site content or security.</p>
+        <h3 style="margin-top:1.5rem;">Liability &amp; Ethics</h3>
+        <p>Provided "as is" without warranty. Use ethically and in compliance with all applicable laws. Code examples are for educational demonstration — review before production use.</p>
+      </div>
+    </div>
+    <p style="text-align:center; margin-top:3rem; color:rgba(255,255,255,0.3); font-size:0.8rem;">Cyber.SoHo © 2026 — All Rights Reserved | Day 02: Data Storage and Cloud Services</p>
+  </div>
+</footer>
+
+<!-- ===== SCRIPTS ===== -->
+<script>
+// Progress bar
+window.addEventListener('scroll', function() {
+  var h = document.documentElement;
+  var pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+  document.getElementById('progressBar').style.width = pct + '%';
+});
+
+// Reveal on scroll
+var reveals = document.querySelectorAll('.reveal');
+var observer = new IntersectionObserver(function(entries) {
+  entries.forEach(function(entry) {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1 });
+reveals.forEach(function(el) { observer.observe(el); });
+
+// Active nav link
+var sections = document.querySelectorAll('section[id]');
+var navLinks = document.querySelectorAll('.nav-link');
+window.addEventListener('scroll', function() {
+  var current = '';
+  sections.forEach(function(section) {
+    if (window.scrollY >= section.offsetTop - 200) {
+      current = section.getAttribute('id');
+    }
+  });
+  navLinks.forEach(function(link) {
+    link.classList.remove('active');
+    if (link.getAttribute('href') === '#' + current) {
+      link.classList.add('active');
+    }
+  });
+});
+
+// Copy code
+function copyCode(btn) {
+  var pre = btn.closest('.code-block').querySelector('pre');
+  var text = pre.innerText;
+  navigator.clipboard.writeText(text).then(function() {
+    btn.textContent = 'Copied!';
+    setTimeout(function() { btn.textContent = 'Copy'; }, 2000);
+  });
+}
+
+// Accordion
+function toggleAccordion(btn) {
+  btn.classList.toggle('open');
+  var content = btn.nextElementSibling;
+  content.classList.toggle('open');
+}
+</script>
+
+</body>
+</html>
