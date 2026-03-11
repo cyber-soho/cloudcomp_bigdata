@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud Computing Study App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Configure MathJax for LaTeX rendering
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            startup: {
+                pageReady: () => {
+                    return MathJax.startup.defaultPageReady();
+                }
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        /* Custom styles for 3D Flashcard Flip */
+        .perspective-1000 { perspective: 1000px; }
+        .transform-style-3d { transform-style: preserve-3d; }
+        .backface-hidden { backface-visibility: hidden; }
+        .rotate-y-180 { transform: rotateY(180deg); }
+        
+        .flip-card-inner {
+            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+        }
+        /* FIXED: Changed to target the same element having both classes */
+        .flip-card-inner.flipped {
+            transform: rotateY(180deg);
+        }
+
+        /* Smooth tab transitions */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Custom scrollbar for aesthetics */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-10">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path></svg>
+                <h1 class="text-xl font-bold text-slate-900 tracking-tight">Cloud & Big Data Prep</h1>
+            </div>
+            
+            <!-- Tab Navigation -->
+            <nav class="flex space-x-1 bg-slate-100 p-1 rounded-lg">
+                <button onclick="switchTab('flashcards')" id="tab-flashcards" class="px-4 py-2 text-sm font-medium rounded-md transition-colors duration-200 bg-white shadow-sm text-blue-600">
+                    Flashcards
+                </button>
+                <button onclick="switchTab('quiz')" id="tab-quiz" class="px-4 py-2 text-sm font-medium rounded-md transition-colors duration-200 text-slate-600 hover:text-slate-900 hover:bg-slate-200">
+                    Practice Quiz
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow max-w-5xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- ================= FLASHCARDS TAB ================= -->
+        <section id="content-flashcards" class="tab-content active">
+            <div class="text-center mb-8">
+                <h2 class="text-2xl font-bold text-slate-900">Key Concept Flashcards</h2>
+                <p class="text-slate-500 mt-2">Click the card to flip. Use arrows or buttons to navigate.</p>
+            </div>
+
+            <div class="max-w-2xl mx-auto">
+                <!-- Flashcard Container -->
+                <div class="perspective-1000 w-full h-80 sm:h-96 cursor-pointer group" onclick="flipCard()">
+                    <div id="flashcard-inner" class="relative w-full h-full transform-style-3d flip-card-inner shadow-lg rounded-2xl group-hover:shadow-xl transition-shadow duration-300">
+                        
+                        <!-- Front of Card -->
+                        <div class="absolute w-full h-full backface-hidden bg-white rounded-2xl border-2 border-blue-100 flex flex-col items-center justify-center p-8 text-center">
+                            <span class="absolute top-4 left-4 text-xs font-semibold uppercase tracking-wider text-blue-500 bg-blue-50 px-3 py-1 rounded-full">Front</span>
+                            <div id="card-front-text" class="text-2xl sm:text-3xl font-bold text-slate-800 leading-tight">
+                                <!-- Dynamic Content -->
+                            </div>
+                            <span class="absolute bottom-6 text-sm text-slate-400 font-medium">Click to reveal answer</span>
+                        </div>
+
+                        <!-- Back of Card -->
+                        <div class="absolute w-full h-full backface-hidden rotate-y-180 bg-blue-600 rounded-2xl border-2 border-blue-600 flex flex-col items-center justify-center p-8 text-center shadow-inner">
+                            <span class="absolute top-4 left-4 text-xs font-semibold uppercase tracking-wider text-blue-100 bg-blue-700 px-3 py-1 rounded-full">Back</span>
+                            <div id="card-back-text" class="text-xl sm:text-2xl text-white font-medium leading-relaxed">
+                                <!-- Dynamic Content -->
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Controls -->
+                <div class="flex items-center justify-between mt-8">
+                    <button onclick="prevCard()" class="flex items-center gap-2 px-5 py-3 rounded-xl bg-white border border-slate-200 shadow-sm hover:bg-slate-50 hover:text-blue-600 transition-colors font-medium text-slate-700">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                        Previous
+                    </button>
+                    
+                    <div class="flex flex-col items-center">
+                        <span id="card-counter" class="text-lg font-bold text-slate-800">1 / 25</span>
+                        <!-- Progress Bar -->
+                        <div class="w-24 h-2 bg-slate-200 rounded-full mt-2 overflow-hidden">
+                            <div id="card-progress" class="h-full bg-blue-500 transition-all duration-300" style="width: 4%"></div>
+                        </div>
+                    </div>
+
+                    <button onclick="nextCard()" class="flex items-center gap-2 px-5 py-3 rounded-xl bg-blue-600 text-white shadow-sm shadow-blue-200 hover:bg-blue-700 transition-colors font-medium">
+                        Next
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= QUIZ TAB ================= -->
+        <section id="content-quiz" class="tab-content">
+            <div class="text-center mb-8">
+                <h2 class="text-2xl font-bold text-slate-900">Knowledge Check</h2>
+                <p class="text-slate-500 mt-2">Test your understanding of cloud architecture, service models, and storage.</p>
+            </div>
+
+            <div id="quiz-container" class="max-w-3xl mx-auto space-y-8">
+                <!-- Quiz questions will be injected here via JS -->
+            </div>
+
+            <div class="max-w-3xl mx-auto mt-10 border-t border-slate-200 pt-8 pb-12 text-center">
+                <!-- FIXED: Replaced standard alert with a custom UI warning to prevent Iframe blocking -->
+                <div id="quiz-warning" class="hidden text-red-600 font-bold mb-4 bg-red-50 py-3 px-6 rounded-lg inline-block border border-red-200 shadow-sm">
+                    Please answer all 10 questions before submitting.
+                </div>
+                <br>
+                <button id="submit-quiz-btn" onclick="submitQuiz()" class="px-8 py-4 bg-green-600 hover:bg-green-700 text-white text-lg font-bold rounded-xl shadow-lg shadow-green-200 transition-all transform hover:-translate-y-1">
+                    Submit Answers & Get Score
+                </button>
+                <div id="quiz-results" class="hidden mt-6 p-6 bg-white rounded-2xl shadow-sm border border-slate-200">
+                    <h3 class="text-2xl font-bold text-slate-800 mb-2">Your Score: <span id="score-display" class="text-blue-600"></span></h3>
+                    <p id="score-message" class="text-slate-600 font-medium"></p>
+                    <button onclick="resetQuiz()" class="mt-4 px-6 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-lg transition-colors">Retake Quiz</button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Data & Application Logic -->
+    <script>
+        // ================= DATA =================
+        const flashcardsData = [
+            { front: "Definition of Cloud Computing (Plain English)", back: "Renting someone else's powerful computers over the internet, paying only for what you use, and scaling up or down whenever you want." },
+            { front: "The 5 Essential Characteristics of Cloud Computing (NIST)", back: "On-Demand Self-Service, Broad Network Access, Resource Pooling, Rapid Elasticity, and Measured Service." },
+            { front: "IaaS (Infrastructure as a Service)", back: "A service model offering raw compute, storage, and networking where you manage the OS and application (e.g., AWS EC2)." },
+            { front: "PaaS (Platform as a Service)", back: "A service model where the infrastructure is managed for you, and you simply bring your code (e.g., Databricks, AWS Elastic Beanstalk)." },
+            { front: "SaaS (Software as a Service)", back: "Fully managed software accessed via browser or API, requiring no server management from the user (e.g., Snowflake, Google Workspace)." },
+            { front: "Public Cloud vs. Private Cloud", back: "Public clouds are owned by third-party providers and shared among many customers, while private clouds are operated solely for one organization." },
+            { front: "Hybrid Cloud", back: "A combination of public and private clouds, typically used to keep sensitive workloads private while bursting to public cloud for overflow." },
+            { front: "Primary source of unexpected costs in cloud bills", back: "Egress fees (outbound data transfer)." },
+            { front: "Virtual Machine (VM)", back: "A software-emulated computer running on top of physical hardware, containing its own full guest Operating System." },
+            { front: "Container", back: "A lightweight, portable application package that shares the host OS kernel and does not require a guest OS." },
+            { front: "Hypervisor (VMM)", back: "Software that sits between physical hardware and VMs, managing resource allocation and isolation." },
+            { front: "Type 1 Hypervisor", back: "A bare-metal hypervisor that runs directly on physical hardware, commonly used by cloud providers at massive scale." },
+            { front: "Docker", back: "A popular container engine that packages applications and dependencies into standardized, reproducible images." },
+            { front: "Kubernetes (K8s)", back: "An open-source container orchestration platform used for managing, scaling, and deploying large numbers of containers." },
+            { front: "Kubernetes Pod", back: "The smallest deployable unit in Kubernetes, usually containing a single container (like an ML API)." },
+            { front: "Object Storage", back: "Infinitely scalable, flat-structure storage used for discrete files, perfect for training datasets and model checkpoints (e.g., AWS S3)." },
+            { front: "Block Storage", back: "Storage that acts like a traditional hard drive attached to a VM, offering faster speeds but at a higher cost (e.g., AWS EBS)." },
+            { front: "VPC (Virtual Private Cloud)", back: "Your own private, isolated network inside the cloud where sensitive resources and workloads are placed." },
+            { front: "Load Balancer", back: "A networking component that distributes incoming requests across multiple server instances to prevent overwhelming a single server." },
+            { front: "IAM (Identity & Access Management)", back: "The cloud component that handles authentication (who you are) and authorization (what you are allowed to do)." },
+            { front: "Availability Zone (AZ)", back: "One or more data centers within a region that possess independent power, cooling, and networking to ensure fault tolerance." },
+            { front: "API Gateway", back: "A single entry point for client requests that handles authentication, rate limiting, logging, and routing before traffic hits internal systems." },
+            { front: "Dockerfile", back: "A text file containing step-by-step build instructions for creating a reproducible Docker image." },
+            { front: "What is the formula for calculating Total Monthly Cloud Cost?", back: "$\\text{Total Cost} = (\\text{Storage Price} \\times \\text{Total GB}) + (\\max(0, \\text{Egress GB} - \\text{Free Tier GB}) \\times \\text{Egress Rate})$" },
+            { front: "What is the formula for Weighted Load Balancer Distribution?", back: "$\\text{Server Share} = \\frac{\\text{Server Weight}}{\\sum \\text{All Weights}} \\times \\text{Total Requests}$" }
+        ];
+
+        const quizData = [
+            {
+                question: "A company signs a contract for a dedicated remote server. They pay a fixed monthly fee of $2,000, even if the server sits idle for weeks. According to the NIST definition, which essential cloud characteristic is clearly missing from this arrangement?",
+                hint: "Consider how true cloud platforms bill you versus traditional hosting contracts.",
+                options: [
+                    { text: "Broad Network Access", isCorrect: false, rationale: "While the server is remote and accessible, this characteristic refers to device/protocol accessibility, not the billing model." },
+                    { text: "Resource Pooling", isCorrect: false, rationale: "The server is dedicated, which might violate resource pooling, but the fixed-fee aspect specifically violates a different core characteristic." },
+                    { text: "Measured Service", isCorrect: true, rationale: "Measured service involves pay-as-you-go billing based on exact usage tracking, contrasting directly with a fixed fee for idle resources." },
+                    { text: "Rapid Elasticity", isCorrect: false, rationale: "Rapid elasticity refers to scaling resources up and down quickly, which isn't directly addressed by the billing structure described." }
+                ]
+            },
+            {
+                question: "A data science team wants to focus entirely on writing their Apache Spark data processing jobs without worrying about installing operating systems or managing the underlying server clusters. Which cloud service model best fits this requirement?",
+                hint: "Think about the 'middle floor' of the cloud service hierarchy where you bring the code, but the provider manages the infrastructure.",
+                options: [
+                    { text: "IaaS (Infrastructure as a Service)", isCorrect: false, rationale: "IaaS provides raw compute power, meaning the team would still have to manage the OS and cluster setup themselves." },
+                    { text: "PaaS (Platform as a Service)", isCorrect: true, rationale: "PaaS abstracts the underlying infrastructure and OS, allowing the team to just bring their code (the Spark jobs) and let the provider handle the rest." },
+                    { text: "SaaS (Software as a Service)", isCorrect: false, rationale: "SaaS provides a fully finished application, not a development platform for running custom Spark jobs." },
+                    { text: "On-Premise", isCorrect: false, rationale: "On-premise deployments require maximum management, requiring the team to manage both hardware and software." }
+                ]
+            },
+            {
+                question: "A data engineer stores 10 TB of data in an AWS S3 bucket in the us-east-1 region. Every day, an on-premise application downloads the entire 10 TB dataset. Based on typical cloud pricing principles, what will likely be the most expensive part of their monthly bill?",
+                hint: "Moving data OUT of the cloud is famously the biggest surprise on modern cloud invoices.",
+                options: [
+                    { text: "Storage Costs", isCorrect: false, rationale: "While storing 10 TB has a cost, the repeated daily transfer of massive amounts of data usually overshadows static storage fees." },
+                    { text: "Compute Costs", isCorrect: false, rationale: "The scenario describes data storage and transfer, not heavy processing or model training that would incur high compute costs." },
+                    { text: "Ingress Costs", isCorrect: false, rationale: "Ingress (uploading data to the cloud) is typically free across major cloud providers." },
+                    { text: "Egress Costs", isCorrect: true, rationale: "Egress (outbound data transfer) is often the most expensive component of cloud billing, especially when moving terabytes of data daily." }
+                ]
+            },
+            {
+                question: "You are designing an architecture to store massive amounts of unstructured data, including millions of training images and model checkpoints. The storage must be infinitely scalable and flat. Which type of storage is the most appropriate choice?",
+                hint: "AWS S3 is the most famous example of this type of storage.",
+                options: [
+                    { text: "Block Storage", isCorrect: false, rationale: "Block storage acts like a hard drive attached to a specific VM. It is fast but not infinitely scalable or flat in structure." },
+                    { text: "File Storage", isCorrect: false, rationale: "File storage acts as a shared network drive with a hierarchical directory structure, which becomes inefficient for millions of discrete unstructured files." },
+                    { text: "Object Storage", isCorrect: true, rationale: "Object storage is infinitely scalable, flat, and specifically designed for discrete files like images and checkpoints." },
+                    { text: "Relational Database", isCorrect: false, rationale: "Relational databases are meant for structured, tabular data, not massive unstructured files like raw images." }
+                ]
+            },
+            {
+                question: "In a typical data science cloud architecture, which component acts as a virtual firewall to control inbound and outbound traffic to your private subnets?",
+                hint: "This component establishes the network rules for who or what can talk to the instances inside your VPC.",
+                options: [
+                    { text: "API Gateway", isCorrect: false, rationale: "The API Gateway handles routing, rate limiting, and client requests, but it is not the primary network-level firewall." },
+                    { text: "Load Balancer", isCorrect: false, rationale: "A Load Balancer distributes incoming traffic across multiple servers; it does not explicitly act as a firewall rule set." },
+                    { text: "CDN", isCorrect: false, rationale: "A CDN caches content geographically closer to users to reduce latency, rather than acting as a private network firewall." },
+                    { text: "Security Groups", isCorrect: true, rationale: "Security Groups function as virtual firewalls at the instance or subnet level, explicitly controlling what traffic is allowed in or out." }
+                ]
+            },
+            {
+                question: "To ensure your machine learning inference API survives a localized power outage at a specific data center, how should you configure your deployment?",
+                hint: "You need to ensure your application relies on isolated, independent physical infrastructure within the same geographic region.",
+                options: [
+                    { text: "Deploy in a single Availability Zone for lower latency.", isCorrect: false, rationale: "While it might slightly reduce intra-app latency, deploying in one AZ means the app will go offline if that specific data center fails." },
+                    { text: "Use a single massive EC2 instance.", isCorrect: false, rationale: "A single massive instance represents a single point of failure; if the underlying hardware fails, the API goes down." },
+                    { text: "Distribute instances across multiple Availability Zones.", isCorrect: true, rationale: "Availability Zones have independent power and cooling. Distributing across them ensures the application survives if one AZ completely fails." },
+                    { text: "Store all data in Block Storage.", isCorrect: false, rationale: "Block storage is tied to specific VMs and Availability Zones, so this does not provide disaster recovery for compute resources." }
+                ]
+            },
+            {
+                question: "Major cloud providers like AWS and GCP operate at a massive scale. To manage virtual machines efficiently on their physical servers without the overhead of a standard host operating system, what do they typically use?",
+                hint: "This technology is sometimes referred to as 'bare-metal' virtualization.",
+                options: [
+                    { text: "Type 2 Hypervisor", isCorrect: false, rationale: "Type 2 hypervisors run on top of an existing host OS (like your laptop running VirtualBox), which introduces performance overhead." },
+                    { text: "Docker Engine", isCorrect: false, rationale: "Docker manages containers, not full Virtual Machines." },
+                    { text: "Kubernetes Pod", isCorrect: false, rationale: "A Kubernetes pod is a logical unit for running containers, not a hypervisor for managing hardware-level virtualization." },
+                    { text: "Type 1 Hypervisor", isCorrect: true, rationale: "Type 1 (Bare-Metal) hypervisors run directly on the physical hardware, offering maximum efficiency and security required by cloud providers." }
+                ]
+            },
+            {
+                question: "Why are containers generally preferred over Virtual Machines (VMs) for deploying microservices and machine learning APIs?",
+                hint: "Think about the 'hotel room' analogy versus the 'complete apartment' analogy from the lecture.",
+                options: [
+                    { text: "Containers include their own full guest OS for better security.", isCorrect: false, rationale: "Containers specifically do NOT include a full guest OS, which is why they are smaller and faster." },
+                    { text: "Containers share the host OS kernel, resulting in millisecond boot times and much smaller sizes.", isCorrect: true, rationale: "By abstracting the OS rather than the hardware, containers are exceptionally lightweight, allowing for near-instant startup and high density." },
+                    { text: "Containers abstract the hardware to allow multiple OS types to run simultaneously.", isCorrect: false, rationale: "This describes a Virtual Machine, not a container." },
+                    { text: "Containers require a Type 1 hypervisor to run efficiently.", isCorrect: false, rationale: "Containers run on container engines (like Docker) sharing the host kernel, rather than requiring a hardware hypervisor like VMs do." }
+                ]
+            },
+            {
+                question: "According to the lecture, what is the most common origin of cloud security incidents?",
+                hint: "Security failures are rarely due to Hollywood-style hacking; they usually result from basic human administrative errors.",
+                options: [
+                    { text: "Sophisticated zero-day malware attacks.", isCorrect: false, rationale: "While zero-day attacks happen, they are not the leading cause of routine cloud data breaches." },
+                    { text: "Physical breaches of Availability Zones.", isCorrect: false, rationale: "Cloud providers have extreme physical security at their data centers; physical breaches are incredibly rare." },
+                    { text: "Misconfigured Identity & Access Management (IAM) roles.", isCorrect: true, rationale: "Human error in configuring 'who is allowed to do what' (IAM) is the overwhelming cause of data leaks and security incidents in the cloud." },
+                    { text: "Brute-force attacks on API Gateways.", isCorrect: false, rationale: "API Gateways typically have built-in rate limiting and protections that mitigate brute-force attacks effectively." }
+                ]
+            },
+            {
+                question: "You have packaged your ML model into a Docker container, but you now need to deploy it across 15 servers, manage auto-scaling during traffic spikes, and ensure failed containers are restarted automatically. Which tool is specifically designed to handle this?",
+                hint: "You need an 'orchestrator' that treats a cluster of servers as a single pool of resources.",
+                options: [
+                    { text: "Docker Engine", isCorrect: false, rationale: "Docker Engine runs individual containers on a single machine, but it lacks native capabilities for large-scale multi-server orchestration." },
+                    { text: "Kubernetes", isCorrect: true, rationale: "Kubernetes is an orchestration platform specifically built to manage, scale, and maintain thousands of containers across clusters of servers." },
+                    { text: "Virtual Private Cloud (VPC)", isCorrect: false, rationale: "A VPC provides the secure network boundary for your infrastructure, but it does not run or manage application containers." },
+                    { text: "A Type 2 Hypervisor", isCorrect: false, rationale: "A hypervisor manages Virtual Machines, not the large-scale orchestration of containers." }
+                ]
+            }
+        ];
+
+        // ================= APP LOGIC =================
+        
+        // --- Tab Switching ---
+        function switchTab(tabId) {
+            // Update Buttons
+            document.querySelectorAll('nav button').forEach(btn => {
+                btn.className = "px-4 py-2 text-sm font-medium rounded-md transition-colors duration-200 text-slate-600 hover:text-slate-900 hover:bg-slate-200";
+            });
+            const activeBtn = document.getElementById(`tab-${tabId}`);
+            activeBtn.className = "px-4 py-2 text-sm font-medium rounded-md transition-colors duration-200 bg-white shadow-sm text-blue-600";
+
+            // Update Content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(`content-${tabId}`).classList.add('active');
+
+            // Re-trigger MathJax to ensure LaTeX renders if tab was hidden initially
+            if (window.MathJax && window.MathJax.typesetPromise) {
+                window.MathJax.typesetPromise();
+            }
+        }
+
+        // --- Flashcards Logic ---
+        let currentCardIndex = 0;
+        const innerCard = document.getElementById('flashcard-inner');
+        const frontText = document.getElementById('card-front-text');
+        const backText = document.getElementById('card-back-text');
+        const counter = document.getElementById('card-counter');
+        const progressBar = document.getElementById('card-progress');
+
+        function updateFlashcard() {
+            // Remove flip if active
+            innerCard.classList.remove('flipped');
+            
+            // Allow flip animation to reverse before changing text
+            setTimeout(() => {
+                frontText.innerHTML = flashcardsData[currentCardIndex].front;
+                backText.innerHTML = flashcardsData[currentCardIndex].back;
+                counter.innerText = `${currentCardIndex + 1} / ${flashcardsData.length}`;
+                progressBar.style.width = `${((currentCardIndex + 1) / flashcardsData.length) * 100}%`;
+                
+                // Render LaTeX
+                if (window.MathJax && window.MathJax.typesetPromise) {
+                    window.MathJax.typesetPromise([frontText, backText]);
+                }
+            }, 150);
+        }
+
+        function flipCard() {
+            innerCard.classList.toggle('flipped');
+        }
+
+        function nextCard() {
+            currentCardIndex = (currentCardIndex + 1) % flashcardsData.length;
+            updateFlashcard();
+        }
+
+        function prevCard() {
+            currentCardIndex = (currentCardIndex - 1 + flashcardsData.length) % flashcardsData.length;
+            updateFlashcard();
+        }
+
+        // Keyboard navigation for flashcards
+        document.addEventListener('keydown', (e) => {
+            if (document.getElementById('content-flashcards').classList.contains('active')) {
+                if (e.key === 'ArrowRight') nextCard();
+                if (e.key === 'ArrowLeft') prevCard();
+                if (e.key === ' ' || e.key === 'Enter') {
+                    e.preventDefault();
+                    flipCard();
+                }
+            }
+        });
+
+        // --- Quiz Logic ---
+        let userAnswers = {}; // mapping questionIndex -> optionIndex
+        let quizSubmitted = false;
+
+        function renderQuiz() {
+            const container = document.getElementById('quiz-container');
+            container.innerHTML = ''; // Clear existing
+            
+            quizData.forEach((q, qIndex) => {
+                const qDiv = document.createElement('div');
+                qDiv.className = "bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200 quiz-question-block";
+                qDiv.id = `question-block-${qIndex}`;
+                
+                let optionsHtml = '';
+                q.options.forEach((opt, oIndex) => {
+                    optionsHtml += `
+                        <label class="flex items-start gap-4 p-4 border border-slate-200 rounded-xl cursor-pointer hover:bg-blue-50 hover:border-blue-200 transition-colors group option-label-${qIndex}">
+                            <div class="flex-shrink-0 mt-0.5">
+                                <input type="radio" name="question-${qIndex}" value="${oIndex}" class="w-5 h-5 text-blue-600 border-slate-300 focus:ring-blue-500" onchange="selectAnswer(${qIndex}, ${oIndex})">
+                            </div>
+                            <div class="flex-1">
+                                <span class="text-slate-700 font-medium block">${opt.text}</span>
+                                <div id="rationale-${qIndex}-${oIndex}" class="rationale-text hidden mt-2 text-sm p-3 rounded-lg bg-slate-50 border border-slate-100"></div>
+                            </div>
+                        </label>
+                    `;
+                });
+
+                qDiv.innerHTML = `
+                    <div class="flex items-start gap-4 mb-6">
+                        <div class="flex-shrink-0 w-8 h-8 bg-blue-100 text-blue-700 font-bold rounded-full flex items-center justify-center">
+                            ${qIndex + 1}
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-800 pt-1 leading-snug">${q.question}</h3>
+                    </div>
+                    
+                    <div class="space-y-3 pl-0 sm:pl-12">
+                        ${optionsHtml}
+                    </div>
+
+                    <div class="mt-4 pl-0 sm:pl-12">
+                        <button onclick="toggleHint(${qIndex})" class="text-sm font-medium text-amber-600 hover:text-amber-700 flex items-center gap-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+                            Show Hint
+                        </button>
+                        <p id="hint-${qIndex}" class="hidden mt-2 text-sm text-slate-600 italic bg-amber-50 p-3 rounded-lg border border-amber-100">Hint: ${q.hint}</p>
+                    </div>
+                `;
+                container.appendChild(qDiv);
+            });
+        }
+
+        function selectAnswer(qIndex, oIndex) {
+            if(quizSubmitted) return; // Prevent changing answers after submit
+            userAnswers[qIndex] = oIndex;
+            
+            // Hide the warning if they select an answer
+            document.getElementById('quiz-warning').classList.add('hidden');
+            
+            // Update styling for selected state
+            const labels = document.querySelectorAll(`.option-label-${qIndex}`);
+            labels.forEach((label, idx) => {
+                if(idx === oIndex) {
+                    label.classList.add('bg-blue-50', 'border-blue-300', 'ring-1', 'ring-blue-300');
+                    label.classList.remove('border-slate-200');
+                } else {
+                    label.classList.remove('bg-blue-50', 'border-blue-300', 'ring-1', 'ring-blue-300');
+                    label.classList.add('border-slate-200');
+                }
+            });
+        }
+
+        function toggleHint(qIndex) {
+            const hintP = document.getElementById(`hint-${qIndex}`);
+            hintP.classList.toggle('hidden');
+        }
+
+        function submitQuiz() {
+            const warningDiv = document.getElementById('quiz-warning');
+            
+            // FIXED: Replaced standard alert() with custom UI div to avoid iframe blocking
+            if(Object.keys(userAnswers).length < quizData.length) {
+                warningDiv.classList.remove('hidden');
+                // Scroll up slightly to make sure the user sees the warning
+                warningDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+
+            warningDiv.classList.add('hidden');
+            quizSubmitted = true;
+            let score = 0;
+
+            quizData.forEach((q, qIndex) => {
+                const selectedOIndex = userAnswers[qIndex];
+                const block = document.getElementById(`question-block-${qIndex}`);
+                
+                // Show rationales and highlight correct/incorrect
+                q.options.forEach((opt, oIndex) => {
+                    const rationaleDiv = document.getElementById(`rationale-${qIndex}-${oIndex}`);
+                    rationaleDiv.innerHTML = opt.rationale;
+                    rationaleDiv.classList.remove('hidden');
+
+                    const label = rationaleDiv.closest('label');
+                    const radio = label.querySelector('input');
+                    radio.disabled = true; // disable inputs
+                    
+                    // Reset styling classes applied during selection
+                    label.classList.remove('bg-blue-50', 'border-blue-300', 'ring-1', 'ring-blue-300', 'hover:bg-blue-50', 'hover:border-blue-200', 'cursor-pointer');
+
+                    if (opt.isCorrect) {
+                        label.classList.add('bg-green-50', 'border-green-400');
+                        rationaleDiv.classList.add('text-green-800');
+                        if (selectedOIndex === oIndex) score++;
+                    } else if (selectedOIndex === oIndex && !opt.isCorrect) {
+                        label.classList.add('bg-red-50', 'border-red-300');
+                        rationaleDiv.classList.add('text-red-800');
+                    } else {
+                        label.classList.add('opacity-50', 'bg-slate-50'); // Dim unselected incorrect answers
+                    }
+                });
+            });
+
+            // Display Results
+            document.getElementById('submit-quiz-btn').classList.add('hidden');
+            const resultsDiv = document.getElementById('quiz-results');
+            resultsDiv.classList.remove('hidden');
+            
+            document.getElementById('score-display').innerText = `${score} / ${quizData.length}`;
+            
+            let msg = "";
+            if (score === quizData.length) msg = "Perfect score! You've mastered these concepts.";
+            else if (score >= 7) msg = "Great job! You have a solid understanding of cloud fundamentals.";
+            else msg = "Good effort! Review the flashcards and try again to nail down the details.";
+            
+            document.getElementById('score-message').innerText = msg;
+            
+            // Scroll to results
+            resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function resetQuiz() {
+            quizSubmitted = false;
+            userAnswers = {};
+            renderQuiz();
+            
+            document.getElementById('quiz-warning').classList.add('hidden');
+            document.getElementById('submit-quiz-btn').classList.remove('hidden');
+            document.getElementById('quiz-results').classList.add('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ================= INITIALIZATION =================
+        window.onload = () => {
+            updateFlashcard();
+            renderQuiz();
+        };
+
+    </script>
+</body>
+</html>
+
+
+
+

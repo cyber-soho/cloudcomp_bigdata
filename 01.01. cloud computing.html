@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud Computing & Big Data Analytics - Interactive Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+        @media (max-width: 640px) {
+            .chart-container { height: 250px; }
+        }
+        .nav-active {
+            background-color: #e0f2fe;
+            color: #0369a1;
+            border-right: 4px solid #0284c7;
+        }
+        .arch-node {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .arch-node:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .arch-active {
+            border-color: #0284c7;
+            background-color: #f0f9ff;
+        }
+    </style>
+</head>
+
+<!-- Chosen Palette: Warm Neutral Slate background (slate-50) with clean Whites, highlighted by Professional Sky/Indigo Blues (sky-600, indigo-600) for interactive elements and emphasis. -->
+<!-- Application Structure Plan: A dashboard-style layout with a fixed sidebar navigation and a main scrollable content area. This structure allows data scientists to easily jump between the three core modules (Fundamentals, Architecture, Virtualization) without losing context. Each section uses interactive components (tabs, clickable diagrams, charts) to transform static slide content into an exploratory learning experience. -->
+<!-- Visualization & Content Choices: 
+1. Service Models (IaaS/PaaS/SaaS) -> Goal: Compare control levels -> Viz: Interactive Tabbed Interface -> Justification: Allows user to focus on one model's responsibilities at a time without clutter. 
+2. Pricing Comparison -> Goal: Compare costs -> Viz: Stacked Bar Chart (Chart.js) -> Justification: Visually separates Storage vs Egress costs across providers, highlighting the "egress surprise" mentioned in the report. 
+3. Cloud Architecture -> Goal: Organize/Relationships -> Viz: Interactive HTML/CSS Grid Diagram -> Justification: Allows users to click on specific VPC components to learn their definitions in context, mimicking a real network topology. 
+4. VMs vs Containers -> Goal: Compare efficiency -> Viz: Side-by-side metric cards & Bar Chart (Chart.js) -> Justification: Drastically highlights the size (GB vs MB) and speed (Mins vs Ms) differences dynamically. -->
+<!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+<body class="bg-slate-50 text-slate-800 flex h-screen overflow-hidden">
+
+    <aside class="w-64 bg-white border-r border-slate-200 flex-shrink-0 flex flex-col hidden md:flex z-10 shadow-sm">
+        <div class="p-6 border-b border-slate-200">
+            <h1 class="text-xl font-bold text-slate-900 leading-tight">☁️ Cloud Computing</h1>
+            <p class="text-xs text-slate-500 mt-1 uppercase tracking-wider font-semibold">Data Science Graduate</p>
+        </div>
+        <nav class="flex-1 overflow-y-auto py-4">
+            <button onclick="navTo('intro')" id="nav-intro" class="w-full text-left px-6 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors nav-active">
+                1. Fundamentals
+            </button>
+            <button onclick="navTo('architecture')" id="nav-architecture" class="w-full text-left px-6 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors">
+                2. Architecture
+            </button>
+            <button onclick="navTo('virtualization')" id="nav-virtualization" class="w-full text-left px-6 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors">
+                3. Virtualization
+            </button>
+        </nav>
+        <div class="p-4 border-t border-slate-200 bg-slate-50">
+            <p class="text-xs text-slate-500 text-center italic">"Boring doesn't pay €120k a year. Cloud-native data science does."</p>
+        </div>
+    </aside>
+
+    <main class="flex-1 overflow-y-auto h-full scroll-smooth">
+        
+        <header class="bg-white border-b border-slate-200 p-4 md:hidden sticky top-0 z-20 flex justify-between items-center shadow-sm">
+            <h1 class="text-lg font-bold">☁️ Cloud for DS</h1>
+            <select onchange="navTo(this.value)" class="bg-slate-100 border border-slate-300 rounded p-1 text-sm">
+                <option value="intro">1. Fundamentals</option>
+                <option value="architecture">2. Architecture</option>
+                <option value="virtualization">3. Virtualization</option>
+            </select>
+        </header>
+
+        <div class="max-w-5xl mx-auto p-6 md:p-10 pb-24">
+
+            <section id="intro" class="mb-16">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-slate-900 mb-4">Introduction to Cloud Computing</h2>
+                    <p class="text-lg text-slate-600 leading-relaxed">This section establishes the foundational knowledge of what cloud computing is, why it is essential for modern data science, and the basic economic models governing it. You will explore the core NIST characteristics that define a true cloud and compare the costs of major providers.</p>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-8">
+                    <h3 class="text-xl font-semibold mb-3 flex items-center">💡 The Core Concept</h3>
+                    <p class="text-slate-700 mb-4"><strong>Cloud computing =</strong> renting someone else's powerful computers over the internet, paying only for what you use, and scaling up or down whenever you want.</p>
+                    <div class="bg-sky-50 border-l-4 border-sky-500 p-4 rounded-r">
+                        <p class="text-sm text-sky-800"><strong>The Electricity Analogy:</strong> Nobody builds their own power plant when they open a bakery. They plug in and pay for what they consume. Cloud is the same idea — for compute, storage, and software.</p>
+                    </div>
+                </div>
+
+                <h3 class="text-xl font-semibold mb-4 mt-10">The 5 Essential Characteristics (NIST)</h3>
+                <p class="text-sm text-slate-500 mb-4">Click each characteristic to reveal its definition. A true cloud service must have ALL five.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
+                    <div class="bg-white border border-slate-200 p-5 rounded-lg hover:shadow-md transition-shadow cursor-pointer" onclick="toggleText('nist1')">
+                        <div class="font-bold text-sky-600 mb-2">1. On-Demand Self-Service</div>
+                        <p id="nist1" class="text-sm text-slate-600 hidden">Spin up a 32-core server in Singapore with a few clicks, no tickets, no waiting.</p>
+                    </div>
+                    <div class="bg-white border border-slate-200 p-5 rounded-lg hover:shadow-md transition-shadow cursor-pointer" onclick="toggleText('nist2')">
+                        <div class="font-bold text-sky-600 mb-2">2. Broad Network Access</div>
+                        <p id="nist2" class="text-sm text-slate-600 hidden">Accessible from any device over standard protocols.</p>
+                    </div>
+                    <div class="bg-white border border-slate-200 p-5 rounded-lg hover:shadow-md transition-shadow cursor-pointer" onclick="toggleText('nist3')">
+                        <div class="font-bold text-sky-600 mb-2">3. Resource Pooling</div>
+                        <p id="nist3" class="text-sm text-slate-600 hidden">Multi-tenancy: provider serves many customers simultaneously; resources dynamically reassigned.</p>
+                    </div>
+                    <div class="bg-white border border-slate-200 p-5 rounded-lg hover:shadow-md transition-shadow cursor-pointer" onclick="toggleText('nist4')">
+                        <div class="font-bold text-sky-600 mb-2">4. Rapid Elasticity</div>
+                        <p id="nist4" class="text-sm text-slate-600 hidden">Scale out (add more) or scale in (reduce) extremely quickly, often automatically.</p>
+                    </div>
+                    <div class="bg-white border border-slate-200 p-5 rounded-lg hover:shadow-md transition-shadow cursor-pointer" onclick="toggleText('nist5')">
+                        <div class="font-bold text-sky-600 mb-2">5. Measured Service</div>
+                        <p id="nist5" class="text-sm text-slate-600 hidden">Pay-as-you-go billing. Exact usage tracking. No more €50,000 servers running at 3% capacity.</p>
+                    </div>
+                </div>
+
+                <h3 class="text-xl font-semibold mb-4">Service Models: The Building Blocks</h3>
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden mb-10">
+                    <div class="flex border-b border-slate-200">
+                        <button onclick="switchService('iaas')" id="btn-iaas" class="flex-1 py-3 text-center font-semibold bg-slate-50 text-slate-800 border-b-2 border-sky-500 transition-colors">IaaS</button>
+                        <button onclick="switchService('paas')" id="btn-paas" class="flex-1 py-3 text-center font-semibold bg-white text-slate-500 border-b-2 border-transparent hover:bg-slate-50 transition-colors">PaaS</button>
+                        <button onclick="switchService('saas')" id="btn-saas" class="flex-1 py-3 text-center font-semibold bg-white text-slate-500 border-b-2 border-transparent hover:bg-slate-50 transition-colors">SaaS</button>
+                    </div>
+                    <div class="p-6 h-48 flex flex-col justify-center">
+                        <div id="content-iaas">
+                            <h4 class="text-lg font-bold text-sky-700">Infrastructure as a Service</h4>
+                            <p class="mt-2 text-sm"><strong>What you get:</strong> Raw compute, storage, networking.</p>
+                            <p class="text-sm"><strong>You manage:</strong> OS, middleware, runtime, application. Maximum control.</p>
+                            <p class="text-sm mt-2 text-slate-500"><em>DS Use Case:</em> Rent GPU server, install CUDA + Python + PyTorch yourself. (e.g., AWS EC2, Azure VMs)</p>
+                            <div class="w-full bg-slate-200 h-2 mt-4 rounded"><div class="bg-sky-500 w-1/4 h-2 rounded"></div></div>
+                            <p class="text-xs text-slate-400 mt-1">Provider Management Level: Low</p>
+                        </div>
+                        <div id="content-paas" class="hidden">
+                            <h4 class="text-lg font-bold text-sky-700">Platform as a Service</h4>
+                            <p class="mt-2 text-sm"><strong>What you get:</strong> Infrastructure managed for you; you just bring your code.</p>
+                            <p class="text-sm mt-2 text-slate-500"><em>DS Use Case:</em> Write Spark job, Databricks handles the underlying clusters and OS. (e.g., Databricks, Google App Engine)</p>
+                            <div class="w-full bg-slate-200 h-2 mt-4 rounded"><div class="bg-sky-500 w-2/4 h-2 rounded"></div></div>
+                            <p class="text-xs text-slate-400 mt-1">Provider Management Level: Medium</p>
+                        </div>
+                        <div id="content-saas" class="hidden">
+                            <h4 class="text-lg font-bold text-sky-700">Software as a Service</h4>
+                            <p class="mt-2 text-sm"><strong>What you get:</strong> Fully managed software via browser or API.</p>
+                            <p class="text-sm mt-2 text-slate-500"><em>DS Use Case:</em> Log ML experiments to Weights & Biases, absolutely zero server management required. (e.g., Snowflake, W&B)</p>
+                            <div class="w-full bg-slate-200 h-2 mt-4 rounded"><div class="bg-sky-500 w-full h-2 rounded"></div></div>
+                            <p class="text-xs text-slate-400 mt-1">Provider Management Level: High (Complete)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 class="text-xl font-semibold mb-4">Cloud Provider Cost Comparison</h3>
+                <p class="text-sm text-slate-600 mb-6">Approximate monthly cost for 1 TB Storage + 3× Full Retrieval. Notice how egress (outbound data transfer) often costs more than the storage itself. Design your architecture to minimise data movement.</p>
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                    <div class="chart-container">
+                        <canvas id="costChart"></canvas>
+                    </div>
+                    <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm bg-slate-50 p-4 rounded border border-slate-200">
+                        <div>
+                            <span class="font-bold">Storage Cost</span> = price per GB × total GB
+                        </div>
+                        <div>
+                            <span class="font-bold">Egress Cost</span> = (transfer GB − free tier) × egress rate
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="architecture" class="mb-16 hidden">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-slate-900 mb-4">Cloud Architecture — The Big Picture</h2>
+                    <p class="text-lg text-slate-600 leading-relaxed">Architecture equals components plus how they connect. Understanding this structural layer allows you to design scalable machine learning systems rather than just writing localized scripts. This section provides an interactive map of a typical Data Science cloud deployment.</p>
+                </div>
+
+                <div class="bg-indigo-50 border border-indigo-100 p-6 rounded-xl mb-8">
+                    <h3 class="text-lg font-bold text-indigo-900 mb-2">Interactive Data Science Architecture</h3>
+                    <p class="text-sm text-indigo-700 mb-6">Click on the architectural components within the VPC boundary below to understand their role in a standard machine learning inference pipeline.</p>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        
+                        <div class="col-span-1 lg:col-span-2 bg-white p-4 rounded-lg border-2 border-slate-300 relative shadow-inner overflow-hidden flex flex-col items-center">
+                            <div class="absolute top-2 left-2 bg-slate-200 text-xs font-bold px-2 py-1 rounded text-slate-600">VPC (Virtual Private Cloud)</div>
+                            
+                            <div class="w-full max-w-sm mt-8">
+                                <div class="text-center mb-4">
+                                    <div class="inline-block px-4 py-2 bg-slate-100 rounded-full border border-slate-300 text-sm font-bold shadow-sm">🌍 INTERNET</div>
+                                    <div class="h-6 border-l-2 border-dashed border-slate-400 mx-auto w-px"></div>
+                                </div>
+                                
+                                <div class="bg-emerald-50 border border-emerald-200 p-3 rounded-lg relative mb-4">
+                                    <div class="absolute -top-3 right-2 bg-emerald-100 text-[10px] font-bold px-1 rounded text-emerald-700 uppercase">Public Subnet</div>
+                                    
+                                    <div onclick="showArchInfo('api')" id="arch-api" class="arch-node bg-white border-2 border-slate-200 p-3 rounded text-center font-semibold text-sm mb-3 shadow-sm">
+                                        API Gateway
+                                    </div>
+                                    <div class="text-center text-slate-400 text-xs mb-1">⬇️</div>
+                                    <div onclick="showArchInfo('lb')" id="arch-lb" class="arch-node bg-white border-2 border-slate-200 p-3 rounded text-center font-semibold text-sm shadow-sm">
+                                        Load Balancer (ALB)
+                                    </div>
+                                </div>
+
+                                <div class="flex justify-center space-x-12 text-slate-400 text-xs mb-1">
+                                    <div>↙️</div><div>⬇️</div><div>↘️</div>
+                                </div>
+
+                                <div class="bg-blue-50 border border-blue-200 p-3 rounded-lg relative mb-4">
+                                    <div class="absolute -top-3 right-2 bg-blue-100 text-[10px] font-bold px-1 rounded text-blue-700 uppercase">Private Subnet</div>
+                                    <div class="flex justify-between gap-2">
+                                        <div onclick="showArchInfo('ec2')" id="arch-ec2-1" class="arch-node flex-1 bg-white border-2 border-slate-200 py-4 rounded text-center font-semibold text-xs shadow-sm">EC2<br>Inference 1</div>
+                                        <div onclick="showArchInfo('ec2')" id="arch-ec2-2" class="arch-node flex-1 bg-white border-2 border-slate-200 py-4 rounded text-center font-semibold text-xs shadow-sm">EC2<br>Inference 2</div>
+                                        <div onclick="showArchInfo('ec2')" id="arch-ec2-3" class="arch-node flex-1 bg-white border-2 border-slate-200 py-4 rounded text-center font-semibold text-xs shadow-sm">EC2<br>Inference 3</div>
+                                    </div>
+                                </div>
+
+                                <div class="text-center text-slate-400 text-xs mb-1">⬇️</div>
+
+                                <div class="bg-purple-50 border border-purple-200 p-3 rounded-lg relative">
+                                    <div class="absolute -top-3 right-2 bg-purple-100 text-[10px] font-bold px-1 rounded text-purple-700 uppercase">Private Subnet</div>
+                                    <div onclick="showArchInfo('s3')" id="arch-s3" class="arch-node bg-white border-2 border-slate-200 p-3 rounded text-center font-semibold text-sm shadow-sm">
+                                        S3 Bucket: Models & Data
+                                    </div>
+                                </div>
+                                
+                            </div>
+                        </div>
+
+                        <div class="col-span-1 bg-white p-5 rounded-lg border border-slate-200 shadow-sm flex flex-col">
+                            <h4 class="font-bold text-slate-800 border-b border-slate-100 pb-2 mb-4">Component Details</h4>
+                            <div id="arch-detail-panel" class="flex-1 text-sm text-slate-600">
+                                <div class="flex flex-col items-center justify-center h-full text-slate-400">
+                                    <span class="text-3xl mb-2">👈</span>
+                                    <p class="text-center">Select a component from the diagram to view its role in the architecture.</p>
+                                </div>
+                            </div>
+                            <div class="mt-4 pt-4 border-t border-slate-100">
+                                <p class="text-xs text-slate-500 font-semibold mb-1">🛡️ Security Note:</p>
+                                <p class="text-xs text-slate-500">IAM (Identity & Access Management) roles govern all interactions between these components. Misconfiguration here is the leading cause of cloud security incidents.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                        <h3 class="text-lg font-bold text-slate-800 mb-3">Regions & Availability Zones</h3>
+                        <ul class="space-y-3 text-sm text-slate-600">
+                            <li><span class="font-bold text-slate-800">Region:</span> A distinct geographic area (e.g., eu-west-1 Ireland).</li>
+                            <li><span class="font-bold text-slate-800">Availability Zone (AZ):</span> One or more data centres within a region, with independent power/cooling.</li>
+                        </ul>
+                        <div class="mt-4 p-3 bg-slate-50 rounded border border-slate-100">
+                            <p class="text-xs font-semibold text-slate-700">Why geography matters for Data Scientists:</p>
+                            <ol class="list-decimal pl-5 text-xs text-slate-600 mt-2 space-y-1">
+                                <li><strong>Data Sovereignty:</strong> GDPR requires EU citizen data stays in EU regions.</li>
+                                <li><strong>Latency:</strong> Deploying in eu-west-1 adds 200ms+ delay for Asian users.</li>
+                                <li><strong>Disaster Recovery:</strong> Distributing across AZs survives single data centre failure.</li>
+                            </ol>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                        <h3 class="text-lg font-bold text-slate-800 mb-3">Storage Types</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <h4 class="text-sm font-bold text-sky-700">Object Storage (e.g., AWS S3)</h4>
+                                <p class="text-xs text-slate-600">Infinitely scalable, cheap, flat structure. Best for: training datasets, model checkpoints.</p>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-bold text-sky-700">Block Storage (e.g., AWS EBS)</h4>
+                                <p class="text-xs text-slate-600">Like a traditional hard drive attached to a VM. Faster, more expensive.</p>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-bold text-sky-700">File Storage (e.g., AWS EFS)</h4>
+                                <p class="text-xs text-slate-600">Shared network file systems. Multiple compute instances access simultaneously.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="virtualization" class="mb-16 hidden">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-slate-900 mb-4">Virtualization & Containerization</h2>
+                    <p class="text-lg text-slate-600 leading-relaxed">Solving the notorious "It works on my machine" problem. This section compares legacy Virtual Machines with modern Containerization strategies (Docker, Kubernetes), which are critical for ensuring machine learning models perform identically in development and production.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                        <div class="bg-slate-800 p-4 text-white">
+                            <h3 class="text-xl font-bold">Virtual Machine (VM)</h3>
+                            <p class="text-sm text-slate-300">Abstracts the Hardware</p>
+                        </div>
+                        <div class="p-6">
+                            <p class="text-sm text-slate-600 mb-4">A software-emulated computer running on top of physical hardware via a Hypervisor. Includes a full guest Operating System.</p>
+                            <ul class="text-sm space-y-2 mb-6">
+                                <li class="flex justify-between border-b border-slate-100 pb-1"><span>Size:</span> <span class="font-bold text-slate-800">Gigabytes (GBs)</span></li>
+                                <li class="flex justify-between border-b border-slate-100 pb-1"><span>Boot Time:</span> <span class="font-bold text-slate-800">Minutes</span></li>
+                                <li class="flex justify-between border-b border-slate-100 pb-1"><span>Isolation:</span> <span class="font-bold text-slate-800">Strong (Full OS)</span></li>
+                                <li class="flex justify-between pb-1"><span>Analogy:</span> <span class="font-bold text-slate-800">Complete Apartment</span></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden border-2 border-sky-400">
+                        <div class="bg-sky-600 p-4 text-white">
+                            <h3 class="text-xl font-bold">Container</h3>
+                            <p class="text-sm text-sky-100">Abstracts the Operating System</p>
+                        </div>
+                        <div class="p-6">
+                            <p class="text-sm text-slate-600 mb-4">Packages application and dependencies into a lightweight unit that shares the host OS kernel. No guest OS inside.</p>
+                            <ul class="text-sm space-y-2 mb-6">
+                                <li class="flex justify-between border-b border-slate-100 pb-1"><span>Size:</span> <span class="font-bold text-sky-600">Megabytes (MBs)</span></li>
+                                <li class="flex justify-between border-b border-slate-100 pb-1"><span>Boot Time:</span> <span class="font-bold text-sky-600">Milliseconds</span></li>
+                                <li class="flex justify-between border-b border-slate-100 pb-1"><span>Isolation:</span> <span class="font-bold text-slate-800">Good (Namespaces)</span></li>
+                                <li class="flex justify-between pb-1"><span>Analogy:</span> <span class="font-bold text-slate-800">Hotel Room</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 class="text-xl font-semibold mb-4">Resource Efficiency Comparison</h3>
+                <p class="text-sm text-slate-600 mb-6">Containers are 10–100× smaller than VMs. You can run hundreds of containers on hardware that might support only 20 VMs.</p>
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-10">
+                    <div class="chart-container">
+                        <canvas id="efficiencyChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900 rounded-xl shadow-md p-6 text-slate-300">
+                    <h3 class="text-xl font-bold text-white mb-4">Containerising an ML Pipeline: The Pattern</h3>
+                    <div class="font-mono text-sm bg-black p-4 rounded mb-4 overflow-x-auto">
+                        <span class="text-green-400">FROM</span> python:3.11-slim <span class="text-slate-500"># Base image</span><br>
+                        <span class="text-green-400">COPY</span> requirements.txt . <span class="text-slate-500"># Enable layer caching</span><br>
+                        <span class="text-green-400">RUN</span> pip install -r requirements.txt <span class="text-slate-500"># Install dependencies</span><br>
+                        <span class="text-green-400">ENV</span> PYTHONUNBUFFERED=1 <span class="text-slate-500"># Real-time logs</span><br>
+                        <span class="text-green-400">CMD</span> ["python", "train_model.py"] <span class="text-slate-500"># Default command</span>
+                    </div>
+                    <p class="text-sm text-slate-400 mb-2"><strong>Docker</strong> makes containers mainstream. Same image runs identically on laptop, CI/CD, and cloud.</p>
+                    <p class="text-sm text-slate-400"><strong>Kubernetes (K8s)</strong> orchestrates them at scale. Manages hundreds of containers (Pods), handles auto-scaling, and rolling deployments.</p>
+                </div>
+
+            </section>
+        </div>
+    </main>
+
+    <script>
+        function navTo(sectionId) {
+            document.querySelectorAll('main > div > section').forEach(sec => sec.classList.add('hidden'));
+            
+            document.getElementById(sectionId).classList.remove('hidden');
+            
+            if(window.innerWidth >= 768) {
+                document.querySelectorAll('nav button').forEach(btn => {
+                    btn.classList.remove('nav-active', 'bg-slate-50');
+                    btn.classList.add('bg-transparent');
+                });
+                const activeBtn = document.getElementById('nav-' + sectionId);
+                activeBtn.classList.remove('bg-transparent');
+                activeBtn.classList.add('nav-active');
+            }
+            
+            document.querySelector('main').scrollTo(0, 0);
+        }
+
+        function toggleText(id) {
+            const el = document.getElementById(id);
+            if (el.classList.contains('hidden')) {
+                el.classList.remove('hidden');
+                el.parentElement.classList.add('border-sky-300', 'bg-sky-50');
+            } else {
+                el.classList.add('hidden');
+                el.parentElement.classList.remove('border-sky-300', 'bg-sky-50');
+            }
+        }
+
+        function switchService(type) {
+            ['iaas', 'paas', 'saas'].forEach(t => {
+                document.getElementById('content-' + t).classList.add('hidden');
+                const btn = document.getElementById('btn-' + t);
+                btn.classList.remove('bg-slate-50', 'text-slate-800', 'border-sky-500');
+                btn.classList.add('bg-white', 'text-slate-500', 'border-transparent');
+            });
+            
+            document.getElementById('content-' + type).classList.remove('hidden');
+            const activeBtn = document.getElementById('btn-' + type);
+            activeBtn.classList.remove('bg-white', 'text-slate-500', 'border-transparent');
+            activeBtn.classList.add('bg-slate-50', 'text-slate-800', 'border-sky-500');
+        }
+
+        const archData = {
+            api: {
+                title: "API Gateway",
+                desc: "Single entry point for all client requests. Handles authentication, rate limiting, logging, and routing before traffic reaches internal systems. (e.g., AWS API Gateway)",
+                tag: "Networking & Security"
+            },
+            lb: {
+                title: "Load Balancer",
+                desc: "Distributes incoming requests evenly across multiple server instances (EC2s) to prevent overwhelming a single server. Critical for ML inference. Automatically routes away from failed instances.",
+                tag: "Networking & Scaling"
+            },
+            ec2: {
+                title: "EC2 Inference Servers",
+                desc: "Virtual Machines providing raw compute power. In a data science context, these instances load the ML model and process incoming prediction requests.",
+                tag: "Compute (IaaS)"
+            },
+            s3: {
+                title: "S3 Object Storage",
+                desc: "Infinitely scalable, flat file storage. Used to securely store massive training datasets and saved model checkpoints. Accessed by the EC2 instances via IAM roles.",
+                tag: "Storage"
+            }
+        };
+
+        function showArchInfo(component) {
+            document.querySelectorAll('.arch-node').forEach(node => {
+                node.classList.remove('arch-active');
+            });
+            
+            if(component === 'ec2') {
+                document.getElementById('arch-ec2-1').classList.add('arch-active');
+                document.getElementById('arch-ec2-2').classList.add('arch-active');
+                document.getElementById('arch-ec2-3').classList.add('arch-active');
+            } else {
+                document.getElementById('arch-' + component).classList.add('arch-active');
+            }
+
+            const data = archData[component];
+            const panel = document.getElementById('arch-detail-panel');
+            panel.innerHTML = `
+                <div class="animate-pulse flex space-x-4 mb-2">
+                    <div class="h-4 bg-slate-200 rounded w-1/4"></div>
+                </div>
+            `;
+            
+            setTimeout(() => {
+                panel.innerHTML = `
+                    <span class="inline-block px-2 py-1 bg-indigo-100 text-indigo-700 text-xs rounded mb-2 font-bold uppercase tracking-wider">${data.tag}</span>
+                    <h5 class="text-xl font-bold text-slate-800 mb-2">${data.title}</h5>
+                    <p class="text-slate-600 leading-relaxed">${data.desc}</p>
+                `;
+            }, 150);
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            
+            const costCtx = document.getElementById('costChart').getContext('2d');
+            new Chart(costCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['AWS S3 Standard', 'Google Cloud Storage', 'Azure Blob (Hot)'],
+                    datasets: [
+                        {
+                            label: 'Storage Cost ($/mo)',
+                            data: [23.00, 20.00, 18.40],
+                            backgroundColor: '#38bdf8', 
+                        },
+                        {
+                            label: 'Egress Cost ($/mo)',
+                            data: [27.00, 24.00, 27.00],
+                            backgroundColor: '#0ea5e9', 
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { stacked: true },
+                        y: { 
+                            stacked: true,
+                            title: { display: true, text: 'Total Cost ($)' }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) { label += ': '; }
+                                    if (context.parsed.y !== null) {
+                                        label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(context.parsed.y);
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            const effCtx = document.getElementById('efficiencyChart').getContext('2d');
+            new Chart(effCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Virtual Machines', 'Containers'],
+                    datasets: [
+                        {
+                            label: 'Instances per Server Hardware (Density)',
+                            data: [20, 200],
+                            backgroundColor: ['#94a3b8', '#0ea5e9'],
+                            borderRadius: 4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    scales: {
+                        x: { 
+                            title: { display: true, text: 'Number of Instances' }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                afterLabel: function(context) {
+                                    if(context.label === 'Virtual Machines') return 'High resource waste (10-15% utilization)';
+                                    return 'Low resource waste (Shared Kernel)';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+
+
+
