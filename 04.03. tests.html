@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOA & Cloud Architecture Study Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 3D Flip Card CSS */
+        .perspective-1000 { perspective: 1000px; }
+        .transform-style-3d { transform-style: preserve-3d; }
+        .backface-hidden { backface-visibility: hidden; }
+        .rotate-y-180 { transform: rotateY(180deg); }
+        .flip-card-inner { transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1); }
+        .flipped .flip-card-inner { transform: rotateY(180deg); }
+        
+        /* Smooth fade for tabs */
+        .tab-content { display: none; animation: fadeIn 0.3s ease-in-out; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-indigo-600 text-white shadow-md py-6 px-4">
+        <div class="max-w-4xl mx-auto flex items-center gap-3">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+            </svg>
+            <div>
+                <h1 class="text-2xl font-bold tracking-tight">SOA & Cloud Architecture</h1>
+                <p class="text-indigo-200 text-sm mt-1">Interactive Study Guide: Flashcards & Practice Quiz</p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Tab Navigation -->
+    <div class="max-w-4xl mx-auto w-full px-4 mt-6">
+        <div class="flex space-x-2 border-b border-slate-200">
+            <button onclick="switchTab('flashcards')" id="tab-flashcards" class="px-6 py-3 font-medium text-indigo-600 border-b-2 border-indigo-600 focus:outline-none transition-colors">
+                <div class="flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" /></svg>
+                    Flashcards (25)
+                </div>
+            </button>
+            <button onclick="switchTab('quiz')" id="tab-quiz" class="px-6 py-3 font-medium text-slate-500 border-b-2 border-transparent hover:text-indigo-500 hover:border-indigo-300 focus:outline-none transition-colors">
+                <div class="flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    Practice Quiz (10)
+                </div>
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow max-w-4xl mx-auto w-full p-4 mb-12">
+        
+        <!-- FLASHCARDS TAB -->
+        <div id="content-flashcards" class="tab-content active">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-10 flex flex-col items-center">
+                
+                <!-- Progress Indicator -->
+                <div class="w-full flex justify-between items-center mb-6">
+                    <span class="text-sm font-semibold text-slate-400 uppercase tracking-wider">Concept Review</span>
+                    <span id="fc-counter" class="bg-indigo-50 text-indigo-700 py-1 px-3 rounded-full text-sm font-bold">1 / 25</span>
+                </div>
+
+                <!-- Flashcard -->
+                <div class="w-full max-w-2xl perspective-1000 cursor-pointer mb-8" onclick="flipCard()">
+                    <div id="flashcard-inner" class="relative w-full h-80 md:h-64 transform-style-3d flip-card-inner">
+                        <!-- Front -->
+                        <div class="absolute w-full h-full backface-hidden bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl shadow-lg flex flex-col items-center justify-center p-8 text-center text-white border border-indigo-400">
+                            <span class="absolute top-4 left-4 text-indigo-200/50 text-5xl font-serif">Q</span>
+                            <p id="fc-front-text" class="text-xl md:text-2xl font-medium leading-tight z-10">Loading...</p>
+                            <p class="absolute bottom-4 text-sm text-indigo-200 animate-pulse">Tap to reveal answer</p>
+                        </div>
+                        <!-- Back -->
+                        <div class="absolute w-full h-full backface-hidden bg-white rounded-2xl shadow-lg border-2 border-indigo-100 rotate-y-180 flex flex-col items-center justify-center p-8 text-center">
+                            <span class="absolute top-4 left-4 text-slate-200 text-5xl font-serif">A</span>
+                            <p id="fc-back-text" class="text-lg md:text-xl text-slate-700 leading-relaxed z-10"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Controls -->
+                <div class="flex items-center gap-6">
+                    <button onclick="prevCard()" class="p-3 rounded-full bg-slate-100 text-slate-600 hover:bg-indigo-100 hover:text-indigo-600 transition-colors focus:outline-none">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+                    </button>
+                    <button onclick="shuffleCards()" class="px-4 py-2 rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 transition-colors text-sm font-medium flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                        Shuffle
+                    </button>
+                    <button onclick="nextCard()" class="p-3 rounded-full bg-slate-100 text-slate-600 hover:bg-indigo-100 hover:text-indigo-600 transition-colors focus:outline-none">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- QUIZ TAB -->
+        <div id="content-quiz" class="tab-content">
+            <div id="quiz-container" class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-10 max-w-3xl mx-auto">
+                
+                <!-- Quiz Header -->
+                <div class="flex justify-between items-center mb-6 pb-4 border-b border-slate-100">
+                    <h2 class="text-xl font-bold text-slate-800">Knowledge Check</h2>
+                    <div class="text-sm font-semibold text-slate-500">
+                        Question <span id="quiz-counter" class="text-indigo-600 text-lg">1</span> / 10
+                    </div>
+                </div>
+
+                <!-- Quiz Question -->
+                <div id="quiz-question-container">
+                    <p id="quiz-question" class="text-lg md:text-xl text-slate-800 font-medium mb-6 leading-relaxed"></p>
+                    
+                    <!-- Hint Toggle -->
+                    <div class="mb-6">
+                        <button onclick="toggleHint()" class="text-sm text-indigo-500 hover:text-indigo-700 flex items-center gap-1 font-medium transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>
+                            Need a hint?
+                        </button>
+                        <div id="quiz-hint" class="hidden mt-2 p-3 bg-amber-50 text-amber-800 border border-amber-200 rounded-lg text-sm italic"></div>
+                    </div>
+
+                    <!-- Options -->
+                    <div id="quiz-options" class="flex flex-col gap-3">
+                        <!-- Rendered dynamically -->
+                    </div>
+
+                    <!-- Feedback / Rationale -->
+                    <div id="quiz-feedback" class="hidden mt-6 p-5 rounded-xl border">
+                        <div class="flex items-start gap-3">
+                            <div id="feedback-icon" class="mt-0.5"></div>
+                            <div>
+                                <h4 id="feedback-title" class="font-bold text-lg mb-1"></h4>
+                                <p id="feedback-rationale" class="text-slate-700"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Next Button -->
+                    <div class="mt-8 flex justify-end">
+                        <button id="btn-next-question" onclick="nextQuestion()" class="hidden px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg shadow-sm transition-colors focus:outline-none">
+                            Next Question &rarr;
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Quiz Results (Hidden initially) -->
+                <div id="quiz-results" class="hidden text-center py-8">
+                    <div class="w-24 h-24 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" /></svg>
+                    </div>
+                    <h2 class="text-3xl font-bold text-slate-800 mb-2">Quiz Complete!</h2>
+                    <p class="text-slate-600 mb-8">You scored <span id="final-score" class="font-bold text-indigo-600 text-2xl mx-1"></span> out of 10.</p>
+                    
+                    <button onclick="restartQuiz()" class="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg shadow-sm transition-colors focus:outline-none inline-flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                        Retake Quiz
+                    </button>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Scripts and Data -->
+    <script>
+        /* -------------------------------------------------------------------------- */
+        /* DATA MODELS                                */
+        /* -------------------------------------------------------------------------- */
+        
+        const originalFlashcards = [
+            { front: "Formal definition of a service in SOA", back: "A self-contained unit of software that does one specific job, exposes it via a well-defined interface, hides internal complexity, and can be discovered and reused." },
+            { front: "SOA Vending Machine analogy for \"Interface / API Endpoint\"", back: "The button you press on the machine." },
+            { front: "SOA Vending Machine analogy for \"Service Contract\"", back: "The menu display that tells you what options are available." },
+            { front: "SOA Principle: Loose Coupling", back: "Services minimize dependencies on each other, keeping the interface stable even when the internal implementation changes." },
+            { front: "SOA Principle: Abstraction", back: "Services hide their implementation details (like database types or internal logic) from callers to prevent technology lock-in." },
+            { front: "SOA Principle: Discoverability", back: "Services are published to a Service Registry (like a Service Mesh or AWS Catalog) so consumers can find them without hard-coded locations." },
+            { front: "Problem solved by the \"Statelessness\" principle", back: "Inability to scale horizontally; statelessness ensures any server can handle any request because no previous request memory is kept." },
+            { front: "The three roles in the SOA Triangle", back: "Service Provider, Service Registry (Broker), and Service Consumer (Client)." },
+            { front: "Role of the Service Registry", back: "Acts as a directory of available services that consumers use to discover and bind to providers." },
+            { front: "Synchronous vs. Asynchronous communication", back: "Synchronous callers wait for a response (e.g., HTTP), while asynchronous callers send a message and move on (e.g., Kafka)." },
+            { front: "Primary difference in payload format between SOAP and REST", back: "SOAP exclusively uses verbose XML, whereas REST typically uses lightweight JSON." },
+            { front: "Typical use cases for SOAP", back: "Banking transactions, legacy healthcare systems (HL7), and enterprise systems requiring formal contracts and guaranteed delivery." },
+            { front: "Modern default protocol for ML model endpoints and web APIs", back: "REST (Representational State Transfer)." },
+            { front: "Purpose of an Enterprise Service Bus (ESB)", back: "Acts as a central hub to manage routing, transformation, protocol mediation, load balancing, and monitoring to avoid point-to-point connections." },
+            { front: "Modern cloud replacements for the traditional ESB", back: "API Gateways (for external client requests) and Service Meshes (for internal service-to-service traffic)." },
+            { front: "Core difference between SOA and Microservices scopes", back: "SOA integrates disparate enterprise systems, while microservices decompose a single application into small, independent services." },
+            { front: "Facade Pattern", back: "Presents a simplified, single interface to a complex backend of multiple microservices, typically implemented as an API Gateway." },
+            { front: "Aggregator Pattern", back: "One service calls multiple independent services, combines their results, and returns a unified response (e.g., a dashboard)." },
+            { front: "Saga Pattern", back: "Manages distributed transactions across services by executing local transactions and publishing compensating transactions to undo steps if a failure occurs." },
+            { front: "Circuit Breaker Pattern", back: "Prevents cascading failures by blocking calls to a consistently failing service and returning an immediate fallback response." },
+            { front: "Event-Driven Pattern", back: "Removes tight synchronous coupling by having services communicate through publishing and subscribing to events on a message bus (like Kafka)." },
+            { front: "Three pillars of SOA security", back: "Authentication (\"Who are you?\"), Authorization (\"What are you allowed to do?\"), and Transport Security (\"Can anyone eavesdrop?\")." },
+            { front: "Definition of mTLS (Mutual TLS)", back: "A transport security mechanism where both sides of a connection are verified, commonly enforced by a service mesh." },
+            { front: "Principle of Least Privilege in Authorization", back: "Each service or user is granted only the minimum permissions necessary to perform its intended function." },
+            { front: "Difference in payload size between SOAP and REST", back: "For the same request, REST typically produces a payload about 8.2 times smaller than SOAP." }
+        ];
+
+        const originalQuiz = [
+            {
+                question: "A data engineering team decides to switch the backend storage of an existing customer data API from a flat CSV file to a robust PostgreSQL database. The API clients experience no disruption and do not need to update their code. Which core SOA principle primarily enables this seamless transition?",
+                hint: "Consider the vending machine analogy where the consumer only needs to know what button to press, completely unaware of the internal machinery making the coffee.",
+                options: [
+                    { text: "Abstraction", isCorrect: true, rationale: "Hiding internal implementation details, such as the specific underlying database technology, prevents callers from being tied to that technology and allows for safe internal upgrades." },
+                    { text: "Discoverability", isCorrect: false, rationale: "Publishing a service to a registry allows consumers to find it dynamically, rather than dealing with the internal machinery of how the service operates." },
+                    { text: "Statelessness", isCorrect: false, rationale: "Treating each request as self-contained without memory of previous requests addresses horizontal scalability, rather than the masking of underlying database technologies." },
+                    { text: "Composability", isCorrect: false, rationale: "Building complex applications from simpler, chained services addresses monolithic complexity, rather than the masking of underlying database technologies." }
+                ]
+            },
+            {
+                question: "You are tasked with building a lightweight, highly responsive API endpoint to serve predictions from a new machine learning model to a mobile application. Which protocol or architectural style should be your default choice?",
+                hint: "Think about the approach that behaves like a simple 'coffee app' using JSON, resulting in a payload significantly smaller than its XML-based counterpart.",
+                options: [
+                    { text: "REST", isCorrect: true, rationale: "Utilizing standard HTTP verbs and compact JSON payloads provides the low overhead and stateless design ideal for modern web APIs and ML endpoints." },
+                    { text: "SOAP", isCorrect: false, rationale: "Enforcing mandatory XML envelope structures and strict schema validation introduces significant overhead, typically reserved for legacy enterprise systems requiring formal contracts." },
+                    { text: "WSDL", isCorrect: false, rationale: "This is a formal interface specification language used to describe web services, not the protocol used to transmit the actual data payload." },
+                    { text: "UDDI", isCorrect: false, rationale: "This acts as a directory or registry for discovering services, rather than a protocol for handling the data exchange between the client and the prediction model." }
+                ]
+            },
+            {
+                question: "A university is developing a unified mobile app for students. When a student opens the home screen, the app needs to display their current GPA, outstanding tuition balance, and next week's schedule. Which design pattern best resolves the complexity of gathering this data?",
+                hint: "The solution involves one central service acting as a coordinator that reaches out to several different domain services to combine their responses into one payload.",
+                options: [
+                    { text: "Aggregator Pattern", isCorrect: true, rationale: "Having a single service call multiple independent domain services (grades, finance, timetable) and assemble the results creates a unified view for the client." },
+                    { text: "Circuit Breaker Pattern", isCorrect: false, rationale: "Monitoring for consistent service failures and blocking calls prevents cascading system crashes, rather than combining data from various sources." },
+                    { text: "Facade Pattern", isCorrect: false, rationale: "Providing a simplified gateway to mask a massive backend of hundreds of microservices is slightly different from actively gathering and merging data for a specific dashboard view." },
+                    { text: "Saga Pattern", isCorrect: false, rationale: "Managing multi-step distributed transactions with compensating undo actions is meant for state-changing workflows, not for read-only data consolidation." }
+                ]
+            },
+            {
+                question: "In a robust e-commerce platform, a customer places an order. The system successfully charges their credit card, but the subsequent step to reserve the physical item in the inventory service fails. How does the Saga pattern handle this scenario?",
+                hint: "Since traditional database locking isn't possible across independent services, the system must actively 'undo' the steps that already succeeded.",
+                options: [
+                    { text: "It publishes a compensating transaction to refund the payment and cancel the order.", isCorrect: true, rationale: "When a downstream step fails in a distributed transaction without locking, previous successful local transactions must be explicitly reversed via new events." },
+                    { text: "It triggers a two-phase commit lock on all databases until the inventory becomes available.", isCorrect: false, rationale: "Traditional distributed locking is exactly the bottleneck this specific modern pattern was designed to avoid in highly scalable microservice environments." },
+                    { text: "It opens a circuit breaker to block all future orders until the inventory service recovers.", isCorrect: false, rationale: "While this protects the inventory system from further load, it does not resolve the inconsistent state of the customer having paid for an item they cannot receive." },
+                    { text: "It uses an ESB to transform the inventory failure message into a successful HTTP 200 response.", isCorrect: false, rationale: "Masking a critical business failure by altering the protocol response violates basic system integrity and does not fix the stranded payment." }
+                ]
+            },
+            {
+                question: "An enterprise is suffering from 'point-to-point hell', where 50 different internal services have created over 1,200 direct, tangled connections to one another. What component historically solves this by acting as a central routing and translation hub?",
+                hint: "Think of the 'airport baggage conveyor belt' analogy, which ensures every piece of data flows through a managed, validated process rather than going directly from gate to gate.",
+                options: [
+                    { text: "Enterprise Service Bus (ESB)", isCorrect: true, rationale: "Centralizing communication into a single hub handles routing, format transformation, and protocol mediation, reducing connection growth from exponential to linear." },
+                    { text: "Service Registry", isCorrect: false, rationale: "Acting as a directory allows services to discover where others are located, but it does not actively route the data payloads or translate protocols between them." },
+                    { text: "Service Contract", isCorrect: false, rationale: "Publishing a formal interface specification ensures both sides agree on data formats, but it does not provide the infrastructure to physically route or manage those messages." },
+                    { text: "Saga Orchestrator", isCorrect: false, rationale: "Managing distributed business transactions step-by-step is a specific workflow pattern, not a foundational network component designed to untangle thousands of standard API calls." }
+                ]
+            },
+            {
+                question: "A data scientist retrains a fraud detection machine learning model and deploys the updated version to a SageMaker endpoint. According to SOA principles in Big Data pipelines, what impact should this have on the upstream data ingestion service running on Kafka?",
+                hint: "Consider the architectural benefits of separating a massive workflow into distinct, self-contained stages that do not share runtimes.",
+                options: [
+                    { text: "Zero impact, as each pipeline stage is an independent, loosely coupled service.", isCorrect: true, rationale: "Designing pipelines where each stage is a self-contained unit ensures that updates, deployments, or scaling in one area do not break the operational flow of others." },
+                    { text: "The Kafka service must be temporarily paused to update its service contract.", isCorrect: false, rationale: "If the pipeline is properly designed, the upstream ingestion tool merely passes data forward and does not rely on the internal state of downstream analytical models." },
+                    { text: "The entire pipeline must be redeployed together to ensure version compatibility.", isCorrect: false, rationale: "Forcing simultaneous deployments of all components is a characteristic of rigid monolithic architectures, completely violating the core philosophy of modern distributed systems." },
+                    { text: "Kafka must switch from asynchronous to synchronous communication during the update.", isCorrect: false, rationale: "Altering the fundamental communication protocol of an ingestion stream based on a downstream model deployment defeats the purpose of decoupled streaming architectures." }
+                ]
+            },
+            {
+                question: "To secure internal communication between dozens of microservices within a Kubernetes cluster, an engineering team wants to ensure that every connection is encrypted and both the calling and receiving services cryptographically verify each other's identities. What mechanism enforces this?",
+                hint: "This transport security standard is typically implemented by default when using a Service Mesh like Istio.",
+                options: [
+                    { text: "Mutual TLS (mTLS)", isCorrect: true, rationale: "Requiring both sides of a transport connection to present and validate certificates ensures that no unauthorized service can eavesdrop or impersonate internal traffic." },
+                    { text: "Role-Based Access Control (RBAC)", isCorrect: false, rationale: "Defining what actions a user or service is allowed to perform addresses authorization, not the encryption of data in transit across the network." },
+                    { text: "JSON Web Tokens (JWT)", isCorrect: false, rationale: "Passing a stateless token authenticates the caller's identity, but it does not inherently encrypt the network tunnel between the two communicating servers." },
+                    { text: "WS-Security", isCorrect: false, rationale: "Applying message-level encryption and signing is specific to older SOAP-based enterprise systems, not modern cloud-native service mesh environments." }
+                ]
+            },
+            {
+                question: "A third-party weather API occasionally experiences massive latency spikes, taking up to 30 seconds to respond. This causes the main application to hang, consuming all available threads and crashing the system. Which pattern should be implemented to prevent this?",
+                hint: "Think of a safety device that 'opens' to stop the flow of traffic when a fault is detected, protecting the rest of the house from a power surge.",
+                options: [
+                    { text: "Circuit Breaker Pattern", isCorrect: true, rationale: "Monitoring for failures and immediately blocking calls to a struggling downstream service allows the main system to return a fallback response and remain operational." },
+                    { text: "Event-Driven Pattern", isCorrect: false, rationale: "Publishing messages to a queue decouples services, but it does not handle the immediate problem of a synchronous API call timing out and exhausting system resources." },
+                    { text: "Facade Pattern", isCorrect: false, rationale: "Creating a simplified API gateway helps clients navigate complex backends, but it does not inherently protect the system from a downstream dependency failure." },
+                    { text: "Aggregator Pattern", isCorrect: false, rationale: "Gathering data from multiple sources simultaneously actually increases the risk of the entire request failing if one of those sources experiences severe latency." }
+                ]
+            },
+            {
+                question: "While both concepts rely on principles like loose coupling and service contracts, what is the primary architectural distinction between traditional SOA and modern Microservices?",
+                hint: "Consider the 'Russian dolls' analogy. One connects massive, distinct company platforms together, while the other breaks a single platform into tiny pieces.",
+                options: [
+                    { text: "SOA integrates disparate enterprise systems, while Microservices decompose a single application.", isCorrect: true, rationale: "The historical context of these terms reveals that one acts as the 'outer layer' connecting whole departments (like ERP to CRM), while the other acts as the 'inner layer' breaking down a single product." },
+                    { text: "SOA uses REST exclusively, while Microservices rely entirely on SOAP and ESBs.", isCorrect: false, rationale: "This reverses the historical timeline; older enterprise integrations often relied on heavy XML-based protocols and buses, whereas modern decompositions favor lightweight HTTP architectures." },
+                    { text: "SOA requires every service to own its own database, while Microservices share a central database.", isCorrect: false, rationale: "Modern application decomposition strictly mandates isolated databases to prevent tight data coupling, whereas older enterprise systems frequently integrated around massive shared relational databases." },
+                    { text: "SOA is designed for cloud-native deployment, while Microservices are restricted to on-premise hardware.", isCorrect: false, rationale: "The architectural philosophy of breaking down applications into tiny, independently deployable units was directly driven by the rise of scalable, containerized cloud infrastructure." }
+                ]
+            },
+            {
+                question: "A consumer application needs to dynamically find the network location of a newly deployed 'Grades Service' rather than relying on an IP address that might change tomorrow. How does the SOA Triangle dictate this interaction should occur?",
+                hint: "Think of the 'Airport Control Tower' analogy. The plane doesn't just guess which runway to use; it asks a central authority for directions first.",
+                options: [
+                    { text: "The consumer queries the Service Registry to discover the provider before calling it.", isCorrect: true, rationale: "Acting as a directory, this central component allows clients to dynamically look up active service locations without hard-coding fragile network addresses." },
+                    { text: "The provider broadcasts its new IP address directly to all known consumers via an event bus.", isCorrect: false, rationale: "Forcing the provider to maintain a list of every system that might ever want to call it violates the principle of loose coupling and creates a maintenance nightmare." },
+                    { text: "The consumer opens an asynchronous SOAP envelope to scan the network for active WSDL files.", isCorrect: false, rationale: "Protocols are meant for structuring the data payload of a request, not for performing network-level discovery or port scanning." },
+                    { text: "The provider writes its connection details into a shared database that the consumer reads from.", isCorrect: false, rationale: "Relying on a shared data store for network configuration creates a massive single point of failure and violates the principle of independent, self-contained services." }
+                ]
+            }
+        ];
+
+        /* -------------------------------------------------------------------------- */
+        /* TAB LOGIC                                   */
+        /* -------------------------------------------------------------------------- */
+        
+        function switchTab(tabId) {
+            // Update buttons
+            document.querySelectorAll('button[id^="tab-"]').forEach(btn => {
+                btn.classList.remove('text-indigo-600', 'border-indigo-600');
+                btn.classList.add('text-slate-500', 'border-transparent');
+            });
+            const activeBtn = document.getElementById('tab-' + tabId);
+            activeBtn.classList.remove('text-slate-500', 'border-transparent');
+            activeBtn.classList.add('text-indigo-600', 'border-indigo-600');
+
+            // Update content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById('content-' + tabId).classList.add('active');
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /* FLASHCARD LOGIC                               */
+        /* -------------------------------------------------------------------------- */
+        
+        let currentFlashcards = [...originalFlashcards];
+        let currentCardIndex = 0;
+        let isFlipped = false;
+
+        const fcFrontEl = document.getElementById('fc-front-text');
+        const fcBackEl = document.getElementById('fc-back-text');
+        const fcCounterEl = document.getElementById('fc-counter');
+        const cardInner = document.getElementById('flashcard-inner');
+
+        function renderCard() {
+            // reset flip state without animation for instant snap, then restore animation
+            cardInner.style.transition = 'none';
+            isFlipped = false;
+            cardInner.parentElement.classList.remove('flipped');
+            
+            // Allow browser to register the instant transition, then apply new content
+            setTimeout(() => {
+                const card = currentFlashcards[currentCardIndex];
+                fcFrontEl.textContent = card.front;
+                fcBackEl.textContent = card.back;
+                fcCounterEl.textContent = `${currentCardIndex + 1} / ${currentFlashcards.length}`;
+                cardInner.style.transition = 'transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1)';
+            }, 50);
+        }
+
+        function flipCard() {
+            isFlipped = !isFlipped;
+            const container = cardInner.parentElement;
+            if (isFlipped) {
+                container.classList.add('flipped');
+            } else {
+                container.classList.remove('flipped');
+            }
+        }
+
+        function nextCard() {
+            currentCardIndex = (currentCardIndex + 1) % currentFlashcards.length;
+            renderCard();
+        }
+
+        function prevCard() {
+            currentCardIndex = (currentCardIndex - 1 + currentFlashcards.length) % currentFlashcards.length;
+            renderCard();
+        }
+
+        function shuffleCards() {
+            // Fisher-Yates shuffle
+            for (let i = currentFlashcards.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [currentFlashcards[i], currentFlashcards[j]] = [currentFlashcards[j], currentFlashcards[i]];
+            }
+            currentCardIndex = 0;
+            renderCard();
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /* QUIZ LOGIC                                 */
+        /* -------------------------------------------------------------------------- */
+
+        let quizQuestions = [];
+        let currentQuizIndex = 0;
+        let score = 0;
+        let questionAnswered = false;
+
+        const qTextEl = document.getElementById('quiz-question');
+        const qOptionsEl = document.getElementById('quiz-options');
+        const qHintEl = document.getElementById('quiz-hint');
+        const qCounterEl = document.getElementById('quiz-counter');
+        const qFeedbackEl = document.getElementById('quiz-feedback');
+        const qFeedbackIcon = document.getElementById('feedback-icon');
+        const qFeedbackTitle = document.getElementById('feedback-title');
+        const qFeedbackRationale = document.getElementById('feedback-rationale');
+        const btnNextQ = document.getElementById('btn-next-question');
+        
+        const qContainer = document.getElementById('quiz-question-container');
+        const qResults = document.getElementById('quiz-results');
+
+        function initQuiz() {
+            // Deep copy and shuffle questions
+            quizQuestions = JSON.parse(JSON.stringify(originalQuiz));
+            quizQuestions.forEach(q => {
+                // Shuffle options for each question
+                for (let i = q.options.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [q.options[i], q.options[j]] = [q.options[j], q.options[i]];
+                }
+            });
+            currentQuizIndex = 0;
+            score = 0;
+            qContainer.classList.remove('hidden');
+            qResults.classList.add('hidden');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            questionAnswered = false;
+            const q = quizQuestions[currentQuizIndex];
+            
+            qCounterEl.textContent = currentQuizIndex + 1;
+            qTextEl.textContent = q.question;
+            qHintEl.textContent = q.hint;
+            qHintEl.classList.add('hidden'); // Hide hint by default
+            
+            // Hide feedback & next button
+            qFeedbackEl.classList.add('hidden');
+            btnNextQ.classList.add('hidden');
+
+            // Render options
+            qOptionsEl.innerHTML = '';
+            q.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'w-full text-left p-4 rounded-xl border-2 border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-colors focus:outline-none flex gap-4';
+                btn.onclick = () => selectOption(index);
+                
+                btn.innerHTML = `
+                    <div class="flex-shrink-0 w-6 h-6 rounded-full border-2 border-slate-300 flex items-center justify-center option-circle mt-0.5"></div>
+                    <span class="text-slate-700 font-medium">${opt.text}</span>
+                `;
+                qOptionsEl.appendChild(btn);
+            });
+        }
+
+        function toggleHint() {
+            qHintEl.classList.toggle('hidden');
+        }
+
+        function selectOption(selectedIndex) {
+            if (questionAnswered) return;
+            questionAnswered = true;
+
+            const q = quizQuestions[currentQuizIndex];
+            const selectedOpt = q.options[selectedIndex];
+            const buttons = qOptionsEl.children;
+
+            if (selectedOpt.isCorrect) score++;
+
+            // Highlight all options
+            q.options.forEach((opt, idx) => {
+                const btn = buttons[idx];
+                const circle = btn.querySelector('.option-circle');
+                
+                // Disable hover effects
+                btn.classList.remove('hover:border-indigo-300', 'hover:bg-indigo-50');
+                btn.classList.add('cursor-default');
+
+                if (opt.isCorrect) {
+                    btn.classList.add('bg-green-50', 'border-green-500');
+                    btn.classList.remove('border-slate-200');
+                    circle.classList.add('bg-green-500', 'border-green-500');
+                    circle.classList.remove('border-slate-300');
+                    circle.innerHTML = '<svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>';
+                } else if (idx === selectedIndex && !opt.isCorrect) {
+                    btn.classList.add('bg-red-50', 'border-red-500');
+                    btn.classList.remove('border-slate-200');
+                    circle.classList.add('bg-red-500', 'border-red-500');
+                    circle.classList.remove('border-slate-300');
+                    circle.innerHTML = '<svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>';
+                } else {
+                    btn.classList.add('opacity-50');
+                }
+            });
+
+            // Show Feedback
+            qFeedbackEl.classList.remove('hidden');
+            if (selectedOpt.isCorrect) {
+                qFeedbackEl.classList.add('bg-green-50', 'border-green-200');
+                qFeedbackEl.classList.remove('bg-red-50', 'border-red-200');
+                qFeedbackTitle.textContent = "Correct!";
+                qFeedbackTitle.classList.add('text-green-800');
+                qFeedbackTitle.classList.remove('text-red-800');
+                qFeedbackIcon.innerHTML = '<svg class="w-6 h-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>';
+            } else {
+                qFeedbackEl.classList.add('bg-red-50', 'border-red-200');
+                qFeedbackEl.classList.remove('bg-green-50', 'border-green-200');
+                qFeedbackTitle.textContent = "Incorrect";
+                qFeedbackTitle.classList.add('text-red-800');
+                qFeedbackTitle.classList.remove('text-green-800');
+                qFeedbackIcon.innerHTML = '<svg class="w-6 h-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>';
+            }
+            qFeedbackRationale.textContent = selectedOpt.rationale;
+            
+            // Show Next Button
+            btnNextQ.classList.remove('hidden');
+            if(currentQuizIndex === quizQuestions.length - 1) {
+                btnNextQ.innerHTML = "View Final Score &rarr;";
+            } else {
+                btnNextQ.innerHTML = "Next Question &rarr;";
+            }
+        }
+
+        function nextQuestion() {
+            if (currentQuizIndex < quizQuestions.length - 1) {
+                currentQuizIndex++;
+                renderQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            qContainer.classList.add('hidden');
+            qResults.classList.remove('hidden');
+            document.getElementById('final-score').textContent = score;
+        }
+
+        function restartQuiz() {
+            initQuiz();
+        }
+
+        // Initialize App on load
+        window.onload = () => {
+            renderCard();
+            initQuiz();
+        };
+
+    </script>
+</body>
+</html>
+
+

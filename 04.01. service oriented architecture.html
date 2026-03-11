@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOA: Service Oriented Architectures</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Chosen Palette: Warm Neutrals & Deep Indigo (Slate 50 background, Indigo 600 accents, Teal 600 secondary) -->
+    <!-- Application Structure Plan: A dashboard-style layout with a persistent side navigation menu for easy non-linear exploration. The content is divided into logical thematic sections: Overview, Core Principles, Protocols & ESB, Cloud & Microservices, Design Patterns, and Security. This prevents information overload and allows the user to digest the dense architectural concepts one step at a time, facilitating active learning through interactive tools like the "Pattern Selector" and visual comparisons. -->
+    <!-- Visualization & Content Choices: 
+         1. Overview -> Goal: Inform -> CSS Grid mapping (Vending Machine) & HTML layout (SOA Triangle) -> Interaction: Hover effects -> Justification: Clear structural representation without external assets -> Library/Method: HTML/Tailwind.
+         2. Principles -> Goal: Inform/Organize -> Interactive Cards -> Interaction: Click/Hover to reveal "Problem Solved" -> Justification: Hides secondary info until requested, reducing cognitive load -> Library/Method: Vanilla JS + HTML.
+         3. Protocols (SOAP/REST) -> Goal: Compare -> Bar Chart -> Interaction: Tooltips -> Justification: Visually demonstrates the 8.2x payload size difference -> Library/Method: Chart.js.
+         4. Patterns -> Goal: Organize/Decision Support -> Interactive Dropdown Tool -> Interaction: Select problem to get pattern solution -> Justification: Transforms static list into a practical, task-oriented utility -> Library/Method: Vanilla JS.
+         Confirming NO SVG/Mermaid used.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <style>
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 40vh;
+            max-height: 350px;
+        }
+        
+        .nav-btn.active {
+            background-color: #EEF2FF;
+            color: #4F46E5;
+            border-right: 4px solid #4F46E5;
+            font-weight: 600;
+        }
+
+        .flip-card-inner {
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+
+        .flip-card.active .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .flip-card-front, .flip-card-back {
+            backface-visibility: hidden;
+        }
+
+        .flip-card-back {
+            transform: rotateY(180deg);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #F8FAFC; 
+            color: #1E293B;
+        }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden text-slate-800">
+
+    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col hidden md:flex z-10 shadow-sm">
+        <div class="p-6 border-b border-slate-100">
+            <h1 class="text-xl font-bold text-indigo-700 leading-tight">☁️ Cloud & Big Data</h1>
+            <p class="text-xs text-slate-500 mt-1 uppercase tracking-wider font-semibold">SOA Masterclass</p>
+        </div>
+        <nav class="flex-1 overflow-y-auto py-4">
+            <button onclick="navigate('overview')" id="nav-overview" class="nav-btn active w-full text-left px-6 py-3 text-sm text-slate-600 hover:bg-slate-50 transition-colors">1. Overview & Triangle</button>
+            <button onclick="navigate('principles')" id="nav-principles" class="nav-btn w-full text-left px-6 py-3 text-sm text-slate-600 hover:bg-slate-50 transition-colors">2. The 7 Principles</button>
+            <button onclick="navigate('protocols')" id="nav-protocols" class="nav-btn w-full text-left px-6 py-3 text-sm text-slate-600 hover:bg-slate-50 transition-colors">3. Protocols & ESB</button>
+            <button onclick="navigate('cloud')" id="nav-cloud" class="nav-btn w-full text-left px-6 py-3 text-sm text-slate-600 hover:bg-slate-50 transition-colors">4. Cloud & Microservices</button>
+            <button onclick="navigate('patterns')" id="nav-patterns" class="nav-btn w-full text-left px-6 py-3 text-sm text-slate-600 hover:bg-slate-50 transition-colors">5. Design Patterns</button>
+            <button onclick="navigate('security')" id="nav-security" class="nav-btn w-full text-left px-6 py-3 text-sm text-slate-600 hover:bg-slate-50 transition-colors">6. SOA Security</button>
+        </nav>
+    </aside>
+
+    <main class="flex-1 h-full overflow-y-auto relative">
+        <div class="md:hidden bg-white border-b border-slate-200 p-4 sticky top-0 z-20 flex justify-between items-center shadow-sm">
+            <h1 class="text-lg font-bold text-indigo-700">☁️ SOA Masterclass</h1>
+            <select id="mobile-nav" onchange="navigate(this.value)" class="bg-slate-50 border border-slate-300 text-slate-700 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2">
+                <option value="overview">1. Overview</option>
+                <option value="principles">2. Principles</option>
+                <option value="protocols">3. Protocols & ESB</option>
+                <option value="cloud">4. Cloud & Microservices</option>
+                <option value="patterns">5. Patterns</option>
+                <option value="security">6. Security</option>
+            </select>
+        </div>
+
+        <div class="p-6 md:p-10 max-w-5xl mx-auto">
+
+            <section id="sec-overview" class="content-section block">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-extrabold text-slate-900 mb-4">Understanding SOA</h2>
+                    <p class="text-lg text-slate-600 leading-relaxed bg-white p-6 rounded-xl border border-slate-100 shadow-sm">
+                        Welcome to the foundation of modern cloud architecture. Service Oriented Architecture (SOA) is the paradigm that allows massive tech companies to have thousands of engineers working in parallel. This section introduces the core definition of a service, using the intuitive "Vending Machine" analogy, and outlines the fundamental architecture consisting of Providers, Consumers, and Registries.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                        <h3 class="text-xl font-bold text-slate-800 mb-4 flex items-center">
+                            <span class="bg-indigo-100 text-indigo-700 px-2 py-1 rounded mr-2 text-sm">☕</span> The Vending Machine Analogy
+                        </h3>
+                        <p class="text-sm text-slate-600 mb-6">A service hides complex internal machinery. You don't need to know how the coffee is made—only what button to press.</p>
+                        
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-100 hover:bg-indigo-50 transition-colors">
+                                <span class="font-medium text-slate-700">Button you press</span>
+                                <span class="text-indigo-600 text-sm font-semibold">⟷ API Endpoint</span>
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-100 hover:bg-indigo-50 transition-colors">
+                                <span class="font-medium text-slate-700">Money inserted</span>
+                                <span class="text-indigo-600 text-sm font-semibold">⟷ Input Payload</span>
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-100 hover:bg-indigo-50 transition-colors">
+                                <span class="font-medium text-slate-700">Coffee received</span>
+                                <span class="text-indigo-600 text-sm font-semibold">⟷ Response Output</span>
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-100 hover:bg-indigo-50 transition-colors">
+                                <span class="font-medium text-slate-700">Internal machinery</span>
+                                <span class="text-indigo-600 text-sm font-semibold">⟷ Hidden Implementation</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col justify-center">
+                        <h3 class="text-xl font-bold text-slate-800 mb-4 flex items-center">
+                            <span class="bg-teal-100 text-teal-700 px-2 py-1 rounded mr-2 text-sm">▲</span> The SOA Triangle
+                        </h3>
+                        <p class="text-sm text-slate-600 mb-6">The core interaction pattern of every SOA system. The consumer never talks directly to the provider without discovering it first.</p>
+                        
+                        <div class="flex flex-col items-center justify-center p-6 bg-slate-50 rounded-xl border border-slate-200">
+                            <div class="bg-indigo-600 text-white px-6 py-2 rounded shadow-md font-semibold text-center w-48 z-10">
+                                Service Registry<br><span class="text-xs font-normal text-indigo-200">(The Broker / Directory)</span>
+                            </div>
+                            <div class="flex w-full justify-between -mt-4 relative">
+                                <div class="w-1/2 h-16 border-l-2 border-t-2 border-dashed border-indigo-300 rounded-tl-xl ml-[25%] mt-4"></div>
+                                <div class="w-1/2 h-16 border-r-2 border-t-2 border-dashed border-indigo-300 rounded-tr-xl mr-[25%] mt-4"></div>
+                            </div>
+                            <div class="flex w-full justify-around mt-2">
+                                <div class="bg-teal-600 text-white px-4 py-2 rounded shadow-md font-semibold text-center w-40">
+                                    Service Provider<br><span class="text-xs font-normal text-teal-200">(Publishes to Registry)</span>
+                                </div>
+                                <div class="text-slate-400 flex items-center font-bold">⟷ calls ⟷</div>
+                                <div class="bg-amber-600 text-white px-4 py-2 rounded shadow-md font-semibold text-center w-40">
+                                    Service Consumer<br><span class="text-xs font-normal text-amber-200">(Discovers & Binds)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="sec-principles" class="content-section hidden">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-extrabold text-slate-900 mb-4">The 7 Core Principles</h2>
+                    <p class="text-lg text-slate-600 leading-relaxed bg-white p-6 rounded-xl border border-slate-100 shadow-sm">
+                        These principles are not arbitrary rules; they are engineered solutions to painful real-world problems. Understanding these is critical to designing robust systems that scale without breaking. <strong>Click on any principle card to flip it and reveal the specific engineering problem it solves.</strong>
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="principles-grid">
+                </div>
+            </section>
+
+            <section id="sec-protocols" class="content-section hidden">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-extrabold text-slate-900 mb-4">Protocols & Integrations</h2>
+                    <p class="text-lg text-slate-600 leading-relaxed bg-white p-6 rounded-xl border border-slate-100 shadow-sm">
+                        How do services actually talk to each other? This section breaks down the historical heavyweight SOAP protocol versus the modern REST architectural style, and introduces the Enterprise Service Bus (ESB) which manages complex inter-service messaging.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                        <h3 class="text-xl font-bold text-slate-800 mb-4">SOAP vs REST</h3>
+                        <p class="text-sm text-slate-600 mb-4">REST has become the default for data scientists and modern web apps due to its lightweight nature. SOAP remains in legacy enterprise (banking, healthcare) where formal contracts are non-negotiable.</p>
+                        
+                        <div class="chart-container">
+                            <canvas id="protocolChart"></canvas>
+                        </div>
+                        <p class="text-xs text-center text-slate-500 mt-2">For the same payload, SOAP is typically 8.2x larger than REST due to XML envelope verbosity.</p>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="bg-indigo-50 rounded-xl p-6 border border-indigo-100">
+                            <h4 class="font-bold text-indigo-900 mb-2">REST (Modern Default)</h4>
+                            <ul class="text-sm text-indigo-800 space-y-2">
+                                <li>✓ Uses standard HTTP verbs (GET, POST, PUT, DELETE)</li>
+                                <li>✓ Lightweight JSON payloads</li>
+                                <li>✓ Stateless by design</li>
+                                <li>✓ Best for: ML model endpoints, web APIs, cloud data pipelines</li>
+                            </ul>
+                        </div>
+                        <div class="bg-slate-100 rounded-xl p-6 border border-slate-200">
+                            <h4 class="font-bold text-slate-800 mb-2">SOAP (Legacy/Enterprise)</h4>
+                            <ul class="text-sm text-slate-600 space-y-2">
+                                <li>✓ Strict XML `<soap:Envelope>` structure</li>
+                                <li>✓ Built-in WS-Security & Transaction support</li>
+                                <li>✓ Mandatory WSDL contracts</li>
+                                <li>✓ Best for: Bank transactions, HL7 FHIR healthcare integrations</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                    <h3 class="text-xl font-bold text-slate-800 mb-4">The Enterprise Service Bus (ESB)</h3>
+                    <p class="text-sm text-slate-600 mb-4">Without an ESB, connections grow exponentially as point-to-point hell. The ESB acts as the airport baggage conveyor belt, managing routing, transformation, and security centrally.</p>
+                    
+                    <div class="flex flex-wrap gap-2">
+                        <span class="px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-xs font-semibold">Routing</span>
+                        <span class="px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-xs font-semibold">Format Transformation</span>
+                        <span class="px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-xs font-semibold">Protocol Mediation</span>
+                        <span class="px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-xs font-semibold">Load Balancing</span>
+                        <span class="px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-xs font-semibold">Monitoring</span>
+                    </div>
+                </div>
+            </section>
+
+            <section id="sec-cloud" class="content-section hidden">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-extrabold text-slate-900 mb-4">SOA in Cloud & Big Data</h2>
+                    <p class="text-lg text-slate-600 leading-relaxed bg-white p-6 rounded-xl border border-slate-100 shadow-sm">
+                        Every big data pipeline you build is inherently an SOA system. Here, we map traditional SOA concepts to modern cloud services and clarify the relationship between classic SOA and the Microservices trend.
+                    </p>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-8 overflow-x-auto">
+                    <h3 class="text-xl font-bold text-slate-800 mb-4">The Big Data Pipeline as SOA</h3>
+                    <p class="text-sm text-slate-600 mb-6">Each stage is an independently deployable, loosely coupled service. Retraining a model doesn't break data ingestion.</p>
+                    
+                    <div class="flex min-w-max items-center justify-between space-x-2 py-4 px-2">
+                        <div class="bg-slate-100 p-3 rounded text-center text-sm font-semibold border border-slate-300 w-32 shadow-sm">Data Ingest<br><span class="text-xs text-slate-500 font-normal">Kafka / Kinesis</span></div>
+                        <div class="text-indigo-400 font-bold">➝</div>
+                        <div class="bg-slate-100 p-3 rounded text-center text-sm font-semibold border border-slate-300 w-32 shadow-sm">Cleaning<br><span class="text-xs text-slate-500 font-normal">Spark / Glue</span></div>
+                        <div class="text-indigo-400 font-bold">➝</div>
+                        <div class="bg-slate-100 p-3 rounded text-center text-sm font-semibold border border-slate-300 w-32 shadow-sm">Features<br><span class="text-xs text-slate-500 font-normal">Lambda</span></div>
+                        <div class="text-indigo-400 font-bold">➝</div>
+                        <div class="bg-indigo-600 text-white p-3 rounded text-center text-sm font-semibold border border-indigo-700 w-32 shadow-md">ML Serving<br><span class="text-xs text-indigo-200 font-normal">SageMaker</span></div>
+                        <div class="text-indigo-400 font-bold">➝</div>
+                        <div class="bg-slate-100 p-3 rounded text-center text-sm font-semibold border border-slate-300 w-32 shadow-sm">Monitoring<br><span class="text-xs text-slate-500 font-normal">Prometheus</span></div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="bg-teal-50 rounded-xl p-6 border border-teal-100">
+                        <h3 class="text-xl font-bold text-teal-900 mb-3">SOA</h3>
+                        <p class="text-sm text-teal-800 mb-4 font-semibold">The Outer Layer (Enterprise)</p>
+                        <ul class="text-sm text-teal-800 space-y-2">
+                            <li>• Connects disparate enterprise systems (e.g., SAP to Salesforce)</li>
+                            <li>• Coarse-grained services</li>
+                            <li>• Often relies on ESB for communication</li>
+                            <li>• Shared databases are common</li>
+                        </ul>
+                    </div>
+                    <div class="bg-indigo-50 rounded-xl p-6 border border-indigo-100">
+                        <h3 class="text-xl font-bold text-indigo-900 mb-3">Microservices</h3>
+                        <p class="text-sm text-indigo-800 mb-4 font-semibold">The Inner Layer (Application)</p>
+                        <ul class="text-sm text-indigo-800 space-y-2">
+                            <li>• Decomposes a single application into small services (e.g., Netflix)</li>
+                            <li>• Fine-grained, independently deployable</li>
+                            <li>• Direct, decentralised communication</li>
+                            <li>• Each service strictly owns its own database</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="mt-4 text-center text-sm font-medium text-slate-500 bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
+                    <strong>Verdict:</strong> They are not enemies. Most real systems are a hybrid (Microservices inside domains, SOA across domains).
+                </div>
+            </section>
+
+            <section id="sec-patterns" class="content-section hidden">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-extrabold text-slate-900 mb-4">Design Patterns Toolkit</h2>
+                    <p class="text-lg text-slate-600 leading-relaxed bg-white p-6 rounded-xl border border-slate-100 shadow-sm">
+                        A design pattern is a named solution to a recurring problem. Use the interactive tool below to diagnose your architectural challenge and find the appropriate SOA pattern to implement.
+                    </p>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-md border border-slate-200 overflow-hidden">
+                    <div class="bg-indigo-600 p-6 text-white">
+                        <label for="problem-selector" class="block text-sm font-semibold mb-2 text-indigo-100">What architectural problem are you facing?</label>
+                        <select id="problem-selector" onchange="showPattern()" class="w-full bg-white text-indigo-900 text-base font-medium rounded p-3 focus:outline-none focus:ring-4 focus:ring-indigo-300">
+                            <option value="" disabled selected>Select your engineering problem...</option>
+                            <option value="facade">Clients are struggling to call 50 different microservices directly.</option>
+                            <option value="aggregator">I need to build a dashboard that consolidates data from multiple independent domains.</option>
+                            <option value="saga">I need to manage a transaction (like e-commerce checkout) that spans multiple independent services.</option>
+                            <option value="circuit">A failing downstream service keeps causing my entire system to hang and crash.</option>
+                            <option value="event">Synchronous request/response is creating tight coupling and bottlenecks in my data pipeline.</option>
+                        </select>
+                    </div>
+                    
+                    <div id="pattern-result" class="p-8 hidden">
+                        <div class="flex items-start">
+                            <div class="bg-indigo-100 text-indigo-800 text-4xl p-4 rounded-lg mr-6" id="pattern-icon">🧩</div>
+                            <div>
+                                <h3 class="text-2xl font-bold text-slate-800 mb-2" id="pattern-title">Pattern Name</h3>
+                                <div class="inline-block bg-teal-100 text-teal-800 text-xs px-2 py-1 rounded font-bold uppercase tracking-wider mb-4" id="pattern-context">Context</div>
+                                <p class="text-slate-700 mb-4 text-lg leading-relaxed" id="pattern-desc">Description goes here.</p>
+                                <div class="bg-slate-50 border-l-4 border-indigo-500 p-4 rounded-r-lg">
+                                    <h4 class="font-bold text-slate-800 text-sm mb-1">How it works:</h4>
+                                    <p class="text-sm text-slate-600 font-mono whitespace-pre-line" id="pattern-mech">Mechanism</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="pattern-placeholder" class="p-12 text-center text-slate-400">
+                        <span class="text-4xl block mb-2">🛠️</span>
+                        <p>Select a problem from the dropdown to discover the recommended pattern.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="sec-security" class="content-section hidden">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-extrabold text-slate-900 mb-4">SOA Security Fundamentals</h2>
+                    <p class="text-lg text-slate-600 leading-relaxed bg-white p-6 rounded-xl border border-slate-100 shadow-sm">
+                        Security is not a feature added at the end; it is an architectural property designed from the start. This section covers the three pillars of service security and the non-negotiable checklist for deploying ML APIs.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                    <div class="bg-white rounded-xl shadow-sm border-t-4 border-t-red-500 border-x border-b border-slate-200 p-6">
+                        <h3 class="text-lg font-bold text-slate-800 mb-2">1. Authentication</h3>
+                        <p class="text-xs text-red-600 font-bold mb-4 uppercase">"Who are you?"</p>
+                        <ul class="text-sm text-slate-600 space-y-2">
+                            <li><strong class="text-slate-800">API Keys:</strong> Low security (internal)</li>
+                            <li><strong class="text-slate-800">JWT:</strong> High security, stateless</li>
+                            <li><strong class="text-slate-800">OAuth 2.0:</strong> Delegated auth</li>
+                        </ul>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm border-t-4 border-t-amber-500 border-x border-b border-slate-200 p-6">
+                        <h3 class="text-lg font-bold text-slate-800 mb-2">2. Authorization</h3>
+                        <p class="text-xs text-amber-600 font-bold mb-4 uppercase">"What can you do?"</p>
+                        <ul class="text-sm text-slate-600 space-y-2">
+                            <li><strong class="text-slate-800">RBAC:</strong> Role-Based access</li>
+                            <li><strong class="text-slate-800">ABAC:</strong> Attribute-Based access</li>
+                            <li><strong class="text-slate-800">Principle:</strong> Least Privilege</li>
+                        </ul>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm border-t-4 border-t-green-500 border-x border-b border-slate-200 p-6">
+                        <h3 class="text-lg font-bold text-slate-800 mb-2">3. Transport</h3>
+                        <p class="text-xs text-green-600 font-bold mb-4 uppercase">"Can they eavesdrop?"</p>
+                        <ul class="text-sm text-slate-600 space-y-2">
+                            <li><strong class="text-slate-800">HTTPS/TLS:</strong> Mandatory encryption</li>
+                            <li><strong class="text-slate-800">mTLS:</strong> Mutual TLS (both sides verified)</li>
+                            <li><strong class="text-slate-800">Service Mesh:</strong> Enforces mTLS by default</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="bg-indigo-900 text-indigo-50 rounded-xl shadow-md p-8">
+                    <h3 class="text-xl font-bold text-white mb-6 border-b border-indigo-700 pb-2">✅ The Non-Negotiables for ML APIs</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8">
+                        <div class="flex items-start">
+                            <span class="text-indigo-400 mr-3">✓</span>
+                            <p class="text-sm"><strong>HTTPS enforced</strong> — never HTTP in production</p>
+                        </div>
+                        <div class="flex items-start">
+                            <span class="text-indigo-400 mr-3">✓</span>
+                            <p class="text-sm"><strong>Input validated</strong> — never trust incoming data (Injection risks)</p>
+                        </div>
+                        <div class="flex items-start">
+                            <span class="text-indigo-400 mr-3">✓</span>
+                            <p class="text-sm"><strong>Authentication required</strong> — minimum API key, preferably JWT</p>
+                        </div>
+                        <div class="flex items-start">
+                            <span class="text-indigo-400 mr-3">✓</span>
+                            <p class="text-sm"><strong>Logging active</strong> — log requests with user ID and timestamp</p>
+                        </div>
+                        <div class="flex items-start">
+                            <span class="text-indigo-400 mr-3">✓</span>
+                            <p class="text-sm"><strong>Authorization checked</strong> — validate scope per endpoint</p>
+                        </div>
+                        <div class="flex items-start">
+                            <span class="text-indigo-400 mr-3">✓</span>
+                            <p class="text-sm"><strong>Dependencies audited</strong> — check OWASP Top 10 before launch</p>
+                        </div>
+                        <div class="flex items-start md:col-span-2">
+                            <span class="text-indigo-400 mr-3">✓</span>
+                            <p class="text-sm"><strong>Rate limiting enabled</strong> — protect against abuse and cloud cost overruns</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <script>
+        // --- Navigation Logic ---
+        function navigate(sectionId) {
+            document.querySelectorAll('.content-section').forEach(sec => sec.classList.add('hidden'));
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById('sec-' + sectionId).classList.remove('hidden');
+            const navBtn = document.getElementById('nav-' + sectionId);
+            if(navBtn) navBtn.classList.add('active');
+            
+            document.getElementById('mobile-nav').value = sectionId;
+        }
+
+        // --- Principles Interactive Cards Logic ---
+        const principlesData = [
+            { title: "Loose Coupling", desc: "Services minimise dependencies on each other. Interface stays stable.", problem: "Cascading breakage from changes across the system." },
+            { title: "Service Contract", desc: "Every service publishes a formal interface specification (OpenAPI/WSDL).", problem: "Integration failures caused by assumptions about data." },
+            { title: "Abstraction", desc: "Services hide implementation details (DB types, logic) from callers.", problem: "Technology lock-in and inability to upgrade internals safely." },
+            { title: "Reusability", desc: "One well-designed service consumed by many applications.", problem: "Code duplication and inconsistent logic across applications." },
+            { title: "Composability", desc: "Complex apps built from simpler, chained services.", problem: "Monolithic complexity making systems impossible to maintain." },
+            { title: "Discoverability", desc: "Services published to a registry (Service Mesh, AWS Catalog).", problem: "Hard-coded service locations causing breakages on IP changes." },
+            { title: "Statelessness", desc: "Each service call is self-contained. No memory of previous requests.", problem: "Inability to scale horizontally because state is tied to one server." }
+        ];
+
+        const grid = document.getElementById('principles-grid');
+        principlesData.forEach((p, index) => {
+            const cardHtml = `
+                <div class="flip-card cursor-pointer h-48 perspective-1000" onclick="this.classList.toggle('active')">
+                    <div class="flip-card-inner relative w-full h-full text-center shadow-sm rounded-xl border border-slate-200">
+                        <div class="flip-card-front bg-white absolute w-full h-full rounded-xl p-6 flex flex-col items-center justify-center">
+                            <div class="text-indigo-500 font-bold mb-2">Principle ${index + 1}</div>
+                            <h3 class="text-xl font-extrabold text-slate-800">${p.title}</h3>
+                            <p class="text-xs text-slate-400 mt-4 underline decoration-dashed">Click to reveal problem solved</p>
+                        </div>
+                        <div class="flip-card-back bg-indigo-600 text-white absolute w-full h-full rounded-xl p-6 flex flex-col items-center justify-center">
+                            <span class="uppercase tracking-wide text-xs text-indigo-200 font-bold mb-2">Problem Solved</span>
+                            <p class="text-sm font-medium">${p.problem}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            grid.insertAdjacentHTML('beforeend', cardHtml);
+        });
+
+        // --- Chart.js Logic (SOAP vs REST) ---
+        const ctx = document.getElementById('protocolChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['REST (JSON)', 'SOAP (XML)'],
+                datasets: [{
+                    label: 'Relative Payload Size',
+                    data: [1, 8.2],
+                    backgroundColor: [
+                        'rgba(13, 148, 136, 0.7)', 
+                        'rgba(79, 70, 229, 0.7)'  
+                    ],
+                    borderColor: [
+                        'rgb(13, 148, 136)',
+                        'rgb(79, 70, 229)'
+                    ],
+                    borderWidth: 1,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.raw + 'x Size Multiplier';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'Payload Size Multiplier' }
+                    }
+                }
+            }
+        });
+
+        // --- Design Patterns Logic ---
+        const patterns = {
+            'facade': {
+                title: 'Facade Pattern',
+                context: 'API Gateways',
+                icon: '🚪',
+                desc: 'A single facade service presents a simplified, unified interface to a complex backend of multiple microservices.',
+                mech: 'CLIENT → [API GATEWAY / FACADE]\n         → Service A\n         → Service B\n         → Service C'
+            },
+            'aggregator': {
+                title: 'Aggregator Pattern',
+                context: 'Dashboards & Portals',
+                icon: '📊',
+                desc: 'One service calls multiple independent services (in parallel or sequence), combines the results, and returns a unified response to the client.',
+                mech: 'PORTAL (Aggregator)\n ├── calls → GRADES SERVICE\n ├── calls → FINANCE SERVICE\n └── assembles ONE unified view'
+            },
+            'saga': {
+                title: 'Saga Pattern',
+                context: 'Distributed Transactions',
+                icon: '🔗',
+                desc: 'Manages multi-step transactions without locking. Each service performs its local transaction and publishes an event. If a downstream step fails, compensating transactions are triggered to undo previous steps.',
+                mech: '1. ORDER → SUCCESS\n2. PAYMENT → SUCCESS\n3. INVENTORY → FAILURE\n4. PAYMENT → REFUND (Compensation)\n5. ORDER → CANCEL (Compensation)'
+            },
+            'circuit': {
+                title: 'Circuit Breaker Pattern',
+                context: 'Resilience / Fault Tolerance',
+                icon: '⚡',
+                desc: 'Prevents cascading failures by monitoring service calls. If a service fails consistently, the circuit "opens", blocking calls and returning an immediate fallback response to prevent the whole system from hanging.',
+                mech: 'CLOSED: Normal operation\nOPEN (After N failures): Calls blocked immediately\nHALF-OPEN (After timeout): Trial call allowed'
+            },
+            'event': {
+                title: 'Event-Driven Pattern',
+                context: 'Streaming & Data Pipelines',
+                icon: '📡',
+                desc: 'Removes tight synchronous request-response coupling. Services communicate by publishing and subscribing to events on a central message bus (like Kafka).',
+                mech: 'SERVICE A publishes → [EVENT BUS]\n                      → SERVICE B subscribes\n                      → SERVICE C subscribes'
+            }
+        };
+
+        function showPattern() {
+            const selector = document.getElementById('problem-selector');
+            const resultDiv = document.getElementById('pattern-result');
+            const placeholder = document.getElementById('pattern-placeholder');
+            
+            const selected = patterns[selector.value];
+            if (selected) {
+                document.getElementById('pattern-title').textContent = selected.title;
+                document.getElementById('pattern-context').textContent = selected.context;
+                document.getElementById('pattern-desc').textContent = selected.desc;
+                document.getElementById('pattern-mech').textContent = selected.mech;
+                document.getElementById('pattern-icon').textContent = selected.icon;
+                
+                placeholder.classList.add('hidden');
+                resultDiv.classList.remove('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
+
+
+
