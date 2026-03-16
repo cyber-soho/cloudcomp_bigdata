@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud Tools & Applications - Study App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Flashcard Flip Animations */
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+        .transform-style-3d {
+            transform-style: preserve-3d;
+        }
+        .backface-hidden {
+            backface-visibility: hidden;
+        }
+        .rotate-y-180 {
+            transform: rotateY(180deg);
+        }
+        .transition-transform-700 {
+            transition: transform 0.7s cubic-bezier(0.4, 0.2, 0.2, 1);
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen font-sans flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-10">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-2 text-indigo-600">
+                <i class="fa-solid fa-cloud text-2xl"></i>
+                <h1 class="text-xl font-bold tracking-tight text-slate-900">Cloud Study Hub</h1>
+            </div>
+            
+            <!-- Tabs -->
+            <nav class="flex space-x-1 bg-slate-100 p-1 rounded-lg">
+                <button id="tab-flashcards" onclick="switchTab('flashcards')" class="px-4 py-2 text-sm font-medium rounded-md bg-white text-indigo-700 shadow-sm transition-all">
+                    <i class="fa-solid fa-layer-group mr-2"></i>Flashcards
+                </button>
+                <button id="tab-quiz" onclick="switchTab('quiz')" class="px-4 py-2 text-sm font-medium rounded-md text-slate-600 hover:text-slate-900 hover:bg-white/60 transition-all">
+                    <i class="fa-solid fa-clipboard-question mr-2"></i>Quiz
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow flex flex-col items-center p-4 sm:p-8">
+        
+        <!-- FLASHCARDS SECTION -->
+        <section id="view-flashcards" class="w-full max-w-2xl flex flex-col items-center animate-fade-in">
+            <div class="w-full flex justify-between items-center mb-6 px-2">
+                <h2 class="text-2xl font-bold text-slate-800">Review Concepts</h2>
+                <span id="fc-counter" class="text-sm font-medium bg-indigo-100 text-indigo-800 py-1 px-3 rounded-full">1 / 25</span>
+            </div>
+
+            <!-- Flashcard Container -->
+            <div class="w-full h-80 perspective-1000 cursor-pointer mb-8" onclick="flipCard()">
+                <div id="flashcard-inner" class="relative w-full h-full text-center transition-transform-700 transform-style-3d shadow-xl rounded-2xl">
+                    
+                    <!-- Front -->
+                    <div class="absolute w-full h-full backface-hidden bg-white rounded-2xl border-2 border-indigo-50 flex flex-col justify-center items-center p-8">
+                        <i class="fa-regular fa-lightbulb text-4xl text-indigo-300 mb-4"></i>
+                        <p id="fc-front-text" class="text-2xl font-semibold text-slate-800"></p>
+                        <p class="absolute bottom-4 text-xs text-slate-400 font-medium tracking-wide uppercase">Click to flip</p>
+                    </div>
+
+                    <!-- Back -->
+                    <div class="absolute w-full h-full backface-hidden bg-indigo-600 rounded-2xl text-white rotate-y-180 flex flex-col justify-center items-center p-8 shadow-inner">
+                        <i class="fa-solid fa-book-open text-3xl text-indigo-300 mb-4 opacity-50"></i>
+                        <p id="fc-back-text" class="text-xl leading-relaxed font-medium"></p>
+                        <p class="absolute bottom-4 text-xs text-indigo-200 font-medium tracking-wide uppercase">Click to flip</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="flex items-center gap-6">
+                <button onclick="prevCard()" class="w-12 h-12 rounded-full bg-white shadow flex items-center justify-center text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <button onclick="shuffleCards()" class="px-6 py-2 rounded-full bg-slate-200 text-slate-700 font-medium hover:bg-slate-300 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-500">
+                    <i class="fa-solid fa-shuffle mr-2"></i>Shuffle
+                </button>
+                <button onclick="nextCard()" class="w-12 h-12 rounded-full bg-indigo-600 shadow flex items-center justify-center text-white hover:bg-indigo-700 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- QUIZ SECTION -->
+        <section id="view-quiz" class="w-full max-w-2xl hidden animate-fade-in">
+            <div class="w-full flex justify-between items-center mb-6 px-2">
+                <h2 class="text-2xl font-bold text-slate-800">Knowledge Check</h2>
+                <div class="flex items-center gap-4">
+                    <span id="quiz-score" class="text-sm font-medium bg-emerald-100 text-emerald-800 py-1 px-3 rounded-full hidden">Score: 0</span>
+                    <span id="quiz-counter" class="text-sm font-medium bg-slate-200 text-slate-700 py-1 px-3 rounded-full">Q 1 / 10</span>
+                </div>
+            </div>
+
+            <!-- Quiz Card -->
+            <div class="bg-white rounded-2xl shadow-lg border border-slate-100 p-6 sm:p-8">
+                <div class="mb-6">
+                    <h3 id="quiz-question-text" class="text-lg sm:text-xl font-semibold text-slate-800 leading-snug"></h3>
+                    
+                    <button id="btn-hint" onclick="toggleHint()" class="mt-3 text-sm text-indigo-600 hover:text-indigo-800 font-medium flex items-center transition-colors">
+                        <i class="fa-solid fa-circle-info mr-1.5"></i> Show Hint
+                    </button>
+                    <div id="quiz-hint" class="hidden mt-2 p-3 bg-indigo-50 text-indigo-800 text-sm rounded-lg border border-indigo-100">
+                        <!-- Hint text -->
+                    </div>
+                </div>
+
+                <!-- Options -->
+                <div id="quiz-options" class="flex flex-col gap-3">
+                    <!-- Buttons generated by JS -->
+                </div>
+
+                <!-- Rationale Box (Hidden initially) -->
+                <div id="quiz-rationale" class="hidden mt-6 p-4 rounded-xl border">
+                    <div class="flex items-start gap-3">
+                        <div id="rationale-icon" class="mt-0.5"></div>
+                        <div>
+                            <h4 id="rationale-title" class="font-bold text-sm uppercase tracking-wider mb-1"></h4>
+                            <p id="rationale-text" class="text-slate-700 text-sm leading-relaxed"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Button -->
+                <div class="mt-8 flex justify-end border-t border-slate-100 pt-6">
+                    <button id="btn-next-question" onclick="nextQuestion()" class="hidden px-6 py-2.5 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors shadow-sm">
+                        Next Question <i class="fa-solid fa-arrow-right ml-2"></i>
+                    </button>
+                    <button id="btn-restart-quiz" onclick="restartQuiz()" class="hidden px-6 py-2.5 bg-slate-800 text-white font-medium rounded-lg hover:bg-slate-900 transition-colors shadow-sm">
+                        <i class="fa-solid fa-rotate-right mr-2"></i>Restart Quiz
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // --- DATA ---
+        const flashcardsData = [
+            { front: "Cloud Tools", back: "The operational machinery and services (the \"vehicles\") that let engineers build, manage, monitor, and secure cloud environments." },
+            { front: "Cloud Applications", back: "Software products running on cloud infrastructure and accessed via the internet, representing the value delivered to end-users (the \"destinations\")." },
+            { front: "Six categories of Cloud Tools", back: "Infrastructure Provisioning, Orchestration & Automation, Monitoring & Observability, Security & Identity, Data Engineering, and Cost Management." },
+            { front: "Infrastructure as Code (IaC)", back: "Describing infrastructure in text files that are version-controlled, allowing for repeatable, auditable, and fast automated provisioning." },
+            { front: "Key Infrastructure as Code (IaC) tools", back: "Terraform (provider-agnostic, uses HCL) and AWS CloudFormation (AWS-specific, uses JSON/YAML)." },
+            { front: "Apache Airflow", back: "An orchestration tool used to define a chain of tasks as a Directed Acyclic Graph (DAG) and schedule them to run automatically." },
+            { front: "ETL Pattern", back: "Extract (pull raw data), Transform (clean, aggregate, enrich), and Load (write results to a data warehouse)." },
+            { front: "Three Pillars of Observability", back: "Metrics (numbers like CPU usage), Logs (text records of events), and Traces (the journey of a request through services)." },
+            { front: "Prometheus and Grafana", back: "Open-source monitoring tools; Prometheus handles metrics and alerting, while Grafana is used for dashboarding and visualization." },
+            { front: "Shared Responsibility Model", back: "A security concept where the cloud provider secures the physical infrastructure, while the user secures their data, identities, and application logic." },
+            { front: "Identity and Access Management (IAM)", back: "A framework that controls exactly who can do what on which specific cloud resource." },
+            { front: "Principle of Least Privilege", back: "The security rule of granting the minimum permissions necessary for each role to perform its tasks, denying everything else by default." },
+            { front: "Spot / Preemptible Instances", back: "Discounted compute resources that can reduce GPU costs by 60-90%, highly useful for optimizing cost management in ML training." },
+            { front: "Software as a Service (SaaS)", back: "A synonym for cloud applications; software designed for the internet and maintained by the provider without requiring local installation." },
+            { front: "Data Lake Architecture Zones", back: "A three-zone storage pattern consisting of Raw (immutable files), Processed (cleaned datasets), and Curated (analysis-ready tables)." },
+            { front: "Horizontal Scaling", back: "The core idea behind big data processing where, instead of buying a bigger computer, you add more computers and split the job across them." },
+            { front: "MapReduce Pattern", back: "A three-phase big data algorithm consisting of Map (emit pairs), Shuffle (group by key), and Reduce (aggregate into a final result)." },
+            { front: "Apache Spark", back: "A big data processing platform that specializes in high-speed, in-memory distributed computing." },
+            { front: "Cloud ML Platforms", back: "Managed end-to-end services (like Amazon SageMaker or Google Vertex AI) that handle the infrastructure complexity of training and deploying models." },
+            { front: "Four stages of the Cloud ML Workflow", back: "1. Upload Dataset, 2. Train Model (on GPUs/TPUs), 3. Evaluate Metrics, 4. Deploy as API." },
+            { front: "Serverless Computing", back: "An execution model where the provider dynamically allocates resources, and the user pays only for the actual compute time used." },
+            { front: "Event-Driven Model", back: "The basis of serverless computing where an event triggers a function automatically, the function executes, and then resources are immediately released." },
+            { front: "Virtual Private Cloud (VPC)", back: "An isolated network segment within a public cloud, used to securely launch and manage cloud resources." },
+            { front: "Key Management Service (KMS)", back: "A security tool that creates and manages the encryption keys used to protect your data in the cloud." },
+            { front: "Directed Acyclic Graph (DAG)", back: "A way to define a chain of dependent tasks in orchestration tools, ensuring tasks run in the correct, non-repeating order." }
+        ];
+
+        const quizData = [
+            {
+                question: "A data engineering team needs to recreate identical staging and production environments across multiple regions without clicking through console menus. Which technology facilitates this?",
+                hint: "Think about treating infrastructure definitions just like software source code.",
+                options: [
+                    { text: "Infrastructure as Code (IaC)", isCorrect: true, rationale: "Describing infrastructure in version-controlled text files allows for repeatable, auditable, and automated provisioning of resources like VMs and networks." },
+                    { text: "Container Runtime", isCorrect: false, rationale: "Tools like Docker package application code and its dependencies into portable images, but they do not provision the underlying cloud networks and virtual machines." },
+                    { text: "Data Warehousing", isCorrect: false, rationale: "Platforms like Snowflake store and analyze structured data, rather than automating the creation of cloud environments." },
+                    { text: "Key Management Service (KMS)", isCorrect: false, rationale: "This service securely handles encryption keys for protecting data, rather than deploying the physical or virtual infrastructure." }
+                ]
+            },
+            {
+                question: "You need to schedule a pipeline that extracts raw sales data, transforms it to remove duplicates, and loads it into a dashboard. Which tool is specifically designed to manage this Directed Acyclic Graph (DAG)?",
+                hint: "Consider the Apache tool associated with orchestrating chains of dependent data tasks.",
+                options: [
+                    { text: "Apache Airflow", isCorrect: true, rationale: "This orchestration tool is designed specifically to define chains of dependent tasks as DAGs and schedule them to run automatically." },
+                    { text: "Docker", isCorrect: false, rationale: "This provides a runtime for creating portable application images, not a scheduling mechanism for dependent data workflows." },
+                    { text: "Kubernetes", isCorrect: false, rationale: "While it orchestrates containers to ensure they stay running and scale, it is not primarily designed to manage sequential data extraction and transformation pipelines." },
+                    { text: "Ansible", isCorrect: false, rationale: "This is a configuration management tool used to set up software on existing servers, rather than scheduling data pipeline workflows." }
+                ]
+            },
+            {
+                question: "A student requires access to a shared dataset to complete an assignment, but should not be able to accidentally delete the files. Applying the principle of least privilege, what access level is appropriate?",
+                hint: "Provide only the minimum permissions absolutely necessary to complete the task.",
+                options: [
+                    { text: "Read-only access", isCorrect: true, rationale: "Granting only the ability to view the data fulfills the requirements of the task without exposing the system to unnecessary risk of modification or deletion." },
+                    { text: "Read and write access", isCorrect: false, rationale: "Allowing the ability to write or modify files exceeds the requirements for a student who only needs to analyze the existing data." },
+                    { text: "Full administrative access", isCorrect: false, rationale: "Providing administrative rights violates security best practices by granting sweeping permissions far beyond what is necessary." },
+                    { text: "Deny by default", isCorrect: false, rationale: "While this is the baseline state of cloud security, the student must be explicitly granted some level of access to complete the assignment." }
+                ]
+            },
+            {
+                question: "A startup wants to train a deep learning model over the weekend. The training job can be interrupted and resumed without data loss. How can they most effectively reduce their GPU costs?",
+                hint: "Look for instance types that are significantly discounted because the cloud provider can temporarily reclaim them.",
+                options: [
+                    { text: "Utilize spot or preemptible instances", isCorrect: true, rationale: "These are discounted compute resources that providers can reclaim at any time, making them ideal and highly cost-effective for flexible, fault-tolerant workloads." },
+                    { text: "Purchase permanent physical servers", isCorrect: false, rationale: "Buying physical hardware requires a large upfront capital expenditure and eliminates the elastic, on-demand benefits of the cloud." },
+                    { text: "Use a managed ML platform without GPUs", isCorrect: false, rationale: "Training a deep learning model typically requires hardware acceleration; removing GPUs would drastically increase training time or make it impossible." },
+                    { text: "Switch from cloud storage to local hard drives", isCorrect: false, rationale: "While storage costs money, the primary driver of expense in machine learning training is the hourly rate of the compute instances, not the storage medium." }
+                ]
+            },
+            {
+                question: "A data scientist is looking for a dataset that has already been cleaned by the engineering team but has not yet been formatted into final, analysis-ready tables. Where in the data lake architecture should they look?",
+                hint: "Consider the intermediate step between raw ingestion and final curation.",
+                options: [
+                    { text: "Processed Zone", isCorrect: true, rationale: "This intermediate layer stores datasets that have been cleaned and transformed from their original state, preparing them for later curation." },
+                    { text: "Raw Zone", isCorrect: false, rationale: "This layer holds immutable, original files exactly as they were ingested, before any cleaning or transformation has occurred." },
+                    { text: "Curated Zone", isCorrect: false, rationale: "This is the final destination for data, containing analysis-ready tables and dashboards intended for broad consumption." },
+                    { text: "Serverless Zone", isCorrect: false, rationale: "Serverless refers to an event-driven computing execution model, not a storage layer within a data lake architecture." }
+                ]
+            },
+            {
+                question: "During a distributed big data job counting word frequencies, worker nodes have just finished reading partitions and emitting initial pairs. What phase of the MapReduce pattern happens next to prepare the data for final aggregation?",
+                hint: "The data must be reorganized across the network so that identical keys are routed to the same place.",
+                options: [
+                    { text: "Shuffle", isCorrect: true, rationale: "After initial mapping, the system must group pairs by key across all worker nodes so that identical items are routed to the same reducer." },
+                    { text: "Map", isCorrect: false, rationale: "This is the initial phase where workers read data partitions and emit the initial key-value pairs." },
+                    { text: "Reduce", isCorrect: false, rationale: "This is the final phase where the previously grouped values are aggregated into a final result, requiring the grouping step to happen first." },
+                    { text: "Extract", isCorrect: false, rationale: "This describes pulling data from a source system in an ETL pipeline, not a specific computational phase of the MapReduce algorithm." }
+                ]
+            },
+            {
+                question: "Your team has evaluated a newly trained classification model and confirmed its precision and recall meet business requirements. What is the final stage of the Cloud ML workflow to make these predictions available to a frontend web application?",
+                hint: "The model needs to be exposed over the internet so other software can send it data and receive responses.",
+                options: [
+                    { text: "Deploy as a REST API", isCorrect: true, rationale: "Publishing the model as an endpoint allows client applications to send new requests over the internet and receive real-time predictions." },
+                    { text: "Upload the dataset to object storage", isCorrect: false, rationale: "This is the first step of the workflow, required to get the raw training data into the cloud before model creation begins." },
+                    { text: "Retrain the model on TPUs", isCorrect: false, rationale: "Since the model has already met the necessary performance metrics, further training is redundant at this stage." },
+                    { text: "Move the model to the Raw Zone", isCorrect: false, rationale: "The Raw Zone is for immutable storage of initial data ingestion, not for hosting executable machine learning models." }
+                ]
+            },
+            {
+                question: "An application experiences unpredictable bursts of traffic where it must execute a lightweight image processing script, followed by long periods of zero activity. Which cloud execution model ensures the team only pays for actual compute time used?",
+                hint: "Think about an event-driven paradigm where resources are dynamically allocated upon a trigger and instantly released afterward.",
+                options: [
+                    { text: "Serverless computing", isCorrect: true, rationale: "This event-driven model dynamically allocates resources when a trigger occurs and releases them immediately, resulting in zero cost when idle." },
+                    { text: "Provisioning dedicated Virtual Machines", isCorrect: false, rationale: "Standard VMs incur hourly costs simply for running, regardless of whether they are actively processing an image or sitting completely idle." },
+                    { text: "Utilizing an always-on Kubernetes cluster", isCorrect: false, rationale: "While highly scalable, an always-on cluster requires baseline infrastructure that runs continuously, incurring costs during idle periods." },
+                    { text: "Setting up an Apache Hadoop cluster", isCorrect: false, rationale: "This is a heavy framework designed for massive batch processing of big data, entirely unsuited for lightweight, intermittent image processing." }
+                ]
+            },
+            {
+                question: "An engineer receives an alert that a microservice is experiencing high request latency. To investigate the specific journey of a single slow request across multiple different services, which pillar of observability should they analyze?",
+                hint: "This pillar focuses on following a path from start to finish across a distributed system.",
+                options: [
+                    { text: "Traces", isCorrect: true, rationale: "This pillar specifically maps the interconnected paths and timings of a single request as it traverses through various distributed services." },
+                    { text: "Metrics", isCorrect: false, rationale: "These provide aggregated numerical data, such as overall CPU usage or average latency, but cannot track the step-by-step journey of an individual request." },
+                    { text: "Logs", isCorrect: false, rationale: "These provide text records of isolated events occurring within a single service, but they do not automatically map the entire cross-service journey." },
+                    { text: "Dashboards", isCorrect: false, rationale: "These are visualization tools that display observability data, not the foundational telemetry data format required to track a request path." }
+                ]
+            },
+            {
+                question: "A marketing team is using Microsoft 365 to co-author a strategy document in real-time without installing anything locally. In the context of the cloud mental model, what category does this tool fall under?",
+                hint: "Consider whether this represents the underlying machinery used by engineers or the final destination delivering value to non-technical users.",
+                options: [
+                    { text: "Cloud Application (SaaS)", isCorrect: true, rationale: "This is a software product running on cloud infrastructure accessed via the internet that delivers direct value to end-users." },
+                    { text: "Infrastructure Provisioning", isCorrect: false, rationale: "This category involves the foundational tools used by engineers to create and manage the underlying virtual machines and networks." },
+                    { text: "Orchestration and Automation", isCorrect: false, rationale: "These tools are used by developers to coordinate complex backend workflows and containers, not for front-end document collaboration." },
+                    { text: "Data Engineering Pipeline", isCorrect: false, rationale: "This refers to the systems used to move and transform raw data into a data warehouse, which is unrelated to real-time word processing." }
+                ]
+            }
+        ];
+
+        // --- STATE ---
+        let currentDeck = [...flashcardsData];
+        let fcIndex = 0;
+        let isFlipped = false;
+
+        let currentQuizQueue = [];
+        let qIndex = 0;
+        let quizScore = 0;
+        let questionAnswered = false;
+
+        // --- TAB LOGIC ---
+        function switchTab(tabId) {
+            const btnFc = document.getElementById('tab-flashcards');
+            const btnQz = document.getElementById('tab-quiz');
+            const viewFc = document.getElementById('view-flashcards');
+            const viewQz = document.getElementById('view-quiz');
+
+            if (tabId === 'flashcards') {
+                viewFc.classList.remove('hidden');
+                viewQz.classList.add('hidden');
+                
+                // Active styles
+                btnFc.classList.replace('text-slate-600', 'text-indigo-700');
+                btnFc.classList.replace('hover:text-slate-900', 'bg-white');
+                btnFc.classList.add('shadow-sm', 'bg-white');
+                
+                // Inactive styles
+                btnQz.classList.replace('text-indigo-700', 'text-slate-600');
+                btnQz.classList.remove('shadow-sm', 'bg-white');
+            } else {
+                viewQz.classList.remove('hidden');
+                viewFc.classList.add('hidden');
+                
+                // Active styles
+                btnQz.classList.replace('text-slate-600', 'text-indigo-700');
+                btnQz.classList.add('shadow-sm', 'bg-white');
+                
+                // Inactive styles
+                btnFc.classList.replace('text-indigo-700', 'text-slate-600');
+                btnFc.classList.remove('shadow-sm', 'bg-white');
+                
+                if (currentQuizQueue.length === 0) {
+                    initQuiz();
+                }
+            }
+        }
+
+        // --- FLASHCARD LOGIC ---
+        function updateFlashcard() {
+            const inner = document.getElementById('flashcard-inner');
+            if (isFlipped) {
+                inner.classList.remove('rotate-y-180');
+                isFlipped = false;
+                // Wait for animation before changing text to prevent glitch
+                setTimeout(setCardText, 300);
+            } else {
+                setCardText();
+            }
+        }
+
+        function setCardText() {
+            document.getElementById('fc-front-text').innerText = currentDeck[fcIndex].front;
+            document.getElementById('fc-back-text').innerText = currentDeck[fcIndex].back;
+            document.getElementById('fc-counter').innerText = `${fcIndex + 1} / ${currentDeck.length}`;
+        }
+
+        function flipCard() {
+            const inner = document.getElementById('flashcard-inner');
+            if (isFlipped) {
+                inner.classList.remove('rotate-y-180');
+            } else {
+                inner.classList.add('rotate-y-180');
+            }
+            isFlipped = !isFlipped;
+        }
+
+        function nextCard() {
+            fcIndex = (fcIndex + 1) % currentDeck.length;
+            updateFlashcard();
+        }
+
+        function prevCard() {
+            fcIndex = (fcIndex - 1 + currentDeck.length) % currentDeck.length;
+            updateFlashcard();
+        }
+
+        function shuffleCards() {
+            for (let i = currentDeck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [currentDeck[i], currentDeck[j]] = [currentDeck[j], currentDeck[i]];
+            }
+            fcIndex = 0;
+            updateFlashcard();
+        }
+
+        // --- QUIZ LOGIC ---
+        function initQuiz() {
+            // Shuffle questions
+            currentQuizQueue = [...quizData].sort(() => Math.random() - 0.5);
+            qIndex = 0;
+            quizScore = 0;
+            document.getElementById('quiz-score').classList.remove('hidden');
+            document.getElementById('quiz-score').innerText = `Score: 0`;
+            renderQuestion();
+        }
+
+        function restartQuiz() {
+            document.getElementById('btn-restart-quiz').classList.add('hidden');
+            initQuiz();
+        }
+
+        function renderQuestion() {
+            questionAnswered = false;
+            const q = currentQuizQueue[qIndex];
+            
+            document.getElementById('quiz-counter').innerText = `Q ${qIndex + 1} / ${currentQuizQueue.length}`;
+            document.getElementById('quiz-question-text').innerText = q.question;
+            
+            // Hint reset
+            document.getElementById('quiz-hint').classList.add('hidden');
+            document.getElementById('quiz-hint').innerText = q.hint;
+            document.getElementById('btn-hint').classList.remove('hidden');
+
+            // Rationale reset
+            document.getElementById('quiz-rationale').classList.add('hidden');
+            document.getElementById('btn-next-question').classList.add('hidden');
+
+            // Shuffle and render options
+            const optionsContainer = document.getElementById('quiz-options');
+            optionsContainer.innerHTML = '';
+            
+            let shuffledOptions = [...q.options].sort(() => Math.random() - 0.5);
+
+            shuffledOptions.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left p-4 rounded-xl border-2 border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/50 transition-all focus:outline-none text-slate-700 font-medium group flex items-center";
+                
+                // Option indicator letter (A, B, C, D)
+                const letter = String.fromCharCode(65 + index);
+                
+                btn.innerHTML = `
+                    <span class="flex-shrink-0 w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center mr-3 group-hover:bg-indigo-100 group-hover:text-indigo-600 transition-colors font-bold text-sm">${letter}</span>
+                    <span>${opt.text}</span>
+                `;
+                
+                btn.onclick = () => selectOption(btn, opt, shuffledOptions);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function toggleHint() {
+            const hintDiv = document.getElementById('quiz-hint');
+            hintDiv.classList.toggle('hidden');
+        }
+
+        function selectOption(selectedBtn, selectedOpt, allOptionsData) {
+            if (questionAnswered) return;
+            questionAnswered = true;
+
+            const buttons = document.getElementById('quiz-options').children;
+            
+            // Disable all buttons and show correct/incorrect styling
+            Array.from(buttons).forEach((btn, idx) => {
+                btn.onclick = null;
+                btn.classList.remove('hover:border-indigo-400', 'hover:bg-indigo-50/50', 'cursor-pointer');
+                
+                const optData = allOptionsData[idx];
+                const indicator = btn.querySelector('span:first-child');
+                
+                if (optData.isCorrect) {
+                    btn.classList.add('border-emerald-500', 'bg-emerald-50');
+                    indicator.classList.replace('bg-slate-100', 'bg-emerald-500');
+                    indicator.classList.replace('text-slate-500', 'text-white');
+                    indicator.classList.replace('group-hover:bg-indigo-100', 'group-hover:bg-emerald-500');
+                    indicator.innerHTML = '<i class="fa-solid fa-check"></i>';
+                } else if (btn === selectedBtn) {
+                    btn.classList.add('border-rose-400', 'bg-rose-50');
+                    indicator.classList.replace('bg-slate-100', 'bg-rose-500');
+                    indicator.classList.replace('text-slate-500', 'text-white');
+                    indicator.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+                } else {
+                    btn.classList.add('opacity-50');
+                }
+            });
+
+            // Update Score
+            if (selectedOpt.isCorrect) {
+                quizScore++;
+                document.getElementById('quiz-score').innerText = `Score: ${quizScore}`;
+            }
+
+            // Show Rationale
+            const ratDiv = document.getElementById('quiz-rationale');
+            const ratIcon = document.getElementById('rationale-icon');
+            const ratTitle = document.getElementById('rationale-title');
+            const ratText = document.getElementById('rationale-text');
+
+            ratDiv.classList.remove('hidden', 'bg-emerald-50', 'border-emerald-200', 'bg-rose-50', 'border-rose-200');
+            
+            if (selectedOpt.isCorrect) {
+                ratDiv.classList.add('bg-emerald-50', 'border-emerald-200');
+                ratIcon.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-600 text-xl"></i>';
+                ratTitle.innerText = 'Correct';
+                ratTitle.classList.replace('text-rose-700', 'text-emerald-700');
+                ratTitle.classList.add('text-emerald-700');
+            } else {
+                ratDiv.classList.add('bg-rose-50', 'border-rose-200');
+                ratIcon.innerHTML = '<i class="fa-solid fa-circle-xmark text-rose-600 text-xl"></i>';
+                ratTitle.innerText = 'Incorrect';
+                ratTitle.classList.replace('text-emerald-700', 'text-rose-700');
+                ratTitle.classList.add('text-rose-700');
+            }
+            
+            ratText.innerText = selectedOpt.rationale;
+            document.getElementById('btn-hint').classList.add('hidden');
+            document.getElementById('quiz-hint').classList.add('hidden');
+
+            // Show Next/Finish button
+            if (qIndex < currentQuizQueue.length - 1) {
+                document.getElementById('btn-next-question').classList.remove('hidden');
+            } else {
+                document.getElementById('btn-restart-quiz').classList.remove('hidden');
+            }
+        }
+
+        function nextQuestion() {
+            qIndex++;
+            renderQuestion();
+        }
+
+        // Initialize on load
+        window.onload = () => {
+            setCardText();
+        };
+
+    </script>
+</body>
+</html>
+</html>
+
+

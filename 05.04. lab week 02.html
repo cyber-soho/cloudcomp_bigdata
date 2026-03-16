@@ -1,0 +1,1415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Cloud Computing & Big Data Analytics — Week 02</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet"/>
+<style>
+  :root{
+    --bg:#0a0c10;
+    --surface:#111418;
+    --surface2:#181c22;
+    --border:#1e2530;
+    --accent:#00e5c3;
+    --accent2:#ff6b35;
+    --accent3:#7c6ff7;
+    --text:#e8eaf0;
+    --muted:#8892a0;
+    --p1:#00e5c3;
+    --p2:#7c6ff7;
+    --p3:#ff6b35;
+    --warn:#f5c842;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Lora',Georgia,serif;
+    font-size:16px;
+    line-height:1.75;
+    overflow-x:hidden;
+  }
+
+  /* ── NOISE OVERLAY ── */
+  body::before{
+    content:'';position:fixed;inset:0;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events:none;z-index:9999;opacity:.35;
+  }
+
+  /* ── SIDEBAR NAV ── */
+  .sidenav{
+    position:fixed;left:0;top:0;height:100vh;width:220px;
+    background:var(--surface);border-right:1px solid var(--border);
+    padding:2rem 1.5rem;z-index:100;
+    display:flex;flex-direction:column;gap:.3rem;
+    overflow-y:auto;
+  }
+  .sidenav .logo{
+    font-family:'Syne',sans-serif;font-weight:800;font-size:.85rem;
+    color:var(--accent);letter-spacing:.12em;text-transform:uppercase;
+    margin-bottom:1.5rem;line-height:1.3;
+  }
+  .sidenav a{
+    display:block;padding:.4rem .7rem;border-radius:4px;
+    font-family:'IBM Plex Mono',monospace;font-size:.72rem;
+    color:var(--muted);text-decoration:none;letter-spacing:.03em;
+    transition:all .2s;border-left:2px solid transparent;
+  }
+  .sidenav a:hover,.sidenav a.active{
+    color:var(--text);background:var(--surface2);
+    border-left-color:var(--accent);
+  }
+  .sidenav .nav-group{
+    font-family:'IBM Plex Mono',monospace;font-size:.62rem;
+    color:var(--muted);letter-spacing:.15em;text-transform:uppercase;
+    margin:1rem 0 .3rem .7rem;
+  }
+  .sidenav .part-marker{
+    font-size:.65rem;padding:.2rem .7rem;color:var(--muted);
+  }
+  .sidenav .p1-link{border-left-color:transparent}
+  .sidenav .p1-link:hover,.sidenav .p1-link.active{border-left-color:var(--p1)}
+  .sidenav .p2-link:hover,.sidenav .p2-link.active{border-left-color:var(--p2)}
+  .sidenav .p3-link:hover,.sidenav .p3-link.active{border-left-color:var(--p3)}
+
+  /* ── MAIN ── */
+  main{margin-left:220px;max-width:960px;padding:3rem 3.5rem 6rem;}
+
+  /* ── HERO ── */
+  .hero{
+    position:relative;padding:4rem 0 3rem;margin-bottom:3rem;
+    border-bottom:1px solid var(--border);
+  }
+  .hero::before{
+    content:'';position:absolute;top:-60px;right:-100px;
+    width:500px;height:500px;border-radius:50%;
+    background:radial-gradient(circle,rgba(0,229,195,.06) 0%,transparent 70%);
+    pointer-events:none;
+  }
+  .hero-tag{
+    font-family:'IBM Plex Mono',monospace;font-size:.72rem;
+    color:var(--accent);letter-spacing:.18em;text-transform:uppercase;
+    margin-bottom:1rem;display:flex;align-items:center;gap:.6rem;
+  }
+  .hero-tag::before{content:'';display:block;width:24px;height:1px;background:var(--accent)}
+  h1{
+    font-family:'Syne',sans-serif;font-weight:800;font-size:2.8rem;
+    line-height:1.1;color:#fff;margin-bottom:1.2rem;
+    letter-spacing:-.02em;
+  }
+  h1 .accent{color:var(--accent)}
+  .hero-sub{
+    font-size:1.05rem;color:var(--muted);max-width:580px;
+    font-style:italic;
+  }
+  .hero-meta{
+    display:flex;gap:2rem;margin-top:2rem;flex-wrap:wrap;
+  }
+  .meta-chip{
+    display:flex;flex-direction:column;gap:.2rem;
+  }
+  .meta-chip .label{
+    font-family:'IBM Plex Mono',monospace;font-size:.62rem;
+    color:var(--muted);letter-spacing:.12em;text-transform:uppercase;
+  }
+  .meta-chip .value{
+    font-family:'Syne',sans-serif;font-weight:700;font-size:1.1rem;color:#fff;
+  }
+
+  /* ── PONDERATION BAR ── */
+  .pond-bar{
+    display:flex;height:8px;border-radius:4px;overflow:hidden;
+    margin:2rem 0;
+  }
+  .pond-bar .seg{transition:flex .5s ease}
+  .pond-bar .s1{flex:1;background:var(--p1)}
+  .pond-bar .s2{flex:2;background:var(--p2)}
+  .pond-bar .s3{flex:1;background:var(--p3)}
+  .pond-labels{
+    display:flex;gap:1.5rem;font-family:'IBM Plex Mono',monospace;font-size:.72rem;
+    margin-bottom:2rem;
+  }
+  .pond-labels span{display:flex;align-items:center;gap:.4rem}
+  .pond-labels .dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+
+  /* ── SECTION HEADINGS ── */
+  .part-header{
+    display:flex;align-items:baseline;gap:1rem;
+    margin:3.5rem 0 1.5rem;padding-bottom:1rem;
+    border-bottom:1px solid var(--border);
+  }
+  .part-num{
+    font-family:'Syne',sans-serif;font-weight:800;font-size:3rem;
+    line-height:1;opacity:.12;letter-spacing:-.04em;
+  }
+  .part-title-wrap{flex:1}
+  .part-tag{
+    font-family:'IBM Plex Mono',monospace;font-size:.68rem;
+    letter-spacing:.15em;text-transform:uppercase;margin-bottom:.3rem;
+  }
+  .part-title{
+    font-family:'Syne',sans-serif;font-weight:700;font-size:1.5rem;
+    color:#fff;line-height:1.2;
+  }
+  .part-meta{
+    font-family:'IBM Plex Mono',monospace;font-size:.72rem;
+    color:var(--muted);margin-top:.3rem;
+  }
+
+  h2{
+    font-family:'Syne',sans-serif;font-weight:700;font-size:1.2rem;
+    color:#fff;margin:2.5rem 0 .8rem;letter-spacing:-.01em;
+  }
+  h3{
+    font-family:'Syne',sans-serif;font-weight:600;font-size:1rem;
+    color:var(--text);margin:2rem 0 .6rem;
+  }
+
+  p{margin-bottom:1rem;color:var(--text)}
+  ul,ol{padding-left:1.5rem;margin-bottom:1rem}
+  li{margin-bottom:.4rem;color:var(--text)}
+  strong{color:#fff;font-weight:600}
+  em{font-style:italic}
+  a{color:var(--accent);text-decoration:none;border-bottom:1px dotted rgba(0,229,195,.3)}
+  a:hover{border-bottom-color:var(--accent)}
+
+  /* ── CALLOUT BOXES ── */
+  .callout{
+    border-left:3px solid;padding:1rem 1.2rem;margin:1.5rem 0;
+    border-radius:0 6px 6px 0;font-size:.9rem;
+  }
+  .callout.warn{
+    border-color:var(--warn);background:rgba(245,200,66,.04);
+  }
+  .callout.info{
+    border-color:var(--accent);background:rgba(0,229,195,.04);
+  }
+  .callout.task{
+    border-color:var(--accent2);background:rgba(255,107,53,.05);
+  }
+  .callout.tip{
+    border-color:var(--accent3);background:rgba(124,111,247,.05);
+  }
+  .callout .callout-head{
+    font-family:'IBM Plex Mono',monospace;font-size:.7rem;
+    letter-spacing:.15em;text-transform:uppercase;
+    margin-bottom:.5rem;font-weight:500;
+  }
+  .callout.warn .callout-head{color:var(--warn)}
+  .callout.info .callout-head{color:var(--accent)}
+  .callout.task .callout-head{color:var(--accent2)}
+  .callout.tip .callout-head{color:var(--accent3)}
+
+  /* ── TABLES ── */
+  .table-wrap{overflow-x:auto;margin:1.5rem 0}
+  table{
+    width:100%;border-collapse:collapse;font-size:.88rem;
+  }
+  thead th{
+    background:var(--surface2);
+    font-family:'IBM Plex Mono',monospace;font-size:.72rem;
+    letter-spacing:.08em;text-transform:uppercase;
+    padding:.7rem 1rem;text-align:left;color:var(--muted);
+    border-bottom:1px solid var(--border);
+  }
+  tbody td{
+    padding:.65rem 1rem;border-bottom:1px solid var(--border);
+    vertical-align:top;
+  }
+  tbody tr:hover td{background:var(--surface2)}
+  .tag-ias{color:var(--p1)} .tag-pas{color:var(--p2)} .tag-sas{color:var(--p3)}
+
+  /* ── TASK CARDS ── */
+  .task-card{
+    background:var(--surface);border:1px solid var(--border);
+    border-radius:8px;padding:1.5rem;margin:1.5rem 0;
+    position:relative;overflow:hidden;
+  }
+  .task-card::before{
+    content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  }
+  .task-card.p1::before{background:var(--p1)}
+  .task-card.p2::before{background:var(--p2)}
+  .task-card.p3::before{background:var(--p3)}
+  .task-id{
+    font-family:'IBM Plex Mono',monospace;font-size:.7rem;
+    letter-spacing:.15em;text-transform:uppercase;
+    margin-bottom:.6rem;
+  }
+  .task-card.p1 .task-id{color:var(--p1)}
+  .task-card.p2 .task-id{color:var(--p2)}
+  .task-card.p3 .task-id{color:var(--p3)}
+  .task-title{
+    font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;
+    color:#fff;margin-bottom:.7rem;
+  }
+  .task-body{font-size:.9rem}
+
+  /* ── PATH SELECTOR ── */
+  .path-selector{
+    margin:1.5rem 0;
+  }
+  .path-tabs{
+    display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem;
+  }
+  .path-btn{
+    font-family:'IBM Plex Mono',monospace;font-size:.72rem;
+    letter-spacing:.08em;padding:.4rem .9rem;border-radius:20px;
+    border:1px solid var(--border);background:transparent;
+    color:var(--muted);cursor:pointer;transition:all .2s;
+  }
+  .path-btn:hover{border-color:var(--accent3);color:var(--text)}
+  .path-btn.active{background:var(--accent3);border-color:var(--accent3);color:#fff}
+  .path-content{display:none}
+  .path-content.active{display:block}
+
+  /* ── ACCORDION ── */
+  .accordion{margin:1rem 0}
+  .acc-item{border:1px solid var(--border);border-radius:6px;margin-bottom:.5rem;overflow:hidden}
+  .acc-head{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:.9rem 1.2rem;cursor:pointer;
+    font-family:'Syne',sans-serif;font-weight:600;font-size:.95rem;
+    color:#fff;background:var(--surface);transition:background .2s;
+    user-select:none;
+  }
+  .acc-head:hover{background:var(--surface2)}
+  .acc-icon{
+    font-family:'IBM Plex Mono',monospace;font-size:.85rem;
+    color:var(--muted);transition:transform .3s;
+  }
+  .acc-item.open .acc-icon{transform:rotate(45deg)}
+  .acc-body{
+    max-height:0;overflow:hidden;transition:max-height .4s ease;
+    padding:0 1.2rem;background:var(--surface2);
+  }
+  .acc-body.open{padding:1rem 1.2rem}
+  .acc-body p,.acc-body ul{font-size:.9rem}
+
+  /* ── PROGRESS TRACKER ── */
+  .progress-wrap{
+    position:fixed;right:2rem;top:50%;transform:translateY(-50%);
+    display:flex;flex-direction:column;gap:.8rem;z-index:50;
+  }
+  .prog-dot{
+    width:10px;height:10px;border-radius:50%;
+    border:2px solid var(--border);background:transparent;
+    cursor:pointer;transition:all .2s;
+    position:relative;
+  }
+  .prog-dot:hover::after,.prog-dot.active::after{
+    content:attr(data-label);
+    position:absolute;right:1.5rem;top:50%;transform:translateY(-50%);
+    background:var(--surface);border:1px solid var(--border);
+    padding:.2rem .6rem;border-radius:4px;
+    font-family:'IBM Plex Mono',monospace;font-size:.65rem;
+    color:var(--text);white-space:nowrap;
+  }
+  .prog-dot.active{background:var(--accent);border-color:var(--accent)}
+  .prog-dot.done{background:var(--muted);border-color:var(--muted)}
+
+  /* ── NIST CARD GRID ── */
+  .nist-grid{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
+    gap:1rem;margin:1.5rem 0;
+  }
+  .nist-card{
+    background:var(--surface);border:1px solid var(--border);
+    border-radius:8px;padding:1.2rem;
+    transition:border-color .2s,transform .2s;
+    cursor:default;
+  }
+  .nist-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+  .nist-num{
+    font-family:'Syne',sans-serif;font-weight:800;font-size:2rem;
+    color:var(--accent);opacity:.3;line-height:1;margin-bottom:.5rem;
+  }
+  .nist-name{
+    font-family:'Syne',sans-serif;font-weight:700;font-size:.85rem;
+    color:#fff;margin-bottom:.4rem;
+  }
+  .nist-desc{font-size:.8rem;color:var(--muted)}
+
+  /* ── DEPLOYMENT MODEL CARDS ── */
+  .deploy-grid{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+    gap:1rem;margin:1.5rem 0;
+  }
+  .deploy-card{
+    background:var(--surface);border:1px solid var(--border);
+    border-radius:8px;padding:1rem;
+    border-top:3px solid;
+  }
+  .deploy-card:nth-child(1){border-top-color:var(--p1)}
+  .deploy-card:nth-child(2){border-top-color:var(--p2)}
+  .deploy-card:nth-child(3){border-top-color:var(--p3)}
+  .deploy-card:nth-child(4){border-top-color:var(--warn)}
+  .deploy-card:nth-child(5){border-top-color:var(--muted)}
+  .deploy-name{
+    font-family:'Syne',sans-serif;font-weight:700;font-size:.9rem;
+    color:#fff;margin-bottom:.4rem;
+  }
+  .deploy-desc{font-size:.78rem;color:var(--muted)}
+
+  /* ── GOVERNANCE PILLARS ── */
+  .pillar-grid{
+    display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.5rem 0;
+  }
+  .pillar{
+    background:var(--surface);border:1px solid var(--border);
+    border-radius:8px;padding:1.2rem;
+  }
+  .pillar-icon{font-size:1.4rem;margin-bottom:.5rem}
+  .pillar-name{
+    font-family:'Syne',sans-serif;font-weight:700;font-size:.95rem;
+    color:#fff;margin-bottom:.5rem;
+  }
+  .pillar-list{font-size:.82rem;color:var(--muted);padding-left:1rem}
+  .pillar-list li{margin-bottom:.3rem}
+
+  /* ── CHECKLIST ── */
+  .checklist{list-style:none;padding:0;margin:1.5rem 0}
+  .checklist li{
+    display:flex;align-items:flex-start;gap:.8rem;
+    padding:.6rem .8rem;border-radius:6px;
+    font-size:.9rem;cursor:pointer;transition:background .15s;
+    user-select:none;
+  }
+  .checklist li:hover{background:var(--surface2)}
+  .checklist .cb{
+    width:16px;height:16px;border:2px solid var(--border);
+    border-radius:3px;flex-shrink:0;margin-top:.18rem;
+    transition:all .2s;display:flex;align-items:center;justify-content:center;
+    font-size:.65rem;
+  }
+  .checklist li.checked .cb{
+    background:var(--accent);border-color:var(--accent);color:#000;
+  }
+  .checklist li.checked .cb::after{content:'✓'}
+  .checklist li.checked .cb-text{text-decoration:line-through;color:var(--muted)}
+
+  /* ── ABBREV TOOLTIP ── */
+  abbr{
+    text-decoration:underline dotted var(--muted);
+    cursor:help;
+  }
+
+  /* ── COURSE TIMELINE ── */
+  .timeline{margin:1.5rem 0}
+  .tl-item{
+    display:flex;gap:1.2rem;padding:.8rem 0;
+    border-bottom:1px solid var(--border);
+    position:relative;
+  }
+  .tl-item:last-child{border-bottom:none}
+  .tl-week{
+    font-family:'Syne',sans-serif;font-weight:800;font-size:1.1rem;
+    color:var(--muted);width:60px;flex-shrink:0;line-height:1.4;
+  }
+  .tl-item.current .tl-week{color:var(--accent)}
+  .tl-item.current{background:rgba(0,229,195,.03);border-radius:6px;padding:.8rem}
+  .tl-content{flex:1}
+  .tl-tags{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.4rem}
+  .tl-tag{
+    font-family:'IBM Plex Mono',monospace;font-size:.65rem;
+    padding:.15rem .5rem;border-radius:20px;
+    background:var(--surface2);color:var(--muted);border:1px solid var(--border);
+  }
+  .tl-item.current .tl-tag{color:var(--accent);border-color:var(--accent);background:rgba(0,229,195,.07)}
+  .tl-item.exam{background:rgba(245,200,66,.03)}
+  .tl-item.exam .tl-week{color:var(--warn)}
+
+  /* ── DISCLAIMER ── */
+  .disclaimer{
+    background:rgba(245,200,66,.05);border:1px solid rgba(245,200,66,.2);
+    border-radius:8px;padding:1.5rem;margin:2rem 0;
+    font-size:.85rem;
+  }
+  .disclaimer h4{
+    font-family:'Syne',sans-serif;font-weight:700;
+    color:var(--warn);margin-bottom:.6rem;font-size:.9rem;
+  }
+
+  /* ── GRADING TABLE ── */
+  .grade-bar{
+    height:6px;border-radius:3px;background:var(--accent);
+    transition:width 1s ease;
+  }
+
+  /* ── FOOTER ── */
+  footer{
+    margin-top:5rem;padding:2rem 0;border-top:1px solid var(--border);
+    font-family:'IBM Plex Mono',monospace;font-size:.72rem;color:var(--muted);
+    display:flex;justify-content:space-between;flex-wrap:wrap;gap:1rem;
+  }
+
+  /* ── SCROLL PROGRESS BAR ── */
+  #scroll-bar{
+    position:fixed;top:0;left:220px;right:0;height:2px;
+    background:var(--accent);transform-origin:left;transform:scaleX(0);
+    z-index:200;transition:transform .1s;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media(max-width:900px){
+    .sidenav{display:none}
+    main{margin-left:0;padding:2rem 1.5rem 5rem}
+    #scroll-bar{left:0}
+    .pillar-grid{grid-template-columns:1fr}
+    .progress-wrap{display:none}
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+  .fade-up{animation:fadeUp .5s ease both}
+  .delay-1{animation-delay:.1s}
+  .delay-2{animation-delay:.2s}
+  .delay-3{animation-delay:.3s}
+  .delay-4{animation-delay:.4s}
+
+  /* ── MONO INLINE ── */
+  code{
+    font-family:'IBM Plex Mono',monospace;font-size:.82em;
+    background:var(--surface2);padding:.1em .4em;border-radius:3px;
+    color:var(--accent);
+  }
+
+  /* ── DIVIDER ── */
+  hr{border:none;border-top:1px solid var(--border);margin:2.5rem 0}
+
+  /* ── SECTION ID helpers ── */
+  section{scroll-margin-top:2rem}
+</style>
+</head>
+<body>
+
+<div id="scroll-bar"></div>
+
+<!-- SIDEBAR -->
+<nav class="sidenav" id="sidenav">
+  <div class="logo">Cloud &amp;<br>Big Data<br>Analytics</div>
+  <span class="nav-group">Overview</span>
+  <a href="#hero" class="active">Introduction</a>
+  <a href="#scope">Full Project Scope</a>
+  <a href="#objectives">Objectives</a>
+  <span class="nav-group">Part 1 — Weight 1</span>
+  <a href="#step-11" class="p1-link">1.1 Warm-Up</a>
+  <a href="#step-12" class="p1-link">1.2 Tools Taxonomy</a>
+  <a href="#step-13" class="p1-link">1.3 Applications</a>
+  <span class="nav-group">Part 2 — Weight 2</span>
+  <a href="#step-21" class="p2-link">2.1 NIST Foundations</a>
+  <a href="#step-22" class="p2-link">2.2 Deployment Models</a>
+  <a href="#step-23" class="p2-link">2.3 Virtualization</a>
+  <a href="#step-24" class="p2-link">2.4 Hands-On</a>
+  <a href="#step-25" class="p2-link">2.5 Cost &amp; Economics</a>
+  <span class="nav-group">Part 3 — Weight 1</span>
+  <a href="#step-31" class="p3-link">3.1 What is Governance</a>
+  <a href="#step-32" class="p3-link">3.2 Four Pillars</a>
+  <a href="#step-33" class="p3-link">3.3 Policy Design</a>
+  <a href="#step-34" class="p3-link">3.4 Case Study</a>
+  <span class="nav-group">Submission</span>
+  <a href="#report">Report Checklist</a>
+  <a href="#grading">Grading Rubric</a>
+</nav>
+
+<!-- PROGRESS DOTS -->
+<div class="progress-wrap" id="prog-wrap">
+  <div class="prog-dot" data-section="hero" data-label="Intro"></div>
+  <div class="prog-dot" data-section="step-11" data-label="1.1 Warm-Up"></div>
+  <div class="prog-dot" data-section="step-12" data-label="1.2 Taxonomy"></div>
+  <div class="prog-dot" data-section="step-13" data-label="1.3 Apps"></div>
+  <div class="prog-dot" data-section="step-21" data-label="2.1 NIST"></div>
+  <div class="prog-dot" data-section="step-22" data-label="2.2 Deploy"></div>
+  <div class="prog-dot" data-section="step-23" data-label="2.3 Virt."></div>
+  <div class="prog-dot" data-section="step-24" data-label="2.4 Hands-On"></div>
+  <div class="prog-dot" data-section="step-25" data-label="2.5 Cost"></div>
+  <div class="prog-dot" data-section="step-31" data-label="3.1 Gov."></div>
+  <div class="prog-dot" data-section="step-32" data-label="3.2 Pillars"></div>
+  <div class="prog-dot" data-section="step-33" data-label="3.3 Policy"></div>
+  <div class="prog-dot" data-section="report" data-label="Submit"></div>
+</div>
+
+<main>
+
+  <!-- ═══ HERO ═══ -->
+  <section id="hero" class="hero fade-up">
+    <div class="hero-tag">Week 02 — Lab Module</div>
+    <h1>Cloud <span class="accent">Tools</span>, Applications,<br>Computing &amp; <span class="accent">Governance</span></h1>
+    <p class="hero-sub">A step-by-step, project-based exploration of the cloud ecosystem — designed for Digital Science graduates building real-world fluency.</p>
+    <div class="hero-meta">
+      <div class="meta-chip"><span class="label">Ponderation</span><span class="value">1 – 2 – 1</span></div>
+      <div class="meta-chip"><span class="label">Workload</span><span class="value">≥ 6 hours</span></div>
+      <div class="meta-chip"><span class="label">Report Limit</span><span class="value">4 pages A4</span></div>
+      <div class="meta-chip"><span class="label">Sessions</span><span class="value">2 × per week</span></div>
+    </div>
+    <div style="margin-top:1.5rem">
+      <div class="pond-labels">
+        <span><span class="dot" style="background:var(--p1)"></span>Part 1 — Tools &amp; Apps (×1)</span>
+        <span><span class="dot" style="background:var(--p2)"></span>Part 2 — Computing (×2)</span>
+        <span><span class="dot" style="background:var(--p3)"></span>Part 3 — Governance (×1)</span>
+      </div>
+      <div class="pond-bar"><div class="seg s1"></div><div class="seg s2"></div><div class="seg s3"></div></div>
+    </div>
+  </section>
+
+  <!-- DISCLAIMER -->
+  <div class="disclaimer fade-up delay-1">
+    <h4>⚠️ Academic Integrity &amp; Educator Protection Notice</h4>
+    <p>This laboratory module is intended exclusively for supervised academic use. All tools, platforms, and techniques mentioned are <strong>open, illustrative examples only</strong> — they may and should be replaced by any equivalent solution the student finds suitable, accessible, or more interesting. Students are encouraged to research, compare, and <strong>invent their own tools</strong> where possible. Reproducing this document outside the course context without instructor authorization constitutes a violation of academic integrity policies.</p>
+  </div>
+
+  <!-- ═══ FULL SCOPE ═══ -->
+  <section id="scope" class="fade-up delay-2">
+    <h2>Full Continuous Project Scope</h2>
+    <p>This is <strong>Week 02</strong> of your semester-long Continuous Project. Each week adds a chapter. Your final submission is one unified report covering all topics below.</p>
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-week">WK 01</div>
+        <div class="tl-content">
+          <strong style="color:var(--text)">Cloud Foundations</strong>
+          <div class="tl-tags">
+            <span class="tl-tag">Cloud Computing Architecture</span>
+            <span class="tl-tag">Virtualization</span>
+            <span class="tl-tag">Data Storage</span>
+            <span class="tl-tag">Cloud Services</span>
+            <span class="tl-tag">Cloud Security</span>
+          </div>
+        </div>
+      </div>
+      <div class="tl-item current">
+        <div class="tl-week">WK 02</div>
+        <div class="tl-content">
+          <strong style="color:var(--accent)">← You Are Here</strong>
+          <div class="tl-tags">
+            <span class="tl-tag">Cloud Tools</span>
+            <span class="tl-tag">Cloud Applications</span>
+            <span class="tl-tag">Cloud Computing</span>
+            <span class="tl-tag">Cloud Governance</span>
+          </div>
+        </div>
+      </div>
+      <div class="tl-item exam">
+        <div class="tl-week">— ★</div>
+        <div class="tl-content"><strong style="color:var(--warn)">Midterm Assessment</strong> — Comprehensive Exam</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-week">WK 03</div>
+        <div class="tl-content">
+          <strong style="color:var(--text)">Basics on AWS / Azure / GCP</strong>
+          <div class="tl-tags">
+            <span class="tl-tag">AWS (Amazon Web Services)</span>
+            <span class="tl-tag">Azure</span>
+            <span class="tl-tag">GCP (Google Cloud Platform)</span>
+            <span class="tl-tag">Storage &amp; VMs</span>
+          </div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-week">WK 04</div>
+        <div class="tl-content">
+          <strong style="color:var(--text)">Big Data &amp; Analytics</strong>
+          <div class="tl-tags">
+            <span class="tl-tag">Big Data</span>
+            <span class="tl-tag">Distributed Systems</span>
+            <span class="tl-tag">Apache Spark</span>
+            <span class="tl-tag">Provider Comparison</span>
+            <span class="tl-tag">Future Trends</span>
+          </div>
+        </div>
+      </div>
+      <div class="tl-item exam">
+        <div class="tl-week">— ★</div>
+        <div class="tl-content"><strong style="color:var(--warn)">Final Assessment &amp; Course Feedback</strong> — Comprehensive Exam</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ OBJECTIVES ═══ -->
+  <section id="objectives">
+    <h2>Learning Objectives</h2>
+    <ol>
+      <li>Identify and compare mainstream cloud tools used in professional environments.</li>
+      <li>Describe and categorize real-world cloud applications and their deployment models.</li>
+      <li>Explain fundamental cloud computing concepts, service models, and deployment scenarios.</li>
+      <li>Understand and apply basic cloud governance principles within a project context.</li>
+      <li>Articulate the relationship between all four topics as a coherent cloud ecosystem.</li>
+    </ol>
+  </section>
+
+  <hr/>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- PART 1 -->
+  <!-- ═══════════════════════════════════════ -->
+  <div class="part-header">
+    <div class="part-num" style="color:var(--p1)">01</div>
+    <div class="part-title-wrap">
+      <div class="part-tag" style="color:var(--p1)">Part 1 — Weight ×1</div>
+      <div class="part-title">Cloud Tools &amp; Cloud Applications</div>
+      <div class="part-meta">Estimated time: ~1.5 hours</div>
+    </div>
+  </div>
+
+  <!-- 1.1 -->
+  <section id="step-11">
+    <h2>Step 1.1 — Warming Up: What Is a "Cloud Tool"?</h2>
+    <p>Before opening any platform, take <strong>15 minutes</strong> for this reflective writing exercise. The goal is to capture your <em>current mental model</em> — you will revisit and correct it later.</p>
+
+    <div class="task-card p1">
+      <div class="task-id">Task 1.1.a — Personal Inventory</div>
+      <div class="task-title">Answer these three questions in your own words (3–5 sentences each)</div>
+      <div class="task-body">
+        <ol>
+          <li>Think of three digital services you use regularly. In what ways do they rely on cloud infrastructure?</li>
+          <li>What is the difference between a <em>cloud tool</em> (a utility operating in/on the cloud) and a <em>cloud application</em> (a full-featured product delivered via the cloud)?</li>
+          <li>Without researching yet — what makes a tool "cloud-native" versus simply "hosted on a server"?</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="callout info">
+      <div class="callout-head">Instructor Note</div>
+      There are no perfectly wrong or right answers here. This exercise captures your starting mental model. You will revisit it at Step 1.4 and correct or enrich it based on what you learn.
+    </div>
+  </section>
+
+  <!-- 1.2 -->
+  <section id="step-12">
+    <h2>Step 1.2 — Mapping the Cloud Tools Landscape</h2>
+    <p>Cloud tools can be grouped into functional families. Your task is to research, build, and explain your own classification table.</p>
+
+    <div class="task-card p1">
+      <div class="task-id">Task 1.2.a — Build a Cloud Tools Taxonomy Table</div>
+      <div class="task-title">Find at least 2 tools per category; at least 1 must be open-source or freely accessible</div>
+      <div class="task-body">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Category</th><th>Tool A</th><th>Tool B</th><th>Open-Source Option</th><th>What it Does</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Infrastructure Management</td><td><em>your research</em></td><td><em>your research</em></td><td><em>your research</em></td><td></td></tr>
+              <tr><td>Monitoring &amp; Observability</td><td></td><td></td><td></td><td></td></tr>
+              <tr><td><abbr title="Continuous Integration / Continuous Delivery">CI/CD</abbr></td><td></td><td></td><td></td><td></td></tr>
+              <tr><td>Data Pipeline &amp; Orchestration</td><td></td><td></td><td></td><td></td></tr>
+              <tr><td>Identity &amp; Access</td><td></td><td></td><td></td><td></td></tr>
+              <tr><td>Cost Management</td><td></td><td></td><td></td><td></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <div class="callout-head">Research Starting Points (examples only — not mandatory)</div>
+      <ul>
+        <li>Terraform (infrastructure as code — open-source): <a href="https://www.terraform.io" target="_blank">terraform.io ↗</a></li>
+        <li>Apache Airflow (workflow orchestration — open-source): <a href="https://airflow.apache.org" target="_blank">airflow.apache.org ↗</a></li>
+        <li>Prometheus + Grafana (monitoring — open-source): <a href="https://prometheus.io" target="_blank">prometheus.io ↗</a></li>
+      </ul>
+      <p style="margin-top:.6rem;font-size:.85rem">⚠️ These are examples only. You are <strong>strongly encouraged</strong> to find alternatives, newer tools, or to compare multiple options. Document your research process.</p>
+    </div>
+
+    <p><strong>Deliverable 1.2.a:</strong> Completed taxonomy table + a short paragraph (max 5 sentences) explaining your research methodology.</p>
+  </section>
+
+  <!-- 1.3 -->
+  <section id="step-13">
+    <h2>Step 1.3 — Cloud Applications: Service Models in Practice</h2>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Model</th><th>Full Name</th><th>Who Manages Infrastructure</th><th>User Controls</th><th>Classic Example</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong class="tag-ias">IaaS</strong></td>
+            <td>Infrastructure as a Service</td>
+            <td>Provider manages hardware</td>
+            <td><abbr title="Operating System">OS</abbr>, runtime, apps</td>
+            <td>Virtual Machines</td>
+          </tr>
+          <tr>
+            <td><strong class="tag-pas">PaaS</strong></td>
+            <td>Platform as a Service</td>
+            <td>Provider manages <abbr title="Operating System">OS</abbr> + runtime</td>
+            <td>Application code</td>
+            <td>Managed databases</td>
+          </tr>
+          <tr>
+            <td><strong class="tag-sas">SaaS</strong></td>
+            <td>Software as a Service</td>
+            <td>Provider manages everything</td>
+            <td>Data &amp; config</td>
+            <td>Web-based email</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout info">
+      <div class="callout-head">Reference: NIST SP 800-145</div>
+      The <a href="https://www.nist.gov" target="_blank"><abbr title="National Institute of Standards and Technology">NIST</abbr> ↗</a> provides the internationally recognized definition of cloud computing. Their publication <strong>NIST SP 800-145</strong> is freely accessible and considered the foundational vocabulary document. Read its 3-page summary before completing this step.
+    </div>
+
+    <div class="task-card p1">
+      <div class="task-id">Task 1.3.a — Application Deep Dive</div>
+      <div class="task-title">Choose one cloud application relevant to Digital Science and write a structured mini-analysis</div>
+      <div class="task-body">
+        <p>Cover these six points in your report (max half a page):</p>
+        <ol>
+          <li><strong>Name &amp; category</strong> — which service model (IaaS / PaaS / SaaS) does it belong to?</li>
+          <li><strong>Core functionality</strong> — what problem does it solve?</li>
+          <li><strong>Deployment model</strong> — public, private, hybrid, or multi-cloud?</li>
+          <li><strong>Pricing model</strong> — free tier, subscription, pay-per-use? Implications for a student project?</li>
+          <li><strong>One limitation or risk</strong> you identified during your research.</li>
+          <li><strong>An open or self-hosted alternative</strong>, if one exists.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="task-card p1">
+      <div class="task-id">Task 1.4 — Reflection</div>
+      <div class="task-title">Revisit your Step 1.1 answers</div>
+      <div class="task-body">
+        Write a short correction or enrichment paragraph (3–5 sentences) noting what you now understand differently after completing Steps 1.2 and 1.3. Documenting the evolution of your understanding is part of your scientific posture as a Digital Science student.
+      </div>
+    </div>
+  </section>
+
+  <hr/>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- PART 2 -->
+  <!-- ═══════════════════════════════════════ -->
+  <div class="part-header">
+    <div class="part-num" style="color:var(--p2)">02</div>
+    <div class="part-title-wrap">
+      <div class="part-tag" style="color:var(--p2)">Part 2 — Weight ×2</div>
+      <div class="part-title">Cloud Computing: Core Concepts &amp; Practical Exploration</div>
+      <div class="part-meta">Estimated time: ~3 hours</div>
+    </div>
+  </div>
+
+  <!-- 2.1 -->
+  <section id="step-21">
+    <h2>Step 2.1 — Foundations: Defining Cloud Computing Rigorously</h2>
+    <p>The <a href="https://www.nist.gov" target="_blank">NIST ↗</a> identifies <strong>five essential characteristics</strong> of cloud computing. These are the baseline reference you will use throughout your career.</p>
+
+    <div class="nist-grid">
+      <div class="nist-card">
+        <div class="nist-num">01</div>
+        <div class="nist-name">On-Demand Self-Service</div>
+        <div class="nist-desc">Provision resources without human interaction from the provider</div>
+      </div>
+      <div class="nist-card">
+        <div class="nist-num">02</div>
+        <div class="nist-name">Broad Network Access</div>
+        <div class="nist-desc">Resources accessible from any device, anywhere via the internet</div>
+      </div>
+      <div class="nist-card">
+        <div class="nist-num">03</div>
+        <div class="nist-name">Resource Pooling</div>
+        <div class="nist-desc">Multiple clients share underlying infrastructure (multi-tenancy)</div>
+      </div>
+      <div class="nist-card">
+        <div class="nist-num">04</div>
+        <div class="nist-name">Rapid Elasticity</div>
+        <div class="nist-desc">Capacity scales automatically up or down with demand</div>
+      </div>
+      <div class="nist-card">
+        <div class="nist-num">05</div>
+        <div class="nist-name">Measured Service</div>
+        <div class="nist-desc">Usage is metered; you pay for exactly what you consume</div>
+      </div>
+    </div>
+
+    <div class="task-card p2">
+      <div class="task-id">Task 2.1.a — NIST Characteristic Mapping</div>
+      <div class="task-title">For each of the 5 characteristics above, provide:</div>
+      <div class="task-body">
+        <ul>
+          <li>A concrete real-world example (technical or business-facing)</li>
+          <li>An explanation of <em>why</em> that characteristic matters specifically for a Digital Science project or startup</li>
+        </ul>
+        <p><strong>Deliverable:</strong> A table or structured list in your report (max half a page).</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2.2 -->
+  <section id="step-22">
+    <h2>Step 2.2 — Deployment Models: Where Does the Cloud Live?</h2>
+
+    <div class="deploy-grid">
+      <div class="deploy-card">
+        <div class="deploy-name">Public Cloud</div>
+        <div class="deploy-desc">Third-party provider. Any paying customer. Scalable web apps &amp; storage.</div>
+      </div>
+      <div class="deploy-card">
+        <div class="deploy-name">Private Cloud</div>
+        <div class="deploy-desc">Single organization. Internal teams only. Sensitive regulated data.</div>
+      </div>
+      <div class="deploy-card">
+        <div class="deploy-name">Hybrid Cloud</div>
+        <div class="deploy-desc">Public + private mix. Burst workloads + compliance requirements.</div>
+      </div>
+      <div class="deploy-card">
+        <div class="deploy-name">Multi-Cloud</div>
+        <div class="deploy-desc">Multiple public providers. Best-of-breed services. Avoid vendor lock-in.</div>
+      </div>
+      <div class="deploy-card">
+        <div class="deploy-name">Community Cloud</div>
+        <div class="deploy-desc">Shared by sector group. Government, healthcare consortiums.</div>
+      </div>
+    </div>
+
+    <div class="callout info">
+      <div class="callout-head">Major Providers for Your Research (examples — not an exhaustive or mandatory list)</div>
+      <ul>
+        <li><a href="https://aws.amazon.com" target="_blank">Amazon Web Services (AWS) ↗</a></li>
+        <li><a href="https://azure.microsoft.com" target="_blank">Microsoft Azure ↗</a></li>
+        <li><a href="https://cloud.google.com" target="_blank">Google Cloud Platform (GCP) ↗</a></li>
+        <li><a href="https://www.ovhcloud.com" target="_blank">OVHcloud (European provider) ↗</a></li>
+        <li><a href="https://www.hetzner.com/cloud" target="_blank">Hetzner Cloud (cost-efficient European option) ↗</a></li>
+      </ul>
+      <p style="margin-top:.6rem;font-size:.85rem">⚠️ Students are free and encouraged to research other providers, including regional or national ones relevant to their location.</p>
+    </div>
+
+    <div class="task-card p2">
+      <div class="task-id">Task 2.2.a — Scenario-Based Deployment Decision</div>
+      <div class="task-title">Advise a university Digital Science research team deploying three components</div>
+      <div class="task-body">
+        <p>For each component below, recommend a deployment model and justify in 2–3 sentences. Consider cost, compliance, performance, and access control:</p>
+        <ol>
+          <li>A data processing pipeline handling anonymized patient health data.</li>
+          <li>A public-facing web portal for survey collection.</li>
+          <li>A <abbr title="Graphics Processing Unit">GPU</abbr> cluster for occasional machine learning training.</li>
+        </ol>
+        <p><strong>Deliverable:</strong> Three justified deployment recommendations in your report.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2.3 -->
+  <section id="step-23">
+    <h2>Step 2.3 — Virtualization: The Engine Behind the Cloud</h2>
+
+    <div class="accordion">
+      <div class="acc-item">
+        <div class="acc-head" onclick="toggleAcc(this)">
+          <span>Hypervisor</span><span class="acc-icon">+</span>
+        </div>
+        <div class="acc-body">
+          <p>A <strong>hypervisor</strong> is a software layer that creates and manages <abbr title="Virtual Machines">VMs</abbr> on physical hardware. Type 1 hypervisors run directly on bare metal (e.g., KVM, Xen, VMware ESXi). Type 2 run atop a host <abbr title="Operating System">OS</abbr> (e.g., VirtualBox, VMware Workstation).</p>
+        </div>
+      </div>
+      <div class="acc-item">
+        <div class="acc-head" onclick="toggleAcc(this)">
+          <span>Virtual Machine (VM)</span><span class="acc-icon">+</span>
+        </div>
+        <div class="acc-body">
+          <p>A <strong>VM (Virtual Machine)</strong> is a software emulation of a complete computer, running its own <abbr title="Operating System">OS</abbr>. Multiple VMs can coexist on a single physical server, each fully isolated.</p>
+        </div>
+      </div>
+      <div class="acc-item">
+        <div class="acc-head" onclick="toggleAcc(this)">
+          <span>Container</span><span class="acc-icon">+</span>
+        </div>
+        <div class="acc-body">
+          <p>A <strong>container</strong> is lightweight virtualization that shares the host <abbr title="Operating System">OS</abbr> kernel but isolates application processes. Containers start in seconds, use far less memory than VMs, and are highly portable via images.</p>
+        </div>
+      </div>
+      <div class="acc-item">
+        <div class="acc-head" onclick="toggleAcc(this)">
+          <span>Orchestration</span><span class="acc-icon">+</span>
+        </div>
+        <div class="acc-body">
+          <p><strong>Orchestration</strong> is the automated management of many containers or VMs across a cluster — handling scheduling, scaling, networking, and self-healing. Kubernetes (K8s — <a href="https://kubernetes.io" target="_blank">kubernetes.io ↗</a>) is the dominant open-source standard.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <div class="callout-head">On Containers — Open Tools</div>
+      <ul>
+        <li><a href="https://www.docker.com" target="_blank">Docker ↗</a> — most widely known containerization platform</li>
+        <li><a href="https://podman.io" target="_blank">Podman ↗</a> — daemonless Docker alternative (open-source)</li>
+        <li><a href="https://k3s.io" target="_blank">k3s ↗</a> — lightweight Kubernetes distribution</li>
+      </ul>
+      <p style="margin-top:.6rem;font-size:.85rem">⚠️ Any equivalent, newer, or self-created tool is equally valid for this lab.</p>
+    </div>
+
+    <div class="task-card p2">
+      <div class="task-id">Task 2.3.a — Virtualization vs. Containerization Comparison</div>
+      <div class="task-title">Compare 3 architectures running the same 3 applications on one server</div>
+      <div class="task-body">
+        <ol>
+          <li>Traditional server — three applications running natively</li>
+          <li>VM-based — three applications in three separate VMs</li>
+          <li>Container-based — three applications in three containers</li>
+        </ol>
+        <p>For each, note: <strong>resource efficiency</strong>, <strong>isolation level</strong>, <strong>startup time</strong>, and <strong>portability</strong>.</p>
+        <p><strong>Deliverable:</strong> Comparison table or annotated diagram sketch in your report.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2.4 -->
+  <section id="step-24">
+    <h2>Step 2.4 — Hands-On Exploration</h2>
+    <p>Choose <strong>one path</strong> below. You are not bound to any specific platform — if none of these paths work in your environment, <strong>design your own equivalent exploration</strong> and justify your choice.</p>
+
+    <div class="callout warn">
+      <div class="callout-head">Choice &amp; Creativity</div>
+      The goal is <em>experiential learning</em>, not vendor exposure. Document every decision. If you build your own tool or path, you earn extra credit for originality.
+    </div>
+
+    <div class="path-selector">
+      <div class="path-tabs">
+        <button class="path-btn active" onclick="switchPath(this,'pathA')">Path A — Cloud Console</button>
+        <button class="path-btn" onclick="switchPath(this,'pathB')">Path B — Local VM</button>
+        <button class="path-btn" onclick="switchPath(this,'pathC')">Path C — Containers</button>
+        <button class="path-btn" onclick="switchPath(this,'pathD')">Path D — Own Design</button>
+      </div>
+
+      <div id="pathA" class="path-content active task-card p2">
+        <div class="task-id">Path A — Free-Tier Cloud Account Exploration</div>
+        <div class="task-title">Explore any public cloud provider's free tier (no charges required)</div>
+        <div class="task-body">
+          <p>Explore and document (3–5 annotated screenshots or detailed textual descriptions):</p>
+          <ul>
+            <li>The virtual machine or compute instance creation wizard</li>
+            <li>The storage service offering</li>
+            <li>The <abbr title="Identity and Access Management">IAM</abbr> panel</li>
+            <li>The cost/billing estimator</li>
+          </ul>
+          <p><em>Note: You do not need to launch any paid resource. Exploring the UI (User Interface) is sufficient.</em></p>
+        </div>
+      </div>
+
+      <div id="pathB" class="path-content task-card p2">
+        <div class="task-id">Path B — Local Virtualization Simulation</div>
+        <div class="task-title">Create a minimal VM using VirtualBox or any available hypervisor</div>
+        <div class="task-body">
+          <p>Using <a href="https://www.virtualbox.org" target="_blank">VirtualBox ↗</a> (free &amp; open-source) or any equivalent tool, install a lightweight Linux distribution. Suggestions:</p>
+          <ul>
+            <li><a href="https://www.alpinelinux.org" target="_blank">Alpine Linux ↗</a> — minimal, ~130 MB</li>
+            <li><a href="https://www.debian.org" target="_blank">Debian ↗</a> — stable, well-documented</li>
+          </ul>
+          <p>Document: installation steps, resource allocation decisions, one observation about working inside a VM vs. your host <abbr title="Operating System">OS</abbr>.</p>
+        </div>
+      </div>
+
+      <div id="pathC" class="path-content task-card p2">
+        <div class="task-id">Path C — Container Hello World</div>
+        <div class="task-title">Run a containerized application from a public image repository</div>
+        <div class="task-body">
+          <p>Using Docker or any container runtime available to you, run a containerized web server and access it from your browser. Document every command used, what it does, and what you observe.</p>
+          <p>Example minimal command to research (not mandatory): run a containerized <abbr title="Nginx is a web server">nginx</abbr> container and map a port to your host.</p>
+        </div>
+      </div>
+
+      <div id="pathD" class="path-content task-card p2">
+        <div class="task-id">Path D — Design Your Own Cloud Architecture</div>
+        <div class="task-title">For hardware/network-restricted environments: design a conceptual cloud architecture</div>
+        <div class="task-body">
+          <p>Choose any project you find interesting (mobile app, research data platform, game backend, etc.). Use a free diagramming tool to produce an architecture diagram and annotate each component.</p>
+          <ul>
+            <li><a href="https://www.diagrams.net" target="_blank">draw.io / diagrams.net ↗</a></li>
+            <li><a href="https://excalidraw.com" target="_blank">Excalidraw ↗</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2.5 -->
+  <section id="step-25">
+    <h2>Step 2.5 — Scalability, Elasticity &amp; Cost: The Business Logic of Cloud</h2>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Concept</th><th>Definition</th><th>Implication</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong><abbr title="Capital Expenditure">CapEx</abbr></strong></td>
+            <td>Upfront purchase of physical infrastructure</td>
+            <td>High initial investment, long depreciation cycle</td>
+          </tr>
+          <tr>
+            <td><strong><abbr title="Operational Expenditure">OpEx</abbr></strong></td>
+            <td>Pay-as-you-go for services used</td>
+            <td>Lower barrier, variable cost aligned with usage</td>
+          </tr>
+          <tr>
+            <td><strong>Elasticity</strong></td>
+            <td>Auto-scaling resources up/down based on demand</td>
+            <td>Avoid over-provisioning; handle traffic spikes</td>
+          </tr>
+          <tr>
+            <td><strong>Pay-per-use</strong></td>
+            <td>Billing granularity (per second, per request, per GB)</td>
+            <td>Fine-grained cost control</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="task-card p2">
+      <div class="task-id">Task 2.5.a — Cost Awareness Exercise</div>
+      <div class="task-title">Use any cloud provider's public pricing calculator</div>
+      <div class="task-body">
+        <p>Estimate the monthly and annual cost of hosting a small web application with:</p>
+        <ul>
+          <li>1 virtual <abbr title="Central Processing Unit">CPU</abbr> (vCPU), 2 GB RAM, 20 GB disk</li>
+          <li>~100 GB of outbound data transfer per month</li>
+        </ul>
+        <p>Then research whether a self-hosted alternative would be cheaper or more expensive at this scale.</p>
+        <p><strong>Deliverable:</strong> Cost comparison paragraph (5–8 sentences) with numbers clearly stated. Acknowledge the limitations of your estimate.</p>
+      </div>
+    </div>
+  </section>
+
+  <hr/>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- PART 3 -->
+  <!-- ═══════════════════════════════════════ -->
+  <div class="part-header">
+    <div class="part-num" style="color:var(--p3)">03</div>
+    <div class="part-title-wrap">
+      <div class="part-tag" style="color:var(--p3)">Part 3 — Weight ×1</div>
+      <div class="part-title">Cloud Governance</div>
+      <div class="part-meta">Estimated time: ~1.5 hours</div>
+    </div>
+  </div>
+
+  <!-- 3.1 -->
+  <section id="step-31">
+    <h2>Step 3.1 — What Is Cloud Governance and Why Does It Matter?</h2>
+    <p><strong>Cloud governance</strong> is the set of policies, procedures, roles, and technical controls that an organization establishes to manage its cloud resources in alignment with its strategic objectives, security requirements, regulatory obligations, and financial constraints.</p>
+
+    <p>Without governance, cloud environments tend toward:</p>
+    <ul>
+      <li><strong>Shadow IT:</strong> Employees provisioning unauthorized resources without oversight.</li>
+      <li><strong>Cost overruns:</strong> Uncontrolled resource sprawl and forgotten instances.</li>
+      <li><strong>Security gaps:</strong> Misconfigured storage, excessive permissions, unpatched systems.</li>
+      <li><strong>Compliance violations:</strong> Failing to meet legal or sector-specific data regulations.</li>
+    </ul>
+
+    <div class="callout info">
+      <div class="callout-head">Reference Frameworks (Starting Points — Not Mandatory)</div>
+      <ul>
+        <li><a href="https://cloudsecurityalliance.org" target="_blank">Cloud Security Alliance (CSA) ↗</a> — Cloud Controls Matrix (CCM)</li>
+        <li><a href="https://www.enisa.europa.eu" target="_blank">European Union Agency for Cybersecurity (ENISA) ↗</a> — Cloud governance guidelines</li>
+        <li><a href="https://www.iso.org" target="_blank">ISO/IEC 27001 ↗</a> — Information security management standard</li>
+        <li><a href="https://gdpr.eu" target="_blank">GDPR (General Data Protection Regulation) ↗</a> — EU data protection law</li>
+      </ul>
+      <p style="margin-top:.6rem;font-size:.85rem">⚠️ Students are encouraged to find equivalent or complementary frameworks, local regulatory bodies, or sector-specific standards.</p>
+    </div>
+  </section>
+
+  <!-- 3.2 -->
+  <section id="step-32">
+    <h2>Step 3.2 — The Four Pillars of Cloud Governance</h2>
+
+    <div class="pillar-grid">
+      <div class="pillar">
+        <div class="pillar-icon">💰</div>
+        <div class="pillar-name">Financial Governance (<abbr title="Financial Operations">FinOps</abbr>)</div>
+        <ul class="pillar-list">
+          <li>Tag all resources with cost center, project, owner</li>
+          <li>Set budgets and automated alerts</li>
+          <li>Right-size instances regularly</li>
+          <li>Review idle/unused resources</li>
+        </ul>
+        <p style="font-size:.78rem;margin-top:.6rem">→ <a href="https://www.finops.org" target="_blank">FinOps Foundation ↗</a></p>
+      </div>
+      <div class="pillar">
+        <div class="pillar-icon">🔒</div>
+        <div class="pillar-name">Security &amp; Compliance</div>
+        <ul class="pillar-list">
+          <li>Apply <abbr title="Principle of Least Privilege">PoLP</abbr> — minimum permissions always</li>
+          <li>Use <abbr title="Identity and Access Management">IAM</abbr> policies rigorously</li>
+          <li>Encrypt data at rest and in transit</li>
+          <li>Audit access logs; enable threat detection</li>
+        </ul>
+      </div>
+      <div class="pillar">
+        <div class="pillar-icon">⚙️</div>
+        <div class="pillar-name">Operational Governance</div>
+        <ul class="pillar-list">
+          <li>Use <abbr title="Infrastructure as Code">IaC</abbr> for reproducible deployments</li>
+          <li>Define naming conventions &amp; tagging standards</li>
+          <li>Establish change management procedures</li>
+          <li>Maintain architecture documentation</li>
+        </ul>
+      </div>
+      <div class="pillar">
+        <div class="pillar-icon">⚠️</div>
+        <div class="pillar-name">Risk &amp; Compliance</div>
+        <ul class="pillar-list">
+          <li>Vendor lock-in risk</li>
+          <li>Data residency &amp; jurisdiction risk</li>
+          <li>Provider availability risk</li>
+          <li>Supply chain vulnerability risk</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3.3 -->
+  <section id="step-33">
+    <h2>Step 3.3 — Task: Governance Policy Mini-Design</h2>
+
+    <div class="task-card p3">
+      <div class="task-id">Task 3.3.a — Design a Minimal Cloud Governance Policy</div>
+      <div class="task-title">For a 5-person Digital Science student research group with a 6-month cloud budget</div>
+      <div class="task-body">
+        <p>Your policy must be <strong>practical, not bureaucratic</strong> — actually usable by 5 non-expert students. Address all four pillars (max 1 page in your report):</p>
+        <ol>
+          <li><strong>Financial:</strong> How will you track and control spending? What is your budget limit mechanism?</li>
+          <li><strong>Security:</strong> What <abbr title="Identity and Access Management">IAM</abbr> rules will you establish? Who has admin rights? What is your authentication policy?</li>
+          <li><strong>Operational:</strong> How will you document deployments? What naming convention will you use?</li>
+          <li><strong>Risk:</strong> What is your plan if the provider has an outage? What is your data backup strategy?</li>
+        </ol>
+        <div class="callout tip" style="margin-top:1rem">
+          <div class="callout-head">Creativity Encouraged</div>
+          Propose your own tools: a shared spreadsheet for cost tracking, a Git repository for <abbr title="Infrastructure as Code">IaC</abbr> scripts, a messaging channel for alerts. You are not required to use commercial governance platforms.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3.4 -->
+  <section id="step-34">
+    <h2>Step 3.4 — Connecting Governance to the Real World</h2>
+
+    <div class="task-card p3">
+      <div class="task-id">Task 3.4.a — Case Study Research (~20 minutes)</div>
+      <div class="task-title">Find and summarize one real-world cloud governance failure</div>
+      <div class="task-body">
+        <p>Describe in 5–8 sentences:</p>
+        <ol>
+          <li>What happened.</li>
+          <li>Which governance pillar(s) were missing or inadequate.</li>
+          <li>What could have been done differently.</li>
+        </ol>
+        <p style="font-size:.85rem;margin-top:.8rem"><em>Suggested search terms (examples only — not required to use these specific cases):</em> "cloud misconfiguration breach", "<abbr title="Amazon Web Services Simple Storage Service">AWS S3</abbr> exposed bucket", "cloud bill shock", "<abbr title="General Data Protection Regulation">GDPR</abbr> cloud violation fine".</p>
+      </div>
+    </div>
+  </section>
+
+  <hr/>
+
+  <!-- ═══ REPORT & GRADING ═══ -->
+  <section id="report">
+    <h2>Report Assembly Checklist</h2>
+    <p>Your <strong>Week 02 report</strong> is <strong>maximum 4 pages A4</strong>. Use the interactive checklist below to track your progress:</p>
+
+    <ul class="checklist" id="checklist">
+      <li onclick="toggleCheck(this)">
+        <div class="cb"></div><span class="cb-text">Cover block: name, student ID, course name, week number, date</span>
+      </li>
+      <li onclick="toggleCheck(this)">
+        <div class="cb"></div><span class="cb-text">Deliverable 1.1.a — Three reflective answers (before research)</span>
+      </li>
+      <li onclick="toggleCheck(this)">
+        <div class="cb"></div><span class="cb-text">Deliverable 1.2.a — Cloud tools taxonomy table + methodology paragraph</span>
+      </li>
+      <li onclick="toggleCheck(this)">
+        <div class="cb"></div><span class="cb-text">Deliverable 1.3.a — Mini-analysis of one cloud application</span>
+      </li>
+      <li onclick="toggleCheck(this)">
+        <div class="cb"></div><span class="cb-text">Deliverable 1.4 — Reflection paragraph (revisiting Step 1.1)</span>
+      </li>
+      <li onclick="toggleCheck(this)">
+        <div class="cb"></div><span class="cb-text">Deliverable 2.1.a — NIST five characteristics mapping table</span>
+      </li>
+      <li onclick="toggleCheck(this)">
+        <div class="cb"></div><span class="cb-text">Deliverable 2.2.a — Three justified deployment model recommendations</span>
+      </li>
+      <li onclick="toggleCheck(this)">
+        <div class="cb"></div><span class="cb-text">Deliverable 2.3.a — Virtualization vs. containerization comparison table</span>
+      </li>
+      <li onclick="toggleCheck(this)">
+        <div class="cb"></div><span class="cb-text">Deliverable 2.4 — Documented hands-on exploration (Path A / B / C / D)</span>
+      </li>
+      <li onclick="toggleCheck(this)">
+        <div class="cb"></div><span class="cb-text">Deliverable 2.5.a — Cost comparison paragraph with numbers</span>
+      </li>
+      <li onclick="toggleCheck(this)">
+        <div class="cb"></div><span class="cb-text">Deliverable 3.3.a — Minimal 4-pillar cloud governance policy (max 1 page)</span>
+      </li>
+      <li onclick="toggleCheck(this)">
+        <div class="cb"></div><span class="cb-text">Deliverable 3.4.a — Real-world governance failure case study</span>
+      </li>
+      <li onclick="toggleCheck(this)">
+        <div class="cb"></div><span class="cb-text">All sources cited in a consistent format</span>
+      </li>
+      <li onclick="toggleCheck(this)">
+        <div class="cb"></div><span class="cb-text">Total pages ≤ 4 A4 — font 11–12 pt, standard margins</span>
+      </li>
+      <li onclick="toggleCheck(this)">
+        <div class="cb"></div><span class="cb-text">Submitted as PDF or Markdown</span>
+      </li>
+    </ul>
+
+    <div id="progress-summary" style="font-family:'IBM Plex Mono',monospace;font-size:.8rem;color:var(--muted);margin-top:.5rem"></div>
+  </section>
+
+  <!-- GRADING -->
+  <section id="grading">
+    <h2>Grading Rubric</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Criterion</th><th>Weight</th><th>Evaluated On</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Completeness of deliverables</strong></td>
+            <td>30%</td>
+            <td>All tasks attempted and labeled</td>
+          </tr>
+          <tr>
+            <td><strong>Technical accuracy</strong></td>
+            <td>30%</td>
+            <td>Correct terminology, valid comparisons</td>
+          </tr>
+          <tr>
+            <td><strong>Critical thinking &amp; originality</strong></td>
+            <td>25%</td>
+            <td>Non-copy-paste answers, own examples, creativity, tool invention</td>
+          </tr>
+          <tr>
+            <td><strong>Clarity &amp; professional presentation</strong></td>
+            <td>15%</td>
+            <td>Readable, well-structured, within page limit</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="callout warn">
+    <div class="callout-head">Final Reminder — You Are Building a Living Document</div>
+    <p>Keep a <strong>master document</strong> that accumulates each week's work. The final submission will be a coherent, unified report — not a stapled collection of labs. Document your sources, explorations, and even your mistakes. Documented iterations show academic maturity.</p>
+    <p style="margin-top:.6rem">⚠️ <strong>All tools and techniques in this lab are open and interchangeable.</strong> You are always free — and encouraged — to research, compare, replace, or invent your own tools. Be creative. Be thorough. Be original.</p>
+  </div>
+
+  <footer>
+    <span>Cloud Computing &amp; Big Data Analytics — Digital Science</span>
+    <span>Week 02 Lab Module | Ponderation 1–2–1</span>
+    <span>For educational use only</span>
+  </footer>
+
+</main>
+
+<script>
+// ── ACCORDION ──
+function toggleAcc(head){
+  const item=head.parentElement;
+  const body=item.querySelector('.acc-body');
+  item.classList.toggle('open');
+  if(item.classList.contains('open')){
+    body.style.maxHeight=body.scrollHeight+40+'px';
+    body.classList.add('open');
+  } else {
+    body.style.maxHeight='0';
+    body.classList.remove('open');
+  }
+}
+
+// ── PATH SELECTOR ──
+function switchPath(btn,id){
+  document.querySelectorAll('.path-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.path-content').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(id).classList.add('active');
+}
+
+// ── CHECKLIST ──
+function toggleCheck(li){
+  li.classList.toggle('checked');
+  updateProgress();
+}
+function updateProgress(){
+  const items=document.querySelectorAll('#checklist li');
+  const done=document.querySelectorAll('#checklist li.checked').length;
+  const pct=Math.round(done/items.length*100);
+  const el=document.getElementById('progress-summary');
+  el.textContent=done+' / '+items.length+' items completed ('+pct+'%)';
+}
+
+// ── SCROLL PROGRESS BAR ──
+const scrollBar=document.getElementById('scroll-bar');
+window.addEventListener('scroll',()=>{
+  const s=document.documentElement.scrollTop;
+  const h=document.documentElement.scrollHeight-window.innerHeight;
+  scrollBar.style.transform='scaleX('+(s/h)+')';
+  updateNav();
+  updateDots();
+});
+
+// ── NAV HIGHLIGHT ──
+function updateNav(){
+  const sections=document.querySelectorAll('section[id],div[class="part-header"]');
+  const links=document.querySelectorAll('.sidenav a');
+  let current='hero';
+  sections.forEach(s=>{
+    if(window.scrollY>=s.offsetTop-120) current=s.id;
+  });
+  links.forEach(l=>{
+    l.classList.remove('active');
+    if(l.getAttribute('href')==='#'+current) l.classList.add('active');
+  });
+}
+
+// ── PROGRESS DOTS ──
+function updateDots(){
+  const dots=document.querySelectorAll('.prog-dot');
+  dots.forEach(d=>{
+    const sec=document.getElementById(d.dataset.section);
+    if(!sec) return;
+    const top=sec.getBoundingClientRect().top;
+    d.classList.remove('active','done');
+    if(top<=120&&top>-sec.offsetHeight) d.classList.add('active');
+    else if(top<=-sec.offsetHeight) d.classList.add('done');
+  });
+}
+document.querySelectorAll('.prog-dot').forEach(d=>{
+  d.addEventListener('click',()=>{
+    const sec=document.getElementById(d.dataset.section);
+    if(sec) sec.scrollIntoView({behavior:'smooth'});
+  });
+});
+
+// ── FADE-IN on scroll ──
+const observer=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.style.opacity='1';
+      e.target.style.transform='translateY(0)';
+    }
+  });
+},{threshold:.08});
+document.querySelectorAll('.task-card,.nist-card,.deploy-card,.pillar,.tl-item').forEach(el=>{
+  el.style.opacity='0';
+  el.style.transform='translateY(14px)';
+  el.style.transition='opacity .45s ease, transform .45s ease';
+  observer.observe(el);
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud Tools & Applications Explorer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #0f172a;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+        .nav-btn.active {
+            background-color: #e2e8f0;
+            border-left: 4px solid #4f46e5;
+            font-weight: 600;
+        }
+        .tab-btn.active {
+            border-bottom: 2px solid #4f46e5;
+            color: #4f46e5;
+            font-weight: 600;
+        }
+        .interactive-step.active {
+            background-color: #e0e7ff;
+            border-color: #4f46e5;
+        }
+        .hide-scroll::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+<body class="flex flex-col md:flex-row min-h-screen">
+    <!-- Chosen Palette: Slate (Neutrals) and Indigo (Accents) -->
+    <!-- Application Structure Plan: The SPA uses a dashboard-style layout with a persistent sidebar navigation. This allows users to easily switch between the core conceptual themes: Overview (Mental Model), Cloud Tools (Infrastructure), Cloud Applications (SaaS/Platforms), and a dedicated Cost Calculator. This non-linear structure prioritizes exploration, allowing students to jump to specific topics like Big Data or Cost Management without scrolling through a linear slide deck presentation. -->
+    <!-- Visualization & Content Choices: The Cost Management section utilizes a dynamic Chart.js stacked bar chart to visualize standard vs. spot pricing, actively demonstrating the 60-90% savings concept from the text. The ML Workflow and Data Lake architectures use interactive HTML/Tailwind block grids to show progression, avoiding static SVGs and encouraging users to click through the states. Tables and lists are transformed into interactive toggles to reduce cognitive load. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <nav class="w-full md:w-64 bg-white border-r border-slate-200 shadow-sm flex-shrink-0 z-10 sticky top-0 md:h-screen hide-scroll overflow-y-auto">
+        <div class="p-6 border-b border-slate-200">
+            <h1 class="text-xl font-bold text-indigo-700 tracking-tight">Cloud Computing & Big Data Analytics</h1>
+            <p class="text-xs text-slate-500 mt-2 uppercase tracking-widest font-semibold">Graduate Studies</p>
+        </div>
+        <div class="p-4 flex flex-row md:flex-col gap-2 overflow-x-auto">
+            <button onclick="nav('overview')" id="nav-overview" class="nav-btn active flex items-center gap-3 px-4 py-3 rounded-lg text-sm transition-colors text-left whitespace-nowrap md:whitespace-normal">
+                <span class="text-xl">&#127970;</span> The Mental Model
+            </button>
+            <button onclick="nav('tools')" id="nav-tools" class="nav-btn flex items-center gap-3 px-4 py-3 rounded-lg text-sm transition-colors text-left whitespace-nowrap md:whitespace-normal">
+                <span class="text-xl">&#128736;</span> Cloud Tools
+            </button>
+            <button onclick="nav('apps')" id="nav-apps" class="nav-btn flex items-center gap-3 px-4 py-3 rounded-lg text-sm transition-colors text-left whitespace-nowrap md:whitespace-normal">
+                <span class="text-xl">&#128640;</span> Cloud Applications
+            </button>
+            <button onclick="nav('cost')" id="nav-cost" class="nav-btn flex items-center gap-3 px-4 py-3 rounded-lg text-sm transition-colors text-left whitespace-nowrap md:whitespace-normal">
+                <span class="text-xl">&#128176;</span> Cost Calculator
+            </button>
+        </div>
+    </nav>
+
+    <main class="flex-1 p-6 md:p-12 overflow-y-auto relative">
+        <section id="sec-overview" class="max-w-4xl mx-auto block fade-in">
+            <div class="mb-10">
+                <h2 class="text-3xl font-extrabold text-slate-900 mb-4">The Mental Model of the Cloud</h2>
+                <p class="text-lg text-slate-600 leading-relaxed">
+                    This section introduces the foundational concept separating cloud architecture into two distinct halves: the machinery that runs it and the software that delivers value. Understanding this distinction is crucial for navigating the broader ecosystem of cloud services.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
+                    <div class="text-4xl mb-4">&#128736;</div>
+                    <h3 class="text-2xl font-bold text-indigo-700 mb-2">Cloud Tools</h3>
+                    <p class="text-slate-600 font-medium mb-4">The Vehicles & Kitchen Instruments</p>
+                    <p class="text-sm text-slate-500 leading-relaxed">
+                        These are the utilities, platform features, or managed services that help engineers provision, configure, deploy, monitor, or secure cloud resources. Think of them as the ovens, knives, thermometers, and inventory systems in a restaurant's kitchen.
+                    </p>
+                </div>
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
+                    <div class="text-4xl mb-4">&#127869;</div>
+                    <h3 class="text-2xl font-bold text-emerald-600 mb-2">Cloud Applications</h3>
+                    <p class="text-slate-600 font-medium mb-4">The Destinations & Served Dishes</p>
+                    <p class="text-sm text-slate-500 leading-relaxed">
+                        These are the software products running on cloud infrastructure, accessed via the internet, delivering direct value to end-users. Think of them as the final, prepared dishes served to the restaurant's customers.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="mt-12 bg-indigo-50 p-6 rounded-xl border border-indigo-100">
+                <h4 class="font-bold text-indigo-900 mb-2">Key Abbreviations to Know:</h4>
+                <div class="flex flex-wrap gap-3 mt-4">
+                    <span class="bg-white px-3 py-1 rounded shadow-sm text-sm border border-slate-200"><b>IaC</b>: Infrastructure as Code</span>
+                    <span class="bg-white px-3 py-1 rounded shadow-sm text-sm border border-slate-200"><b>IAM</b>: Identity & Access Management</span>
+                    <span class="bg-white px-3 py-1 rounded shadow-sm text-sm border border-slate-200"><b>ETL</b>: Extract, Transform, Load</span>
+                    <span class="bg-white px-3 py-1 rounded shadow-sm text-sm border border-slate-200"><b>DAG</b>: Directed Acyclic Graph</span>
+                    <span class="bg-white px-3 py-1 rounded shadow-sm text-sm border border-slate-200"><b>SaaS</b>: Software as a Service</span>
+                </div>
+            </div>
+        </section>
+
+        <section id="sec-tools" class="max-w-5xl mx-auto hidden fade-in">
+            <div class="mb-8">
+                <h2 class="text-3xl font-extrabold text-slate-900 mb-4">Cloud Tools (Lesson 1)</h2>
+                <p class="text-lg text-slate-600 leading-relaxed">
+                    Explore the six core categories of cloud tools. These are the instruments used to build, manage, monitor, and secure cloud environments. Data scientists rely on at least three of these categories in every major project.
+                </p>
+            </div>
+
+            <div class="flex flex-wrap gap-2 mb-8 border-b border-slate-200 pb-2" id="tools-tabs">
+                <button onclick="showTool('prov')" class="tab-btn active px-4 py-2 text-sm transition-colors rounded-t-lg">1. Provisioning</button>
+                <button onclick="showTool('orch')" class="tab-btn text-slate-500 px-4 py-2 text-sm transition-colors rounded-t-lg">2. Orchestration</button>
+                <button onclick="showTool('mon')" class="tab-btn text-slate-500 px-4 py-2 text-sm transition-colors rounded-t-lg">3. Monitoring</button>
+                <button onclick="showTool('sec')" class="tab-btn text-slate-500 px-4 py-2 text-sm transition-colors rounded-t-lg">4. Security</button>
+                <button onclick="showTool('data')" class="tab-btn text-slate-500 px-4 py-2 text-sm transition-colors rounded-t-lg">5. Data Eng.</button>
+            </div>
+
+            <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 min-h-[400px]">
+                <div id="tool-prov" class="tool-content block">
+                    <h3 class="text-2xl font-bold text-slate-800 mb-4">Infrastructure Provisioning & IaC</h3>
+                    <p class="mb-6 text-slate-600">Create and manage VMs, networks, and storage programmatically.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            <h4 class="font-bold text-indigo-600 mb-2">Infrastructure as Code (IaC)</h4>
+                            <p class="text-sm text-slate-600 mb-4">Describing infrastructure in text files that are version-controlled like application code.</p>
+                            <ul class="list-disc pl-5 text-sm text-slate-700 space-y-2">
+                                <li><b>Repeatability:</b> Identical environments every time.</li>
+                                <li><b>Auditability:</b> Changes tracked in version control.</li>
+                                <li><b>Speed:</b> Provision 10 VMs in one command vs. manual clicks.</li>
+                            </ul>
+                            <div class="mt-4 flex gap-2">
+                                <span class="bg-slate-100 px-2 py-1 rounded text-xs font-mono">Terraform</span>
+                                <span class="bg-slate-100 px-2 py-1 rounded text-xs font-mono">AWS CloudFormation</span>
+                            </div>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                            <h4 class="font-bold text-slate-800 mb-3">The Big Three CLI Tools</h4>
+                            <div class="space-y-3 text-sm">
+                                <div class="flex justify-between items-center"><span class="font-medium">AWS</span><code class="bg-white px-2 py-1 rounded border">aws CLI</code></div>
+                                <div class="flex justify-between items-center"><span class="font-medium">Microsoft Azure</span><code class="bg-white px-2 py-1 rounded border">az CLI</code></div>
+                                <div class="flex justify-between items-center"><span class="font-medium">Google Cloud</span><code class="bg-white px-2 py-1 rounded border">gcloud CLI</code></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tool-orch" class="tool-content hidden">
+                    <h3 class="text-2xl font-bold text-slate-800 mb-4">Orchestration & Automation</h3>
+                    <p class="mb-6 text-slate-600">Coordinate workflows, auto-scale, and maintain desired states across your architecture.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            <h4 class="font-bold text-indigo-600 mb-2">Apache Airflow for Data Science</h4>
+                            <p class="text-sm text-slate-600 mb-4">Define a chain of tasks as a DAG (Directed Acyclic Graph). Schedule the entire chain to run automatically. Turns manual scripts into reliable pipelines.</p>
+                            <div class="flex flex-col gap-2">
+                                <div class="bg-indigo-50 border border-indigo-100 p-3 rounded text-sm text-indigo-900"><b>1. Extract</b> -> Pull raw data</div>
+                                <div class="text-center text-slate-400 text-xs">&#8595;</div>
+                                <div class="bg-indigo-50 border border-indigo-100 p-3 rounded text-sm text-indigo-900"><b>2. Transform</b> -> Clean, train model</div>
+                                <div class="text-center text-slate-400 text-xs">&#8595;</div>
+                                <div class="bg-indigo-50 border border-indigo-100 p-3 rounded text-sm text-indigo-900"><b>3. Load</b> -> Push predictions</div>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-slate-800 mb-3">Core Ecosystem</h4>
+                            <ul class="space-y-4 text-sm">
+                                <li class="flex items-start gap-3"><span class="text-xl">&#128230;</span><div><b>Kubernetes (K8s):</b> Container orchestration (CNCF).</div></li>
+                                <li class="flex items-start gap-3"><span class="text-xl">&#128051;</span><div><b>Docker:</b> Container runtime for portable app images.</div></li>
+                                <li class="flex items-start gap-3"><span class="text-xl">&#9881;&#65039;</span><div><b>Ansible:</b> Configuration management (Red Hat).</div></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tool-mon" class="tool-content hidden">
+                    <h3 class="text-2xl font-bold text-slate-800 mb-4">Monitoring & Observability</h3>
+                    <p class="mb-6 text-slate-600 text-lg font-medium italic">"Running workloads without monitoring = driving at night with headlights off."</p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                        <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 text-center">
+                            <div class="text-3xl mb-2">&#128200;</div>
+                            <h4 class="font-bold text-blue-900">Metrics</h4>
+                            <p class="text-xs text-blue-700 mt-2">Numbers: CPU usage, memory, request latency.</p>
+                        </div>
+                        <div class="bg-emerald-50 p-4 rounded-xl border border-emerald-100 text-center">
+                            <div class="text-3xl mb-2">&#128220;</div>
+                            <h4 class="font-bold text-emerald-900">Logs</h4>
+                            <p class="text-xs text-emerald-700 mt-2">Text: Text records of events and errors.</p>
+                        </div>
+                        <div class="bg-purple-50 p-4 rounded-xl border border-purple-100 text-center">
+                            <div class="text-3xl mb-2">&#128270;</div>
+                            <h4 class="font-bold text-purple-900">Traces</h4>
+                            <p class="text-xs text-purple-700 mt-2">Paths: Journey of a request through services.</p>
+                        </div>
+                    </div>
+                    <div class="text-sm text-slate-700">
+                        <b>Key Tools:</b> Prometheus (Alerts), Grafana (Visuals), Datadog (Full-stack), ELK Stack (Logs), CloudWatch (AWS native).
+                    </div>
+                </div>
+
+                <div id="tool-sec" class="tool-content hidden">
+                    <h3 class="text-2xl font-bold text-slate-800 mb-4">Security & Identity</h3>
+                    <div class="bg-amber-50 border-l-4 border-amber-500 p-4 mb-6">
+                        <h4 class="font-bold text-amber-900">Shared Responsibility Model</h4>
+                        <p class="text-sm text-amber-800 mt-1">Provider secures the infrastructure (data centres). YOU secure your data, identities, and app logic.</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            <h4 class="font-bold text-indigo-600 mb-3">Principle of Least Privilege</h4>
+                            <p class="text-sm text-slate-600 mb-4">Grant the minimum permissions necessary. Nothing more.</p>
+                            <div class="bg-slate-100 rounded-lg overflow-hidden border border-slate-200 text-sm">
+                                <div class="px-4 py-2 bg-slate-200 font-bold border-b border-slate-300">Bucket Access Example</div>
+                                <div class="px-4 py-2 border-b border-slate-200"><span class="font-semibold text-emerald-600">Professor:</span> Read + Write + Delete</div>
+                                <div class="px-4 py-2 border-b border-slate-200"><span class="font-semibold text-blue-600">Students:</span> Read-Only</div>
+                                <div class="px-4 py-2"><span class="font-semibold text-red-600">Guest:</span> Denied by Default</div>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-slate-800 mb-3">Core Concepts</h4>
+                            <ul class="space-y-3 text-sm">
+                                <li><span class="font-bold bg-slate-200 px-1 rounded">IAM</span> Controls who can do what.</li>
+                                <li><span class="font-bold bg-slate-200 px-1 rounded">MFA</span> Requires 2nd proof of identity.</li>
+                                <li><span class="font-bold bg-slate-200 px-1 rounded">VPC</span> Isolated cloud network segment.</li>
+                                <li><span class="font-bold bg-slate-200 px-1 rounded">KMS</span> Manages encryption keys.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tool-data" class="tool-content hidden">
+                    <h3 class="text-2xl font-bold text-slate-800 mb-4">Data Engineering Pipelines</h3>
+                    <p class="mb-6 text-slate-600">Move, transform, and store data at scale. This category bridges the gap between raw storage and analytical applications.</p>
+                    <div class="flex items-center justify-center p-8 bg-slate-50 rounded-xl border border-slate-200">
+                        <div class="text-center">
+                            <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-xl mx-auto mb-2 border-2 border-blue-300">E</div>
+                            <span class="text-sm font-semibold">Extract</span>
+                        </div>
+                        <div class="w-16 h-1 bg-slate-300 mx-2"></div>
+                        <div class="text-center">
+                            <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 font-bold text-xl mx-auto mb-2 border-2 border-purple-300">T</div>
+                            <span class="text-sm font-semibold">Transform</span>
+                        </div>
+                        <div class="w-16 h-1 bg-slate-300 mx-2"></div>
+                        <div class="text-center">
+                            <div class="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600 font-bold text-xl mx-auto mb-2 border-2 border-emerald-300">L</div>
+                            <span class="text-sm font-semibold">Load</span>
+                        </div>
+                    </div>
+                    <p class="text-center mt-6 text-sm text-slate-500">ETL pipelines transform raw inputs into data warehouse ready formats.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="sec-apps" class="max-w-5xl mx-auto hidden fade-in">
+            <div class="mb-8">
+                <h2 class="text-3xl font-extrabold text-slate-900 mb-4">Cloud Applications (Lesson 2)</h2>
+                <p class="text-lg text-slate-600 leading-relaxed">
+                    Software systems designed for the internet, running on cloud infrastructure. These tools require no local installation and enable massive scalability and real-time collaboration.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 col-span-1 lg:col-span-3">
+                    <div class="flex justify-between items-center cursor-pointer" onclick="toggleCompare()">
+                        <h3 class="text-xl font-bold text-indigo-700">Traditional vs. Cloud Software</h3>
+                        <span class="text-sm text-indigo-600 underline">Toggle Comparison</span>
+                    </div>
+                    <div id="compare-table" class="mt-4 hidden transition-all">
+                        <div class="grid grid-cols-3 text-sm font-bold border-b border-slate-300 pb-2 mb-2 text-slate-700">
+                            <div>Feature</div>
+                            <div>Traditional</div>
+                            <div class="text-indigo-600">Cloud Application</div>
+                        </div>
+                        <div class="grid grid-cols-3 text-sm py-2 border-b border-slate-100">
+                            <div class="font-medium text-slate-600">Installation</div><div>Per-machine</div><div class="text-indigo-600">None (Browser)</div>
+                        </div>
+                        <div class="grid grid-cols-3 text-sm py-2 border-b border-slate-100">
+                            <div class="font-medium text-slate-600">Updates</div><div>Manual</div><div class="text-indigo-600">Automatic</div>
+                        </div>
+                        <div class="grid grid-cols-3 text-sm py-2 border-b border-slate-100">
+                            <div class="font-medium text-slate-600">Scaling</div><div>Limited to hardware</div><div class="text-indigo-600">Elastic on demand</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <h3 class="text-lg font-bold text-slate-800 mb-3">1. Data Lake Architecture</h3>
+                    <p class="text-xs text-slate-500 mb-4">Standard architecture for organizing petabytes of research data.</p>
+                    <div class="flex flex-col gap-2">
+                        <div class="p-3 bg-red-50 border border-red-200 rounded">
+                            <div class="font-bold text-red-900 text-sm">Raw Zone</div>
+                            <div class="text-xs text-red-700">Immutable files (Ingest scripts only)</div>
+                        </div>
+                        <div class="p-3 bg-amber-50 border border-amber-200 rounded">
+                            <div class="font-bold text-amber-900 text-sm">Processed Zone</div>
+                            <div class="text-xs text-amber-700">Cleaned datasets (Data engineers)</div>
+                        </div>
+                        <div class="p-3 bg-emerald-50 border border-emerald-200 rounded">
+                            <div class="font-bold text-emerald-900 text-sm">Curated Zone</div>
+                            <div class="text-xs text-emerald-700">Analysis-ready tables (All researchers)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <h3 class="text-lg font-bold text-slate-800 mb-3">2. Big Data & MapReduce</h3>
+                    <p class="text-xs text-slate-500 mb-4">Horizontal scaling across distributed frameworks (Spark, Hadoop).</p>
+                    <div class="space-y-3 relative">
+                        <div class="absolute left-4 top-0 bottom-0 w-0.5 bg-slate-200"></div>
+                        <button onclick="highlightMR('map')" class="mr-step relative w-full text-left pl-10 pr-4 py-2 bg-slate-50 rounded border border-slate-200 text-sm hover:bg-indigo-50 transition-colors">
+                            <div class="absolute left-2.5 top-2.5 w-3 h-3 bg-indigo-500 rounded-full ring-4 ring-white"></div>
+                            <b>Map:</b> Read & emit pairs
+                        </button>
+                        <button onclick="highlightMR('shuffle')" class="mr-step relative w-full text-left pl-10 pr-4 py-2 bg-slate-50 rounded border border-slate-200 text-sm hover:bg-indigo-50 transition-colors">
+                            <div class="absolute left-2.5 top-2.5 w-3 h-3 bg-indigo-500 rounded-full ring-4 ring-white"></div>
+                            <b>Shuffle:</b> Group by key
+                        </button>
+                        <button onclick="highlightMR('reduce')" class="mr-step relative w-full text-left pl-10 pr-4 py-2 bg-slate-50 rounded border border-slate-200 text-sm hover:bg-indigo-50 transition-colors">
+                            <div class="absolute left-2.5 top-2.5 w-3 h-3 bg-indigo-500 rounded-full ring-4 ring-white"></div>
+                            <b>Reduce:</b> Aggregate final result
+                        </button>
+                    </div>
+                    <div id="mr-detail" class="mt-4 text-xs text-slate-600 bg-slate-50 p-2 rounded italic text-center min-h-[40px]">Click a step to view word-count example.</div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <h3 class="text-lg font-bold text-slate-800 mb-3">3. Cloud ML Platforms</h3>
+                    <p class="text-xs text-slate-500 mb-4">SageMaker, Vertex AI, Databricks. They handle infrastructure complexity.</p>
+                    <div class="grid grid-cols-2 gap-2 text-center text-xs">
+                        <div class="bg-indigo-50 p-2 rounded border border-indigo-100"><span class="block text-xl mb-1">&#128194;</span>1. Upload Dataset</div>
+                        <div class="bg-indigo-50 p-2 rounded border border-indigo-100"><span class="block text-xl mb-1">&#128421;&#65039;</span>2. Train Model</div>
+                        <div class="bg-indigo-50 p-2 rounded border border-indigo-100"><span class="block text-xl mb-1">&#128202;</span>3. Evaluate</div>
+                        <div class="bg-indigo-50 p-2 rounded border border-indigo-100"><span class="block text-xl mb-1">&#127760;</span>4. Deploy API</div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 col-span-1 lg:col-span-3">
+                    <h3 class="text-lg font-bold text-slate-800 mb-3">Other Domains</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-bold text-sm text-indigo-700">Serverless Computing</h4>
+                            <p class="text-sm text-slate-600 mt-1">Pay-per-use model. Event triggers -> Function Executes -> Resources Released. Ideal for image processing or webhook handlers. (e.g., AWS Lambda, Cloud Functions).</p>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-sm text-indigo-700">Collaboration Apps</h4>
+                            <p class="text-sm text-slate-600 mt-1">Powers daily workflows: Google Workspace, Slack, Notion. Enables real-time iteration and eliminates version confusion.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="sec-cost" class="max-w-4xl mx-auto hidden fade-in">
+            <div class="mb-8">
+                <h2 class="text-3xl font-extrabold text-slate-900 mb-4">Cloud Cost Management</h2>
+                <p class="text-lg text-slate-600 leading-relaxed">
+                    Cloud services charge by usage (CPU-hours, GB stored). A forgotten GPU instance can cost thousands. Interactive visualization below demonstrates the cost estimation for an NLP training job, highlighting the massive savings possible with spot instances.
+                </p>
+            </div>
+
+            <div class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-200">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-800">Monthly Budget: NLP Training</h3>
+                        <p class="text-sm text-slate-500 mt-1">120 hrs GPU, 500GB SSD, 50GB Egress</p>
+                    </div>
+                    <div class="mt-4 md:mt-0 flex items-center gap-3 bg-slate-50 p-2 rounded-lg border border-slate-200">
+                        <span class="text-sm font-medium text-slate-600">Pricing Tier:</span>
+                        <select id="pricing-tier" class="bg-white border border-slate-300 text-sm rounded px-3 py-1 focus:outline-none focus:ring-2 focus:ring-indigo-500" onchange="updateChart()">
+                            <option value="standard">Standard On-Demand</option>
+                            <option value="spot">Spot/Preemptible (-75%)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="costChart"></canvas>
+                </div>
+                
+                <div class="mt-8 bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-lg">
+                    <p class="text-sm text-amber-900 font-medium flex items-center gap-2">
+                        <span class="text-xl">&#128161;</span> 
+                        <span id="savings-insight">Using On-Demand pricing. The biggest risk is leaving instances running! Switch to Spot instances above to see potential savings.</span>
+                    </p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const state = {
+            activeTab: 'overview',
+            activeTool: 'prov',
+            costData: {
+                standard: [367.20, 50.00, 4.50],
+                spot: [91.80, 50.00, 4.50]
+            }
+        };
+
+        function nav(tabId) {
+            document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
+            document.getElementById(`sec-${tabId}`).classList.remove('hidden');
+            
+            document.querySelectorAll('.nav-btn').forEach(b => {
+                b.classList.remove('active', 'bg-slate-200', 'border-indigo-600', 'font-semibold');
+                b.classList.add('text-slate-600');
+            });
+            const btn = document.getElementById(`nav-${tabId}`);
+            btn.classList.add('active', 'bg-slate-200', 'border-l-4', 'border-indigo-600', 'font-semibold');
+            btn.classList.remove('text-slate-600');
+
+            if (tabId === 'cost' && !window.costChartInstance) {
+                initChart();
+            }
+        }
+
+        function showTool(toolId) {
+            document.querySelectorAll('.tool-content').forEach(c => c.classList.add('hidden'));
+            document.getElementById(`tool-${toolId}`).classList.remove('hidden');
+
+            document.querySelectorAll('#tools-tabs .tab-btn').forEach(b => {
+                b.classList.remove('active', 'border-indigo-600', 'text-indigo-600', 'font-semibold');
+                b.classList.add('text-slate-500');
+            });
+            event.target.classList.add('active', 'border-indigo-600', 'text-indigo-600', 'font-semibold');
+            event.target.classList.remove('text-slate-500');
+        }
+
+        function toggleCompare() {
+            const table = document.getElementById('compare-table');
+            table.classList.toggle('hidden');
+        }
+
+        const mrInfo = {
+            map: "Input: Millions of documents. Action: Emit (word, 1) for each word.",
+            shuffle: "Action: Pairs are grouped by key across all worker nodes.",
+            reduce: "Action: Sum all 1s per word creating a frequency table."
+        };
+
+        function highlightMR(step) {
+            document.querySelectorAll('.mr-step').forEach(b => {
+                b.classList.remove('border-indigo-500', 'bg-indigo-50');
+                b.querySelector('div').classList.remove('bg-indigo-600');
+                b.querySelector('div').classList.add('bg-indigo-500');
+            });
+            const btn = event.currentTarget;
+            btn.classList.add('border-indigo-500', 'bg-indigo-50');
+            btn.querySelector('div').classList.remove('bg-indigo-500');
+            btn.querySelector('div').classList.add('bg-indigo-600');
+            
+            document.getElementById('mr-detail').innerHTML = mrInfo[step];
+        }
+
+        function initChart() {
+            const ctx = document.getElementById('costChart').getContext('2d');
+            window.costChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Monthly Cost Breakdown (USD)'],
+                    datasets: [
+                        { label: 'GPU Compute', data: [state.costData.standard[0]], backgroundColor: '#4f46e5', borderRadius: 4 },
+                        { label: 'SSD Storage', data: [state.costData.standard[1]], backgroundColor: '#0ea5e9', borderRadius: 4 },
+                        { label: 'Network Egress', data: [state.costData.standard[2]], backgroundColor: '#94a3b8', borderRadius: 4 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        tooltip: { mode: 'index', intersect: false }
+                    },
+                    scales: {
+                        x: { stacked: true },
+                        y: { stacked: true, beginAtZero: true, title: { display: true, text: 'Cost ($)'} }
+                    }
+                }
+            });
+        }
+
+        function updateChart() {
+            const tier = document.getElementById('pricing-tier').value;
+            const data = state.costData[tier];
+            
+            window.costChartInstance.data.datasets[0].data = [data[0]];
+            window.costChartInstance.data.datasets[1].data = [data[1]];
+            window.costChartInstance.data.datasets[2].data = [data[2]];
+            window.costChartInstance.update();
+
+            const insight = document.getElementById('savings-insight');
+            if(tier === 'spot') {
+                insight.innerHTML = "Spot instances reduce compute costs by ~75% in this scenario, dropping total monthly cost from $421.70 to $146.30.";
+            } else {
+                insight.innerHTML = "Using On-Demand pricing. The biggest risk is leaving instances running! Switch to Spot instances above to see potential savings.";
+            }
+        }
+    </script>
+</body>
+</html>
+
+
