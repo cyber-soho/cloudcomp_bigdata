@@ -1,4 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud Computing & Governance | Interactive Report</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chosen Palette: Slate & Blue Harmony (bg-slate-50, text-slate-800, accent-blue-600, surface-white) -->
+    <!-- Application Structure Plan: The SPA uses a sidebar navigation model to divide the content into four distinct, logical views: Overview, Service Models, Governance, and Pre-Deployment. This structure prevents overwhelming the user with a massive wall of text and groups related concepts (e.g., separating the technical 'what' of service models from the policy 'how' of governance). Interactive elements like tabs, dynamic charts, and a functional checklist are used to transform static lists into engaging exploratory tools. -->
+    <!-- Visualization & Content Choices: 
+         1. Economics (CapEx/OpEx) -> Goal: Compare -> Method: Chart.js Bar Chart -> Justification: Visually contrasts upfront vs ongoing costs. 
+         2. Shared Responsibility -> Goal: Inform/Change -> Method: Chart.js Stacked Bar with Select Dropdown -> Justification: Allows user to instantly see how responsibility shifts between Customer and Provider across IaaS/PaaS/SaaS. 
+         3. Service Models -> Goal: Compare -> Method: Interactive Tabs -> Justification: Keeps UI clean while allowing deep dives into IaaS, PaaS, and SaaS analogies and use cases.
+         4. Deployment Checklist -> Goal: Organize/Interact -> Method: Functional HTML/JS Checklist -> Justification: Turns a static slide list into a practical, usable tool with progress tracking.
+         Confirmed: NO SVG or Mermaid JS used. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body { font-family: 'Inter', system-ui, sans-serif; background-color: #f8fafc; color: #1e293b; }
+        .chart-container { position: relative; width: 100%; max-width: 800px; margin: 0 auto; height: 350px; max-height: 400px; }
+        .hidden-view { display: none; }
+        .nav-active { background-color: #eff6ff; color: #2563eb; border-right: 4px solid #2563eb; font-weight: 600; }
+        .tab-active { border-bottom: 2px solid #2563eb; color: #2563eb; font-weight: 600; }
+    </style>
+</head>
+<body class="flex flex-col md:flex-row min-h-screen">
 
+    <nav class="w-full md:w-64 bg-white shadow-lg md:min-h-screen flex flex-col z-10 sticky top-0 md:fixed">
+        <div class="p-6 border-b border-slate-200">
+            <h1 class="text-xl font-bold text-slate-800 leading-tight">☁️ Cloud Computing &<br>Governance</h1>
+            <p class="text-xs text-slate-500 mt-2">Digital Science - Graduate Level</p>
+        </div>
+        <div class="flex flex-row md:flex-col overflow-x-auto md:overflow-visible">
+            <button onclick="navigate('view-basics')" id="nav-view-basics" class="text-left px-6 py-4 text-slate-600 hover:bg-slate-50 whitespace-nowrap md:whitespace-normal nav-active transition-colors">1. Cloud Basics</button>
+            <button onclick="navigate('view-models')" id="nav-view-models" class="text-left px-6 py-4 text-slate-600 hover:bg-slate-50 whitespace-nowrap md:whitespace-normal transition-colors">2. Service & Responsibility</button>
+            <button onclick="navigate('view-governance')" id="nav-view-governance" class="text-left px-6 py-4 text-slate-600 hover:bg-slate-50 whitespace-nowrap md:whitespace-normal transition-colors">3. Cloud Governance</button>
+            <button onclick="navigate('view-checklist')" id="nav-view-checklist" class="text-left px-6 py-4 text-slate-600 hover:bg-slate-50 whitespace-nowrap md:whitespace-normal transition-colors">4. Pre-Deployment</button>
+        </div>
+        <div class="mt-auto p-6 hidden md:block text-xs text-slate-400">
+            Prepared by Cyber.SoHo<br>
+            Duration: 1 Hour
+        </div>
+    </nav>
+
+    <main class="flex-1 p-6 md:p-12 md:ml-64 w-full max-w-7xl mx-auto overflow-y-auto">
+
+        <section id="view-basics" class="block animate-fade-in">
+            <h2 class="text-3xl font-bold text-slate-800 mb-4">Cloud Computing Essentials</h2>
+            <p class="text-lg text-slate-600 mb-8 leading-relaxed">
+                This section introduces the foundational concepts of cloud computing, defining what it is, its core characteristics, and the financial shift it brings to organizations. Understanding these basics is critical before architecting or governing cloud environments.
+            </p>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+                <div class="bg-white p-8 rounded-xl shadow-sm border border-slate-100">
+                    <h3 class="text-xl font-bold mb-4 flex items-center gap-2"><span>📖</span> NIST Definition</h3>
+                    <p class="text-slate-700 italic border-l-4 border-blue-500 pl-4 py-2 bg-slate-50">
+                        "On-demand network access to a shared pool of configurable computing resources that can be rapidly provisioned and released with minimal effort."
+                    </p>
+                    <p class="mt-4 text-slate-600">
+                        <strong>Analogy:</strong> Instead of building a power plant, you plug into the grid and pay per kilowatt-hour.
+                    </p>
+                </div>
+
+                <div class="bg-white p-8 rounded-xl shadow-sm border border-slate-100">
+                    <h3 class="text-xl font-bold mb-4 flex items-center gap-2"><span>⭐</span> Five Essential Characteristics</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-start gap-3"><span class="bg-blue-100 text-blue-700 px-2 py-1 rounded text-sm font-bold">1</span> <div><strong>On-demand self-service:</strong> Provision resources without human intervention.</div></li>
+                        <li class="flex items-start gap-3"><span class="bg-blue-100 text-blue-700 px-2 py-1 rounded text-sm font-bold">2</span> <div><strong>Broad network access:</strong> Available from any device via standard protocols.</div></li>
+                        <li class="flex items-start gap-3"><span class="bg-blue-100 text-blue-700 px-2 py-1 rounded text-sm font-bold">3</span> <div><strong>Resource pooling:</strong> Multi-tenant; many customers share hardware.</div></li>
+                        <li class="flex items-start gap-3"><span class="bg-blue-100 text-blue-700 px-2 py-1 rounded text-sm font-bold">4</span> <div><strong>Rapid elasticity:</strong> Scale up/down in minutes, not months.</div></li>
+                        <li class="flex items-start gap-3"><span class="bg-blue-100 text-blue-700 px-2 py-1 rounded text-sm font-bold">5</span> <div><strong>Measured service:</strong> Pay only for what you consume.</div></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="bg-white p-8 rounded-xl shadow-sm border border-slate-100 mb-12">
+                <h3 class="text-xl font-bold mb-2 flex items-center gap-2"><span>💰</span> Cloud Economics: CapEx vs. OpEx</h3>
+                <p class="text-slate-600 mb-6">Cloud shifts IT spending from capital investments (buying servers) to operational expenses (renting resources). Use the chart below to compare the financial impact.</p>
+                
+                <div class="chart-container">
+                    <canvas id="economicsChart"></canvas>
+                </div>
+
+                <div class="mt-6 bg-blue-50 p-4 rounded-lg text-blue-800 text-sm">
+                    <strong>Rule of Thumb:</strong> Cloud wins for variable workloads (&lt; 70% utilisation). On-prem wins for sustained, maxed-out hardware (&gt; 70% utilisation).
+                </div>
+            </div>
+            
+            <h3 class="text-xl font-bold mb-4 flex items-center gap-2"><span>🏢</span> Deployment Models</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-white p-5 rounded-lg shadow border-t-4 border-blue-400">
+                    <h4 class="font-bold text-lg mb-2">Public</h4>
+                    <p class="text-sm text-slate-600 mb-3">Provider-owned, open to all.</p>
+                    <span class="text-xs bg-slate-100 px-2 py-1 rounded">AWS, Azure, GCP</span>
+                </div>
+                <div class="bg-white p-5 rounded-lg shadow border-t-4 border-purple-400">
+                    <h4 class="font-bold text-lg mb-2">Private</h4>
+                    <p class="text-sm text-slate-600 mb-3">Operated solely for one organisation.</p>
+                    <span class="text-xs bg-slate-100 px-2 py-1 rounded">Hospital OpenStack</span>
+                </div>
+                <div class="bg-white p-5 rounded-lg shadow border-t-4 border-indigo-400">
+                    <h4 class="font-bold text-lg mb-2">Hybrid</h4>
+                    <p class="text-sm text-slate-600 mb-3">Public + Private data movement.</p>
+                    <span class="text-xs bg-slate-100 px-2 py-1 rounded">On-prem + Cloud Burst</span>
+                </div>
+                <div class="bg-white p-5 rounded-lg shadow border-t-4 border-teal-400">
+                    <h4 class="font-bold text-lg mb-2">Community</h4>
+                    <p class="text-sm text-slate-600 mb-3">Shared by orgs with common needs.</p>
+                    <span class="text-xs bg-slate-100 px-2 py-1 rounded">AWS GovCloud</span>
+                </div>
+            </div>
+        </section>
+
+        <section id="view-models" class="hidden-view animate-fade-in">
+            <h2 class="text-3xl font-bold text-slate-800 mb-4">Service & Responsibility</h2>
+            <p class="text-lg text-slate-600 mb-8 leading-relaxed">
+                Selecting a cloud service model involves a direct trade-off between control and convenience. This section breaks down IaaS, PaaS, and SaaS, and critically visualizes how security responsibilities shift depending on your choice.
+            </p>
+
+            <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden mb-12">
+                <div class="flex flex-col md:flex-row border-b border-slate-200">
+                    <button onclick="switchTab('iaas')" id="tab-iaas" class="flex-1 py-4 text-center tab-active hover:bg-slate-50 transition-colors">IaaS</button>
+                    <button onclick="switchTab('paas')" id="tab-paas" class="flex-1 py-4 text-center text-slate-500 hover:bg-slate-50 transition-colors">PaaS</button>
+                    <button onclick="switchTab('saas')" id="tab-saas" class="flex-1 py-4 text-center text-slate-500 hover:bg-slate-50 transition-colors">SaaS</button>
+                </div>
+                <div class="p-8">
+                    <div id="content-iaas" class="block">
+                        <h3 class="text-2xl font-bold mb-2 text-slate-800">Infrastructure as a Service</h3>
+                        <p class="text-slate-600 mb-6">You rent raw compute, storage, and networking.</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <h4 class="font-bold text-slate-700 mb-2">🍕 Analogy: Renting a bare kitchen</h4>
+                                <ul class="list-disc pl-5 space-y-1 text-sm text-slate-600">
+                                    <li><strong>You manage:</strong> OS, runtime, applications, data.</li>
+                                    <li><strong>Provider manages:</strong> Hardware, networking, virtualisation.</li>
+                                    <li><strong>Best for:</strong> Custom environments, GPU-heavy ML workloads.</li>
+                                </ul>
+                            </div>
+                            <div class="bg-slate-50 p-4 rounded-lg">
+                                <h4 class="font-bold text-slate-700 mb-2">Key Providers</h4>
+                                <div class="flex gap-2 flex-wrap">
+                                    <span class="bg-white border border-slate-200 px-3 py-1 rounded shadow-sm text-sm">AWS EC2</span>
+                                    <span class="bg-white border border-slate-200 px-3 py-1 rounded shadow-sm text-sm">Azure VMs</span>
+                                    <span class="bg-white border border-slate-200 px-3 py-1 rounded shadow-sm text-sm">Google Compute Engine</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="content-paas" class="hidden">
+                        <h3 class="text-2xl font-bold mb-2 text-slate-800">Platform as a Service</h3>
+                        <p class="text-slate-600 mb-6">You deploy code; the platform handles the rest.</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <h4 class="font-bold text-slate-700 mb-2">🍕 Analogy: A fully equipped kitchen</h4>
+                                <ul class="list-disc pl-5 space-y-1 text-sm text-slate-600">
+                                    <li><strong>You manage:</strong> Application code, data.</li>
+                                    <li><strong>Provider manages:</strong> OS, runtime, middleware, scaling.</li>
+                                    <li><strong>Best for:</strong> Rapid prototyping, managed ML training, web apps.</li>
+                                </ul>
+                            </div>
+                            <div class="bg-slate-50 p-4 rounded-lg">
+                                <h4 class="font-bold text-slate-700 mb-2">Key Providers</h4>
+                                <div class="flex gap-2 flex-wrap">
+                                    <span class="bg-white border border-slate-200 px-3 py-1 rounded shadow-sm text-sm">Google App Engine</span>
+                                    <span class="bg-white border border-slate-200 px-3 py-1 rounded shadow-sm text-sm">Heroku</span>
+                                    <span class="bg-white border border-slate-200 px-3 py-1 rounded shadow-sm text-sm">Azure App Service</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="content-saas" class="hidden">
+                        <h3 class="text-2xl font-bold mb-2 text-slate-800">Software as a Service</h3>
+                        <p class="text-slate-600 mb-6">Ready-to-use applications over the internet.</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <h4 class="font-bold text-slate-700 mb-2">🍕 Analogy: Ordering delivery</h4>
+                                <ul class="list-disc pl-5 space-y-1 text-sm text-slate-600">
+                                    <li><strong>You manage:</strong> Your content and configuration.</li>
+                                    <li><strong>Provider manages:</strong> Everything else.</li>
+                                    <li><strong>Best for:</strong> End-user tools, no-code analytics, collaboration.</li>
+                                </ul>
+                            </div>
+                            <div class="bg-slate-50 p-4 rounded-lg">
+                                <h4 class="font-bold text-slate-700 mb-2">Key Providers</h4>
+                                <div class="flex gap-2 flex-wrap">
+                                    <span class="bg-white border border-slate-200 px-3 py-1 rounded shadow-sm text-sm">Google Workspace</span>
+                                    <span class="bg-white border border-slate-200 px-3 py-1 rounded shadow-sm text-sm">Salesforce</span>
+                                    <span class="bg-white border border-slate-200 px-3 py-1 rounded shadow-sm text-sm">Dropbox</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-8 rounded-xl shadow-sm border border-slate-100">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+                    <div>
+                        <h3 class="text-xl font-bold flex items-center gap-2"><span>🛡️</span> The Shared Responsibility Model</h3>
+                        <p class="text-slate-600 text-sm mt-1">"The cloud is secure — but YOUR configuration might not be."</p>
+                    </div>
+                    <div class="mt-4 md:mt-0">
+                        <select id="responsibilitySelector" onchange="updateResponsibilityChart()" class="bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                            <option value="iaas">View IaaS Split</option>
+                            <option value="paas">View PaaS Split</option>
+                            <option value="saas">View SaaS Split</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="responsibilityChart"></canvas>
+                </div>
+
+                <div class="mt-6 border-t border-slate-100 pt-6">
+                    <h4 class="font-bold text-red-600 mb-2">Real-World Consequence: Misconfigured S3</h4>
+                    <p class="text-sm text-slate-700">The #1 cloud security incident occurs when a team uploads sensitive data to AWS S3 and sets the bucket to "public". AWS infrastructure is never breached — the <em>configuration</em> is the customer's job. <strong>You ALWAYS own responsibility for your data.</strong></p>
+                </div>
+            </div>
+        </section>
+
+        <section id="view-governance" class="hidden-view animate-fade-in">
+            <h2 class="text-3xl font-bold text-slate-800 mb-4">Cloud Governance</h2>
+            <p class="text-lg text-slate-600 mb-8 leading-relaxed">
+                Governance is the set of policies, processes, and controls that manage a cloud environment to be secure, compliant, and cost-effective. Think of cloud computing as a sports car, and governance as the traffic laws, insurance, and driving instructor.
+            </p>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
+                <div class="bg-red-50 border border-red-200 p-6 rounded-xl lg:col-span-1">
+                    <h3 class="text-lg font-bold text-red-800 mb-3 flex items-center gap-2"><span>💸</span> Cost Governance</h3>
+                    <div class="bg-white p-4 rounded border border-red-100 text-sm mb-4">
+                        <strong class="text-slate-800">The $12,400 Weekend:</strong><br>
+                        An intern launched 8× NVIDIA A100 GPUs for a sweep, forgot to shut down, resulting in $12k charges for idle time.
+                    </div>
+                    <ul class="text-xs space-y-2 text-red-900">
+                        <li>✅ <strong>IAM Policy:</strong> Limit to 2 GPUs</li>
+                        <li>✅ <strong>Budget Alert:</strong> SMS alert at $500</li>
+                        <li>✅ <strong>Auto-shutdown:</strong> Stop after 2h idle</li>
+                    </ul>
+                </div>
+
+                <div class="bg-white border border-slate-200 p-6 rounded-xl lg:col-span-2">
+                    <h3 class="text-lg font-bold text-slate-800 mb-3 flex items-center gap-2"><span>🔑</span> IAM: Identity & Access Management</h3>
+                    <p class="text-sm text-slate-600 mb-4">The Golden Rule: <strong>Least Privilege.</strong> Give every user the minimum permissions they need.</p>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50 border-b">
+                                    <th class="p-2 font-semibold">Role</th>
+                                    <th class="p-2 font-semibold text-green-700">Permitted</th>
+                                    <th class="p-2 font-semibold text-red-700">Denied</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b">
+                                    <td class="p-2">ML Engineer</td>
+                                    <td class="p-2 text-slate-600">Training instances, data read</td>
+                                    <td class="p-2 text-slate-600">IAM changes, billing</td>
+                                </tr>
+                                <tr class="border-b">
+                                    <td class="p-2">Data Analyst</td>
+                                    <td class="p-2 text-slate-600">Data read, queries</td>
+                                    <td class="p-2 text-slate-600">GPU instances, deletes</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2">Intern</td>
+                                    <td class="p-2 text-slate-600">Read dashboards only</td>
+                                    <td class="p-2 text-slate-600">Write to anything</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-8 rounded-xl shadow-sm border border-slate-100 mb-10">
+                <h3 class="text-xl font-bold mb-6 flex items-center gap-2"><span>🗂️</span> Data Governance & Lifecycle</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                        <h4 class="font-bold text-slate-700 mb-4">Classification Tiers</h4>
+                        <div class="space-y-3">
+                            <div class="p-3 border rounded-lg hover:shadow-md transition-shadow cursor-default bg-green-50 border-green-200">
+                                <div class="font-bold text-green-800">Tier 1: Public</div>
+                                <div class="text-sm text-green-700">Marketing copy. No encryption needed.</div>
+                            </div>
+                            <div class="p-3 border rounded-lg hover:shadow-md transition-shadow cursor-default bg-blue-50 border-blue-200">
+                                <div class="font-bold text-blue-800">Tier 2: Internal</div>
+                                <div class="text-sm text-blue-700">OKR docs. Encrypted at rest.</div>
+                            </div>
+                            <div class="p-3 border rounded-lg hover:shadow-md transition-shadow cursor-default bg-orange-50 border-orange-200">
+                                <div class="font-bold text-orange-800">Tier 3: Confidential</div>
+                                <div class="text-sm text-orange-700">Customer PII. Encrypted rest+transit, logged.</div>
+                            </div>
+                            <div class="p-3 border rounded-lg hover:shadow-md transition-shadow cursor-default bg-red-50 border-red-200">
+                                <div class="font-bold text-red-800">Tier 4: Restricted</div>
+                                <div class="text-sm text-red-700">Health records. Dedicated keys, limited IAM.</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-bold text-slate-700 mb-4">Lifecycle Management</h4>
+                        <p class="text-sm text-slate-600 mb-4">Automate retention to save cost and stay compliant.</p>
+                        <div class="relative">
+                            <div class="absolute left-4 top-0 bottom-0 w-1 bg-blue-200 rounded"></div>
+                            <div class="relative pl-10 pb-6">
+                                <div class="absolute left-2.5 top-1 w-4 h-4 rounded-full bg-blue-500 border-4 border-white"></div>
+                                <div class="font-bold text-slate-800">HOT (Day 0–89)</div>
+                                <div class="text-sm text-slate-600">S3 Standard | $0.023/GB/mo</div>
+                            </div>
+                            <div class="relative pl-10 pb-6">
+                                <div class="absolute left-2.5 top-1 w-4 h-4 rounded-full bg-blue-300 border-4 border-white"></div>
+                                <div class="font-bold text-slate-800">COLD (Day 90–364)</div>
+                                <div class="text-sm text-slate-600">S3 Glacier | $0.004/GB/mo (~83% cheaper)</div>
+                            </div>
+                            <div class="relative pl-10">
+                                <div class="absolute left-2.5 top-1 w-4 h-4 rounded-full bg-slate-300 border-4 border-white"></div>
+                                <div class="font-bold text-slate-800">DELETED (Day 365+)</div>
+                                <div class="text-sm text-slate-600">Gone | $0.00 | Compliance met</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-8 rounded-xl shadow-sm border border-slate-100">
+                <h3 class="text-xl font-bold mb-4 flex items-center gap-2"><span>⚖️</span> GDPR: Right to Erasure</h3>
+                <p class="text-sm text-slate-600 mb-6">Deletion is a governance <em>process</em>, not just a SQL query.</p>
+                <div class="flex flex-col md:flex-row items-center justify-between gap-4 text-center">
+                    <div class="flex-1 bg-slate-50 p-4 rounded border border-slate-200 w-full">
+                        <div class="font-bold text-blue-600 mb-1">1. Discover</div>
+                        <div class="text-xs text-slate-600">Search every data store</div>
+                    </div>
+                    <div class="text-slate-300 hidden md:block">➔</div>
+                    <div class="flex-1 bg-slate-50 p-4 rounded border border-slate-200 w-full">
+                        <div class="font-bold text-blue-600 mb-1">2. Delete/Anonymise</div>
+                        <div class="text-xs text-slate-600">Remove from ALL stores</div>
+                    </div>
+                    <div class="text-slate-300 hidden md:block">➔</div>
+                    <div class="flex-1 bg-slate-50 p-4 rounded border border-slate-200 w-full">
+                        <div class="font-bold text-blue-600 mb-1">3. Log</div>
+                        <div class="text-xs text-slate-600">Immutable audit trail</div>
+                    </div>
+                    <div class="text-slate-300 hidden md:block">➔</div>
+                    <div class="flex-1 bg-slate-50 p-4 rounded border border-slate-200 w-full">
+                        <div class="font-bold text-blue-600 mb-1">4. Confirm</div>
+                        <div class="text-xs text-slate-600">Notify within 30 days</div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <section id="view-checklist" class="hidden-view animate-fade-in">
+            <h2 class="text-3xl font-bold text-slate-800 mb-4">Pre-Deployment Governance</h2>
+            <p class="text-lg text-slate-600 mb-8 leading-relaxed">
+                Governance is a gate, not an afterthought. Use this interactive 10-point checklist before deploying any workload to the cloud. You must score 10/10; any gap is a no-go.
+            </p>
+
+            <div class="bg-white p-8 rounded-xl shadow-sm border border-slate-100 mb-8">
+                <div class="flex justify-between items-end mb-6 border-b pb-4">
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-800">Deployment Readiness</h3>
+                        <p class="text-sm text-slate-500">Check off items as verified.</p>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-3xl font-black text-blue-600" id="checklist-score">0/10</div>
+                        <div class="text-xs font-bold text-slate-400 tracking-wider uppercase" id="checklist-status">Not Ready</div>
+                    </div>
+                </div>
+
+                <div id="checklist-container" class="space-y-3">
+                </div>
+
+                <div class="mt-8 pt-6 border-t border-slate-100">
+                    <button onclick="resetChecklist()" class="text-sm text-slate-500 hover:text-slate-800 underline">Reset Checklist</button>
+                </div>
+            </div>
+            
+            <div class="bg-blue-50 border border-blue-100 p-6 rounded-xl">
+                <h4 class="font-bold text-blue-900 mb-2 flex items-center gap-2"><span>🤖</span> Move to Automation</h4>
+                <p class="text-sm text-blue-800 mb-4">Manual checklists are slow and error-prone. Modern cloud governance relies on continuous monitoring.</p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                    <div class="bg-white p-3 rounded shadow-sm">
+                        <strong class="block text-slate-800 mb-1">AWS Config</strong>
+                        <span class="text-slate-600 text-xs">Evaluates resource configurations continuously.</span>
+                    </div>
+                    <div class="bg-white p-3 rounded shadow-sm">
+                        <strong class="block text-slate-800 mb-1">Azure Policy</strong>
+                        <span class="text-slate-600 text-xs">Enforces organisational standards automatically.</span>
+                    </div>
+                    <div class="bg-white p-3 rounded shadow-sm">
+                        <strong class="block text-slate-800 mb-1">Terraform + OPA</strong>
+                        <span class="text-slate-600 text-xs">Infrastructure & Policy expressed as Code.</span>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <script>
+        const views = ['view-basics', 'view-models', 'view-governance', 'view-checklist'];
+        let ecoChartInstance = null;
+        let respChartInstance = null;
+
+        function navigate(targetId) {
+            views.forEach(viewId => {
+                document.getElementById(viewId).classList.add('hidden-view');
+                document.getElementById(viewId).classList.remove('block');
+                document.getElementById('nav-' + viewId).classList.remove('nav-active');
+            });
+            
+            document.getElementById(targetId).classList.remove('hidden-view');
+            document.getElementById(targetId).classList.add('block');
+            document.getElementById('nav-' + targetId).classList.add('nav-active');
+            window.scrollTo(0, 0);
+
+            if (targetId === 'view-basics') renderEconomicsChart();
+            if (targetId === 'view-models') renderResponsibilityChart();
+        }
+
+        function switchTab(tabId) {
+            const tabs = ['iaas', 'paas', 'saas'];
+            tabs.forEach(t => {
+                document.getElementById('content-' + t).classList.add('hidden');
+                document.getElementById('content-' + t).classList.remove('block');
+                document.getElementById('tab-' + t).classList.remove('tab-active');
+                document.getElementById('tab-' + t).classList.add('text-slate-500');
+            });
+            document.getElementById('content-' + tabId).classList.remove('hidden');
+            document.getElementById('content-' + tabId).classList.add('block');
+            document.getElementById('tab-' + tabId).classList.add('tab-active');
+            document.getElementById('tab-' + tabId).classList.remove('text-slate-500');
+        }
+
+        function renderEconomicsChart() {
+            if (ecoChartInstance) return; 
+            const ctx = document.getElementById('economicsChart').getContext('2d');
+            
+            Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
+            Chart.defaults.color = '#64748b';
+
+            ecoChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Upfront Cost', 'Ongoing Cost', 'Over-provisioning Risk'],
+                    datasets: [
+                        {
+                            label: 'CapEx (On-Prem)',
+                            data: [90, 30, 85],
+                            backgroundColor: '#94a3b8',
+                            borderRadius: 4
+                        },
+                        {
+                            label: 'OpEx (Cloud)',
+                            data: [10, 70, 15],
+                            backgroundColor: '#3b82f6',
+                            borderRadius: 4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) { label += ': '; }
+                                    if (context.parsed.y > 80) { label += 'High'; }
+                                    else if (context.parsed.y > 40) { label += 'Medium / Variable'; }
+                                    else { label += 'Low / Near Zero'; }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            display: false,
+                            beginAtZero: true,
+                            max: 100
+                        },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        const respData = {
+            iaas: { customer: [100, 100, 100, 100, 0, 0], provider: [0, 0, 0, 0, 100, 100] },
+            paas: { customer: [100, 100, 0, 0, 0, 0], provider: [0, 0, 100, 100, 100, 100] },
+            saas: { customer: [100, 0, 0, 0, 0, 0], provider: [0, 100, 100, 100, 100, 100] }
+        };
+
+        function renderResponsibilityChart() {
+            if (respChartInstance) return;
+            const ctx = document.getElementById('responsibilityChart').getContext('2d');
+            
+            respChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Data & Access', 'App Security', 'OS Patching', 'Network Controls', 'Virtualisation', 'Physical'],
+                    datasets: [
+                        {
+                            label: 'Customer Manages',
+                            data: respData.iaas.customer,
+                            backgroundColor: '#f59e0b',
+                            stack: 'Stack 0',
+                        },
+                        {
+                            label: 'Provider Manages',
+                            data: respData.iaas.provider,
+                            backgroundColor: '#3b82f6',
+                            stack: 'Stack 0',
+                        }
+                    ]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.parsed.x === 100 ? context.dataset.label : '';
+                                }
+                            },
+                            filter: function(tooltipItem) {
+                                return tooltipItem.parsed.x > 0;
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { stacked: true, display: false, max: 100 },
+                        y: { stacked: true, grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        function updateResponsibilityChart() {
+            const model = document.getElementById('responsibilitySelector').value;
+            if(respChartInstance) {
+                respChartInstance.data.datasets[0].data = respData[model].customer;
+                respChartInstance.data.datasets[1].data = respData[model].provider;
+                respChartInstance.update();
+            }
+        }
+
+        const checklistItems = [
+            { text: "Deployment model per regulation?", domain: "Compliance" },
+            { text: "Data classified by sensitivity?", domain: "Data Governance" },
+            { text: "Encryption at rest + in transit?", domain: "Data Governance" },
+            { text: "Least-privilege IAM for all?", domain: "Identity & Access" },
+            { text: "Budget alert configured?", domain: "Cost Management" },
+            { text: "Lifecycle rules on storage?", domain: "Data Governance" },
+            { text: "Config monitoring active?", domain: "Operations" },
+            { text: "Incident-response plan?", domain: "Risk Management" },
+            { text: "Audit trail enabled?", domain: "Compliance" },
+            { text: "Documentation complete?", domain: "Operations" }
+        ];
+
+        let checklistState = new Array(10).fill(false);
+
+        function initChecklist() {
+            const container = document.getElementById('checklist-container');
+            container.innerHTML = '';
+            checklistItems.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = "flex items-center p-3 hover:bg-slate-50 border border-transparent hover:border-slate-200 rounded transition-colors cursor-pointer";
+                div.onclick = () => toggleChecklist(index);
+                
+                const checkClass = checklistState[index] ? 'bg-green-500 border-green-500' : 'bg-white border-slate-300';
+                const checkMark = checklistState[index] ? '<span class="text-white text-xs">✓</span>' : '';
+                const textClass = checklistState[index] ? 'text-slate-400 line-through' : 'text-slate-700 font-medium';
+
+                div.innerHTML = `
+                    <div class="w-6 h-6 rounded border flex items-center justify-center mr-4 transition-colors ${checkClass}">
+                        ${checkMark}
+                    </div>
+                    <div class="flex-1 ${textClass}">${item.text}</div>
+                    <div class="text-xs px-2 py-1 bg-slate-100 text-slate-500 rounded">${item.domain}</div>
+                `;
+                container.appendChild(div);
+            });
+            updateChecklistScore();
+        }
+
+        function toggleChecklist(index) {
+            checklistState[index] = !checklistState[index];
+            initChecklist(); 
+        }
+
+        function resetChecklist() {
+            checklistState = new Array(10).fill(false);
+            initChecklist();
+        }
+
+        function updateChecklistScore() {
+            const score = checklistState.filter(Boolean).length;
+            document.getElementById('checklist-score').innerText = `${score}/10`;
+            const statusEl = document.getElementById('checklist-status');
+            
+            if (score === 10) {
+                statusEl.innerText = "Ready to Deploy";
+                statusEl.className = "text-xs font-bold text-green-600 tracking-wider uppercase";
+                document.getElementById('checklist-score').className = "text-3xl font-black text-green-600";
+            } else {
+                statusEl.innerText = "Not Ready";
+                statusEl.className = "text-xs font-bold text-slate-400 tracking-wider uppercase";
+                document.getElementById('checklist-score').className = "text-3xl font-black text-blue-600";
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderEconomicsChart();
+            initChecklist();
+        });
+
+    </script>
+</body>
+</html>
 
 
 

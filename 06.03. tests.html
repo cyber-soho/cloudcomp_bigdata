@@ -1,3 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud Computing & Governance | Study Hub</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* Custom styles for 3D Flashcard Flip */
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+        .transform-style-3d {
+            transform-style: preserve-3d;
+        }
+        .backface-hidden {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+        .rotate-y-180 {
+            transform: rotateY(180deg);
+        }
+        
+        .flip-card-inner {
+            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+        
+        .flip-card.flipped .flip-card-inner {
+            transform: rotateY(180deg);
+        }
 
+        /* Smooth tab transitions */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-indigo-600 text-white shadow-md">
+        <div class="max-w-5xl mx-auto px-4 py-6 text-center">
+            <h1 class="text-3xl font-bold tracking-tight"><i class="fa-solid fa-cloud text-indigo-200 mr-2"></i> Cloud Computing & Governance</h1>
+            <p class="mt-2 text-indigo-100">Study Hub: Flashcards & Practice Quiz</p>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow max-w-4xl mx-auto w-full px-4 py-8">
+        
+        <!-- Tab Navigation -->
+        <div class="flex justify-center mb-8 border-b border-slate-200">
+            <button onclick="switchTab('flashcards')" id="tab-flashcards" class="px-6 py-3 text-lg font-medium border-b-2 border-indigo-600 text-indigo-600 transition-colors duration-200">
+                <i class="fa-solid fa-layer-group mr-2"></i> Flashcards
+            </button>
+            <button onclick="switchTab('quiz')" id="tab-quiz" class="px-6 py-3 text-lg font-medium border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition-colors duration-200">
+                <i class="fa-solid fa-clipboard-question mr-2"></i> Practice Quiz
+            </button>
+        </div>
+
+        <!-- ==================== FLASHCARDS TAB ==================== -->
+        <div id="content-flashcards" class="tab-content active">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-semibold text-slate-700">Study Mode</h2>
+                <div class="text-sm font-medium bg-slate-200 text-slate-600 px-3 py-1 rounded-full">
+                    Card <span id="current-card-num">1</span> of <span id="total-cards-num">25</span>
+                </div>
+            </div>
+
+            <!-- Flashcard Container -->
+            <div class="w-full max-w-2xl mx-auto perspective-1000 h-80 sm:h-96 cursor-pointer" onclick="flipCard()" id="flashcard-container">
+                <div class="flip-card w-full h-full relative" id="flashcard">
+                    <div class="flip-card-inner w-full h-full relative shadow-xl rounded-2xl">
+                        
+                        <!-- Front of Card -->
+                        <div class="absolute w-full h-full bg-white rounded-2xl border-2 border-indigo-100 backface-hidden flex flex-col items-center justify-center p-8 text-center">
+                            <span class="absolute top-4 left-4 text-xs font-bold tracking-widest text-indigo-400 uppercase">Front</span>
+                            <i class="fa-regular fa-lightbulb text-4xl text-yellow-400 mb-6 opacity-50"></i>
+                            <h3 id="card-front-text" class="text-2xl sm:text-3xl font-bold text-slate-800 leading-tight">Question goes here</h3>
+                            <p class="absolute bottom-4 text-sm text-slate-400"><i class="fa-solid fa-hand-pointer mr-1"></i> Click to flip</p>
+                        </div>
+
+                        <!-- Back of Card -->
+                        <div class="absolute w-full h-full bg-indigo-600 rounded-2xl border-2 border-indigo-700 backface-hidden rotate-y-180 flex flex-col items-center justify-center p-8 text-center text-white">
+                            <span class="absolute top-4 right-4 text-xs font-bold tracking-widest text-indigo-300 uppercase">Back</span>
+                            <div class="overflow-y-auto max-h-full w-full custom-scrollbar px-2">
+                                <p id="card-back-text" class="text-lg sm:text-xl font-medium leading-relaxed">Answer goes here</p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Flashcard Controls -->
+            <div class="flex justify-center items-center space-x-6 mt-8">
+                <button onclick="prevCard()" class="w-12 h-12 rounded-full bg-white shadow hover:bg-slate-50 text-slate-600 transition flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed" id="btn-prev">
+                    <i class="fa-solid fa-chevron-left text-xl"></i>
+                </button>
+                <button onclick="shuffleCards()" class="px-4 py-2 rounded text-indigo-600 bg-indigo-50 hover:bg-indigo-100 font-medium transition" title="Shuffle Cards">
+                    <i class="fa-solid fa-shuffle"></i> Shuffle
+                </button>
+                <button onclick="nextCard()" class="w-12 h-12 rounded-full bg-white shadow hover:bg-slate-50 text-slate-600 transition flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed" id="btn-next">
+                    <i class="fa-solid fa-chevron-right text-xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- ==================== QUIZ TAB ==================== -->
+        <div id="content-quiz" class="tab-content">
+            
+            <div id="quiz-intro" class="text-center bg-white p-10 rounded-2xl shadow-sm border border-slate-200">
+                <i class="fa-solid fa-clipboard-check text-6xl text-emerald-500 mb-4"></i>
+                <h2 class="text-2xl font-bold text-slate-800 mb-2">Knowledge Check</h2>
+                <p class="text-slate-600 mb-6 max-w-lg mx-auto">Test your practical understanding of Cloud Computing and Governance with this 10-question scenario-based quiz.</p>
+                <button onclick="startQuiz()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-lg shadow transition transform hover:-translate-y-0.5">
+                    Start Quiz
+                </button>
+            </div>
+
+            <div id="quiz-active" class="hidden">
+                <!-- Quiz Header -->
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-semibold text-slate-700">Question <span id="q-current">1</span> of <span id="q-total">10</span></h2>
+                    <div class="text-sm font-bold bg-slate-200 text-slate-700 px-3 py-1 rounded-md">
+                        Score: <span id="quiz-score">0</span>
+                    </div>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="w-full bg-slate-200 rounded-full h-2 mb-8">
+                    <div class="bg-indigo-600 h-2 rounded-full transition-all duration-300" id="quiz-progress" style="width: 10%"></div>
+                </div>
+
+                <!-- Question Area -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8 mb-6">
+                    <h3 id="quiz-question-text" class="text-xl text-slate-800 font-medium mb-6 leading-relaxed"></h3>
+                    
+                    <!-- Options List -->
+                    <div id="quiz-options" class="space-y-3">
+                        <!-- Options generated via JS -->
+                    </div>
+                </div>
+
+                <!-- Action Bar (Hint & Next) -->
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
+                    <div>
+                        <button onclick="toggleHint()" id="btn-hint" class="text-amber-600 bg-amber-50 hover:bg-amber-100 px-4 py-2 rounded-md font-medium transition flex items-center">
+                            <i class="fa-regular fa-lightbulb mr-2"></i> Show Hint
+                        </button>
+                        <div id="hint-box" class="hidden mt-3 p-4 bg-amber-50 border-l-4 border-amber-400 text-amber-800 text-sm rounded-r-md max-w-md">
+                            <strong class="block mb-1">Hint:</strong> <span id="hint-text"></span>
+                        </div>
+                    </div>
+                    
+                    <button onclick="nextQuizQuestion()" id="btn-next-question" class="hidden bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 px-6 rounded-lg shadow transition">
+                        Next Question <i class="fa-solid fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Quiz Results -->
+            <div id="quiz-results" class="hidden text-center bg-white p-10 rounded-2xl shadow-sm border border-slate-200">
+                <div id="result-icon" class="text-6xl mb-4">🏆</div>
+                <h2 class="text-3xl font-bold text-slate-800 mb-2">Quiz Complete!</h2>
+                <p class="text-xl text-slate-600 mb-6">Your score: <span id="final-score" class="font-bold text-indigo-600"></span> out of 10</p>
+                
+                <div id="result-message" class="text-slate-700 mb-8 max-w-lg mx-auto bg-slate-50 p-4 rounded-lg">
+                    <!-- Dynamic message -->
+                </div>
+
+                <button onclick="resetQuiz()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-lg shadow transition">
+                    <i class="fa-solid fa-rotate-right mr-2"></i> Retake Quiz
+                </button>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Data & Application Logic -->
+    <script>
+        /* =========================================
+           DATA: FLASHCARDS
+        ========================================= */
+        let flashcardsData = [
+            { front: "NIST definition of cloud computing", back: "On-demand network access to a shared pool of configurable computing resources that can be rapidly provisioned and released with minimal effort." },
+            { front: "Five essential characteristics of cloud computing", back: "On-demand self-service, broad network access, resource pooling, rapid elasticity, and measured service." },
+            { front: "IaaS (Infrastructure as a Service)", back: "A service model where you rent raw compute, storage, and networking; you manage the OS, runtime, apps, and data." },
+            { front: "PaaS (Platform as a Service)", back: "A service model where you deploy code and the platform handles the OS, runtime, middleware, and scaling." },
+            { front: "SaaS (Software as a Service)", back: "A service model delivering ready-to-use applications over the internet where you only manage your content and configuration." },
+            { front: "Four cloud deployment models", back: "Public, Private, Hybrid, and Community." },
+            { front: "Hybrid Cloud", back: "A deployment model combining Public and Private clouds, allowing data and applications to move between them." },
+            { front: "Shared Responsibility Model", back: "The security framework where the provider secures the infrastructure, and the customer secures their configuration and data." },
+            { front: "Primary cause of cloud security incidents", back: "Customer misconfiguration, such as leaving a cloud storage bucket set to public." },
+            { front: "CapEx vs. OpEx shift in cloud computing", back: "Cloud computing shifts spending from high upfront Capital Expenditures (buying servers) to Operational Expenditures (pay-per-use)." },
+            { front: "Break-even rule for cloud vs. on-premises workloads", back: "Cloud is more cost-effective for variable workloads (under 70% utilization), while on-premises is better for sustained, maxed-out hardware." },
+            { front: "Cloud Governance", back: "The set of policies, processes, and controls that manage a cloud environment to be secure, compliant, cost-effective, and strategy-aligned." },
+            { front: "Six Cloud Governance Domains", back: "Risk Management, Compliance, Cost Management, Identity & Access, Data Governance, and Operations Governance." },
+            { front: "GDPR (General Data Protection Regulation)", back: "An EU framework that protects consumer data, prominently featuring the right to erasure and explicit consent." },
+            { front: "HIPAA (Health Insurance Portability and Accountability Act)", back: "A US framework requiring the de-identification and protection of Protected Health Information (PHI)." },
+            { front: "GDPR Article 17 steps for Right to Erasure", back: "Discover data, Delete/Anonymise it across all stores, Log the action, and Confirm with the user within 30 days." },
+            { front: "Golden Rule of Identity and Access Management (IAM)", back: "Least Privilege: Give every user the absolute minimum permissions they need to do their job." },
+            { front: "Three core functions of IAM", back: "Authentication (Who are you?), Authorisation (What can you do?), and Accountability (What did you do?)." },
+            { front: "Data Classification Tiers", back: "Public (Tier 1), Internal (Tier 2), Confidential (Tier 3), and Restricted (Tier 4)." },
+            { front: "Primary rule for Data Classification", back: "Classify first, then apply controls; never store highly sensitive data with lower-tier protections." },
+            { front: "Data Lifecycle Management stages", back: "Hot (frequently accessed data), Cold (infrequently accessed/archived data), and Deleted." },
+            { front: "Two data encryption boundaries", back: "Encryption at rest (data sitting on disk) and Encryption in transit (data moving over the network)." },
+            { front: "Cloud-native governance automation tools", back: "Tools like AWS Config, Azure Policy, and Terraform with Open Policy Agent (OPA) used for continuous monitoring and enforcing rules." },
+            { front: "Pre-Deployment Governance Checklist requirement", back: "You must score 10/10 before deploying; any single gap makes it a no-go." },
+            { front: "Difference between Authentication and Authorisation", back: "Authentication verifies identity (passwords, MFA), while Authorisation determines permissions (roles, policies)." }
+        ];
+
+        /* =========================================
+           DATA: QUIZ
+        ========================================= */
+        const quizData = [
+            {
+                question: "A data science team needs to train a highly specialized machine learning model. They require absolute control over the operating system, custom network configurations, and specific GPU hardware allocations. Which service model is the most appropriate choice?",
+                options: [
+                    { text: "Infrastructure as a Service (IaaS)", rationale: "This model provides the highest level of control, allowing the user to manage the OS, runtime, and applications while renting the raw compute power.", isCorrect: true },
+                    { text: "Platform as a Service (PaaS)", rationale: "While suitable for rapid deployment, this model abstracts away the underlying OS and network controls, limiting the deep customization requested.", isCorrect: false },
+                    { text: "Software as a Service (SaaS)", rationale: "This model abstracts everything except user configuration and data, offering the lowest level of control over hardware and operating systems.", isCorrect: false },
+                    { text: "Function as a Service (FaaS)", rationale: "This model abstracts away almost all server management, focusing solely on code execution, which conflicts with the need for custom OS and hardware control.", isCorrect: false }
+                ],
+                hint: "Think about the 'pizza analogy' and which option equates to renting a bare kitchen where you bring all your own ingredients and tools."
+            },
+            {
+                question: "A regional bank processes daily transactions on its own highly secure internal servers. However, at the end of every month, it requires massive, temporary computational power to run risk-analysis simulations. To meet this need without buying new servers, what deployment model should they adopt?",
+                options: [
+                    { text: "Hybrid Cloud", rationale: "This approach allows the bank to keep sensitive daily operations on a private infrastructure while bursting into the public cloud for temporary, heavy computational loads.", isCorrect: true },
+                    { text: "Public Cloud", rationale: "Moving all operations here might violate the bank's strict need to keep highly sensitive daily transaction data entirely on internal, privately owned servers.", isCorrect: false },
+                    { text: "Private Cloud", rationale: "Relying strictly on this model would require the bank to purchase and maintain expensive servers that sit idle for most of the month just to handle the end-of-month simulations.", isCorrect: false },
+                    { text: "Community Cloud", rationale: "This model is shared by organizations with common needs (like government agencies) but does not inherently address the bank's need to bridge its own internal servers with burstable public compute.", isCorrect: false }
+                ],
+                hint: "Consider the pattern of keeping sensitive data on-premises while moving anonymized or heavy compute tasks externally."
+            },
+            {
+                question: "An enterprise uses Google Workspace, a SaaS product, for all employee communications. If an employee uses a weak password, leading to a breach of internal company emails, who is primarily responsible according to the Shared Responsibility Model?",
+                options: [
+                    { text: "The enterprise customer", rationale: "Even in highly abstracted models, the customer retains absolute responsibility for securing their own data and managing user access and credentials.", isCorrect: true },
+                    { text: "The cloud provider", rationale: "The provider secures the underlying physical infrastructure and application security, but they do not control or enforce the strength of the customer's individual user passwords.", isCorrect: false },
+                    { text: "A third-party auditor", rationale: "Auditors assess compliance based on frameworks like SOC 2, but they do not hold operational responsibility for the daily security configurations of the tenant.", isCorrect: false },
+                    { text: "The network service provider", rationale: "ISPs facilitate the connection to the cloud service but have no jurisdiction or capability to manage application-level access controls or credential strength.", isCorrect: false }
+                ],
+                hint: "Recall the absolute rule regarding who owns data and access management across every single cloud abstraction layer."
+            },
+            {
+                question: "A startup is launching a new mobile game. They anticipate unpredictable spikes in user traffic and currently have very little capital to invest in physical hardware. Why is the cloud's financial model particularly advantageous for them?",
+                options: [
+                    { text: "It shifts spending from high upfront CapEx to pay-per-use OpEx.", rationale: "This shift allows organizations to avoid massive initial investments in physical servers and instead pay only for the resources they actually consume during traffic spikes.", isCorrect: true },
+                    { text: "It guarantees a sustained hardware utilization rate above 70%.", rationale: "Utilization rates are driven by user traffic and workload efficiency, not by the financial model of the cloud itself.", isCorrect: false },
+                    { text: "It reclassifies all operational expenses as depreciated physical assets.", rationale: "Depreciated assets are a characteristic of Capital Expenditure (CapEx), which involves buying and owning physical servers, the opposite of the cloud model.", isCorrect: false },
+                    { text: "It eliminates the need for any internal budget tracking or cost governance.", rationale: "Moving to a variable cost model actually increases the need for strict budget alerts and monitoring to prevent unexpected billing surprises.", isCorrect: false }
+                ],
+                hint: "Focus on the difference between buying expensive assets outright versus renting resources on a monthly, as-needed basis."
+            },
+            {
+                question: "To avoid a massive weekend bill caused by an engineer leaving high-powered GPU instances running, which combination of proactive cloud governance controls provides the best technical safeguard?",
+                options: [
+                    { text: "Budget alerts and auto-shutdown policies", rationale: "Budget thresholds trigger immediate notifications when spending spikes, while automated scripts forcefully terminate instances that have been idle for a set period.", isCorrect: true },
+                    { text: "SOC 2 audits and data classification tags", rationale: "These are important for third-party security verification and data protection, but they do not monitor or control the runtime states of compute instances.", isCorrect: false },
+                    { text: "Manual infrastructure reviews and AES-256 encryption", rationale: "Manual reviews are often too slow to catch issues over a weekend, and encryption secures data at rest but does not manage compute resource state or billing.", isCorrect: false },
+                    { text: "Multi-Factor Authentication (MFA) and Single Sign-On (SSO)", rationale: "These controls ensure that only the correct identities can access the environment, but they do not stop an authenticated user from leaving expensive resources running.", isCorrect: false }
+                ],
+                hint: "Consider the mechanisms that actively monitor spending thresholds and programmatically change the state of unused resources."
+            },
+            {
+                question: "A user invokes their right to erasure under GDPR. The database administrator quickly executes a SQL DELETE command on the primary production database and notifies the user. Based on data governance processes, what critical step was missed?",
+                options: [
+                    { text: "Discovering and removing the data from all secondary stores like backups and caches.", rationale: "Proper erasure requires an exhaustive search across all environments to ensure the data doesn't persist outside the main production database.", isCorrect: true },
+                    { text: "Encrypting the deleted records using AES-256 before confirming the deletion.", rationale: "If a record is successfully and permanently removed, there is nothing left to encrypt.", isCorrect: false },
+                    { text: "Creating a new customer-managed key (CMK) specifically for the deleted data.", rationale: "Key management relates to protecting existing data at rest, not the procedural steps required for regulatory data removal.", isCorrect: false },
+                    { text: "Transferring the deleted SQL records to a Tier 4 Restricted storage bucket.", rationale: "Moving the data to a higher security tier means it is still being retained, which directly violates the legal requirement to completely erase it.", isCorrect: false }
+                ],
+                hint: "Deleting a row in the main table doesn't account for where else that information might be temporarily held or archived for disaster recovery."
+            },
+            {
+                question: "A team consists of a Senior ML Engineer and a Junior Intern. You want to implement the principle of 'Least Privilege'. How should their IAM roles be designed?",
+                options: [
+                    { text: "The Engineer gets permissions to launch training instances; the Intern gets read-only dashboard access.", rationale: "This aligns perfectly with minimizing access, giving each user exactly what they need to perform their specific job functions and nothing more.", isCorrect: true },
+                    { text: "Both users receive Project Owner permissions, but the Intern is verbally instructed not to change billing.", rationale: "Verbal instructions are not technical controls and violate the concept of programmatically enforcing minimum necessary access.", isCorrect: false },
+                    { text: "The Engineer gets IAM policy modification rights to help manage the Intern's access.", rationale: "Granting an engineer the ability to change access policies is overly permissive and typically reserved for dedicated security or operations administrators.", isCorrect: false },
+                    { text: "Both users are assigned to an explicit 'Deny' group for all production resources to maximize security.", rationale: "While highly secure, this prevents both users from doing their jobs entirely, failing to balance security with necessary operational access.", isCorrect: false }
+                ],
+                hint: "Focus on the concept of granting the absolute minimum technical permissions required for an individual to perform their specific daily tasks."
+            },
+            {
+                question: "A healthcare provider is moving historical patient records to the cloud to meet a 7-year retention requirement. The records are highly sensitive (Tier 4) but will likely never be accessed again unless legally subpoenaed. What is the most compliant and cost-effective approach?",
+                options: [
+                    { text: "Store them in a Cold storage class (like S3 Glacier) with encryption at rest and strict IAM controls.", rationale: "Cold storage drastically reduces costs for infrequently accessed data, while encryption and IAM ensure Tier 4 compliance is maintained.", isCorrect: true },
+                    { text: "Store them in a Hot storage class (like S3 Standard) to ensure rapid retrieval during an audit.", rationale: "While retrieval is fast, paying premium rates for data that is rarely touched over 7 years is a massive failure in cost governance.", isCorrect: false },
+                    { text: "Anonymise the data completely, removing all identifiers, and store it in a public S3 bucket.", rationale: "Even if anonymised, placing legally mandated historical records into an unencrypted public space violates basic risk management and security principles.", isCorrect: false },
+                    { text: "Delete the data after 90 days to minimize the risk of a breach and save on long-term storage costs.", rationale: "This directly violates the legal mandate to retain the specific records for 7 years, regardless of the cost savings.", isCorrect: false }
+                ],
+                hint: "Look for a solution that combines long-term cost savings with the strict security controls necessary for highly restricted information."
+            },
+            {
+                question: "An organization wants to guarantee that every new storage container created in their cloud environment is automatically encrypted. Manual checklists have proven ineffective due to human error. What is the best cloud-native solution?",
+                options: [
+                    { text: "Deploy continuous monitoring tools like AWS Config or Azure Policy to evaluate resources in real-time.", rationale: "These automated rule engines constantly scan the environment and can instantly flag or remediate resources that fall out of compliance.", isCorrect: true },
+                    { text: "Schedule a weekly Python script to audit all resources and email a report to the security team.", rationale: "A weekly scan leaves a large window where unencrypted data could be exposed before the script runs and detects the issue.", isCorrect: false },
+                    { text: "Implement an explicit 'Deny' rule in IAM for all interns and junior developers.", rationale: "This prevents juniors from creating resources, but it doesn't stop a senior developer from accidentally creating an unencrypted bucket.", isCorrect: false },
+                    { text: "Require all developers to complete a SOC 2 certification before they are given cloud access.", rationale: "Education is important, but it does not replace the need for programmatically enforced, automated guardrails to catch inevitable human mistakes.", isCorrect: false }
+                ],
+                hint: "Consider the difference between periodic manual checks and systems that evaluate infrastructure states continuously as code."
+            },
+            {
+                question: "Before deploying a new application handling European customer data, a team completes a 10-point governance checklist. They score 9 out of 10, lacking only documented lifecycle rules for their storage. What is the correct action according to strict pre-deployment governance?",
+                options: [
+                    { text: "Halt the deployment until the storage lifecycle rules are documented and implemented.", rationale: "Governance frameworks act as absolute gates; proceeding with known gaps exposes the organization to compliance and financial risks.", isCorrect: true },
+                    { text: "Deploy the application but flag the lifecycle rules to be completed within the first 30 days.", rationale: "Allowing exceptions creates immediate technical debt and exposes the company to regulatory violations from day one of the deployment.", isCorrect: false },
+                    { text: "Deploy the application because a 90% compliance score exceeds the industry standard for risk management.", rationale: "In compliance and security, partial success is often treated as a total failure, especially when dealing with strictly regulated data.", isCorrect: false },
+                    { text: "Rely on the cloud provider's shared responsibility model to automatically manage the data lifecycle.", rationale: "Data governance and lifecycle management are exclusively the responsibility of the customer, not the infrastructure provider.", isCorrect: false }
+                ],
+                hint: "Consider whether governance frameworks are treated as flexible guidelines or absolute mandatory gates before going live."
+            }
+        ];
+
+        /* =========================================
+           TAB LOGIC
+        ========================================= */
+        function switchTab(tabId) {
+            // Hide all content
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            
+            // Reset Tab styling
+            document.getElementById('tab-flashcards').className = "px-6 py-3 text-lg font-medium border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition-colors duration-200";
+            document.getElementById('tab-quiz').className = "px-6 py-3 text-lg font-medium border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition-colors duration-200";
+            
+            // Activate selected
+            document.getElementById(`content-${tabId}`).classList.add('active');
+            document.getElementById(`tab-${tabId}`).className = "px-6 py-3 text-lg font-medium border-b-2 border-indigo-600 text-indigo-600 transition-colors duration-200";
+        }
+
+        /* =========================================
+           FLASHCARD LOGIC
+        ========================================= */
+        let currentCardIndex = 0;
+        const flashcardElement = document.getElementById('flashcard');
+        const frontText = document.getElementById('card-front-text');
+        const backText = document.getElementById('card-back-text');
+        const currentCardNum = document.getElementById('current-card-num');
+        const totalCardsNum = document.getElementById('total-cards-num');
+        const btnPrev = document.getElementById('btn-prev');
+        const btnNext = document.getElementById('btn-next');
+
+        function initFlashcards() {
+            totalCardsNum.innerText = flashcardsData.length;
+            renderCard();
+        }
+
+        function renderCard() {
+            // Remove flip state if present
+            flashcardElement.classList.remove('flipped');
+            
+            // Allow time for un-flip animation before changing text
+            setTimeout(() => {
+                const card = flashcardsData[currentCardIndex];
+                frontText.innerText = card.front;
+                backText.innerText = card.back;
+                currentCardNum.innerText = currentCardIndex + 1;
+                
+                // Button states
+                btnPrev.disabled = currentCardIndex === 0;
+                btnNext.disabled = currentCardIndex === flashcardsData.length - 1;
+            }, 150);
+        }
+
+        function flipCard() {
+            flashcardElement.classList.toggle('flipped');
+        }
+
+        function nextCard() {
+            if (currentCardIndex < flashcardsData.length - 1) {
+                currentCardIndex++;
+                renderCard();
+            }
+        }
+
+        function prevCard() {
+            if (currentCardIndex > 0) {
+                currentCardIndex--;
+                renderCard();
+            }
+        }
+
+        function shuffleCards() {
+            // Fisher-Yates shuffle
+            for (let i = flashcardsData.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [flashcardsData[i], flashcardsData[j]] = [flashcardsData[j], flashcardsData[i]];
+            }
+            currentCardIndex = 0;
+            renderCard();
+        }
+
+        /* =========================================
+           QUIZ LOGIC
+        ========================================= */
+        let currentQuizIndex = 0;
+        let score = 0;
+        let quizState = []; // Track questions and shuffled options
+
+        // Shuffle function for quiz options
+        function shuffleArray(array) {
+            const newArr = [...array];
+            for (let i = newArr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArr[i], newArr[j]] = [newArr[j], newArr[i]];
+            }
+            return newArr;
+        }
+
+        function initQuizState() {
+            quizState = quizData.map(q => ({
+                ...q,
+                shuffledOptions: shuffleArray(q.options),
+                answered: false
+            }));
+        }
+
+        function startQuiz() {
+            document.getElementById('quiz-intro').classList.add('hidden');
+            document.getElementById('quiz-results').classList.add('hidden');
+            document.getElementById('quiz-active').classList.remove('hidden');
+            
+            document.getElementById('q-total').innerText = quizData.length;
+            
+            currentQuizIndex = 0;
+            score = 0;
+            initQuizState();
+            updateScoreDisplay();
+            renderQuizQuestion();
+        }
+
+        function updateScoreDisplay() {
+            document.getElementById('quiz-score').innerText = score;
+        }
+
+        function updateProgressBar() {
+            const percent = ((currentQuizIndex + 1) / quizData.length) * 100;
+            document.getElementById('quiz-progress').style.width = `${percent}%`;
+        }
+
+        function renderQuizQuestion() {
+            const q = quizState[currentQuizIndex];
+            
+            // Update UI
+            document.getElementById('q-current').innerText = currentQuizIndex + 1;
+            document.getElementById('quiz-question-text').innerText = q.question;
+            updateProgressBar();
+            
+            // Reset hint
+            document.getElementById('hint-box').classList.add('hidden');
+            document.getElementById('hint-text').innerText = q.hint;
+            document.getElementById('btn-hint').classList.remove('hidden');
+            
+            // Hide Next button
+            document.getElementById('btn-next-question').classList.add('hidden');
+
+            // Render Options
+            const optionsContainer = document.getElementById('quiz-options');
+            optionsContainer.innerHTML = '';
+            
+            q.shuffledOptions.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left p-4 rounded-xl border-2 border-slate-200 hover:border-indigo-400 hover:bg-indigo-50 transition duration-200 group";
+                btn.innerHTML = `
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0 w-6 h-6 rounded-full border border-slate-300 flex items-center justify-center mr-3 mt-0.5 group-hover:border-indigo-400 option-circle"></div>
+                        <div>
+                            <span class="font-medium text-slate-700">${opt.text}</span>
+                            <div class="rationale-text hidden mt-2 text-sm"></div>
+                        </div>
+                    </div>
+                `;
+                btn.onclick = () => selectOption(index, btn, opt);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function selectOption(selectedIndex, btnElement, optionData) {
+            const q = quizState[currentQuizIndex];
+            if (q.answered) return; // Prevent multiple answers
+            
+            q.answered = true;
+            document.getElementById('btn-next-question').classList.remove('hidden');
+            document.getElementById('btn-hint').classList.add('hidden'); // hide hint button after answer
+
+            const optionsContainer = document.getElementById('quiz-options');
+            const allButtons = optionsContainer.children;
+
+            // Check if correct
+            if (optionData.isCorrect) {
+                score++;
+                updateScoreDisplay();
+            }
+
+            // Reveal answers
+            Array.from(allButtons).forEach((btn, idx) => {
+                btn.disabled = true;
+                btn.classList.remove('hover:border-indigo-400', 'hover:bg-indigo-50', 'cursor-pointer');
+                
+                const opt = q.shuffledOptions[idx];
+                const circle = btn.querySelector('.option-circle');
+                const rationaleDiv = btn.querySelector('.rationale-text');
+                
+                rationaleDiv.innerText = opt.rationale;
+                rationaleDiv.classList.remove('hidden');
+
+                if (opt.isCorrect) {
+                    btn.classList.add('border-emerald-500', 'bg-emerald-50');
+                    circle.classList.add('bg-emerald-500', 'border-emerald-500');
+                    circle.innerHTML = '<i class="fa-solid fa-check text-white text-xs"></i>';
+                    rationaleDiv.classList.add('text-emerald-700');
+                } else if (idx === selectedIndex) {
+                    // Selected wrong answer
+                    btn.classList.add('border-red-400', 'bg-red-50');
+                    circle.classList.add('bg-red-500', 'border-red-500');
+                    circle.innerHTML = '<i class="fa-solid fa-xmark text-white text-xs"></i>';
+                    rationaleDiv.classList.add('text-red-700');
+                } else {
+                    // Unselected wrong answer
+                    btn.classList.add('opacity-60');
+                    rationaleDiv.classList.add('text-slate-500');
+                }
+            });
+        }
+
+        function toggleHint() {
+            const hintBox = document.getElementById('hint-box');
+            hintBox.classList.toggle('hidden');
+        }
+
+        function nextQuizQuestion() {
+            if (currentQuizIndex < quizData.length - 1) {
+                currentQuizIndex++;
+                renderQuizQuestion();
+            } else {
+                showQuizResults();
+            }
+        }
+
+        function showQuizResults() {
+            document.getElementById('quiz-active').classList.add('hidden');
+            document.getElementById('quiz-results').classList.remove('hidden');
+            
+            document.getElementById('final-score').innerText = score;
+            
+            const messageEl = document.getElementById('result-message');
+            const iconEl = document.getElementById('result-icon');
+            
+            if (score === 10) {
+                iconEl.innerText = "🏆";
+                messageEl.innerHTML = "<strong>Outstanding!</strong> You have a masterful grasp of Cloud Computing and Governance principles.";
+            } else if (score >= 7) {
+                iconEl.innerText = "🌟";
+                messageEl.innerHTML = "<strong>Great job!</strong> You understand the core concepts well, just a few areas to brush up on.";
+            } else if (score >= 5) {
+                iconEl.innerText = "📚";
+                messageEl.innerHTML = "<strong>Good effort!</strong> Review the flashcards to strengthen your understanding of governance frameworks and service models.";
+            } else {
+                iconEl.innerText = "🧠";
+                messageEl.innerHTML = "<strong>Keep learning!</strong> The cloud is complex. Head over to the flashcards tab to review the foundational concepts before trying again.";
+            }
+        }
+
+        function resetQuiz() {
+            startQuiz();
+        }
+
+        // Initialize on load
+        window.onload = () => {
+            initFlashcards();
+        };
+
+    </script>
+</body>
+</html>
 
 
