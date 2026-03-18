@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud Computing & Big Data Analytics | Interactive Study Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+            overflow-x: hidden;
+        }
+        .nav-active {
+            background-color: #e0e7ff;
+            color: #4338ca;
+            border-left: 4px solid #4338ca;
+        }
+        .nav-item {
+            transition: all 0.2s ease-in-out;
+            border-left: 4px solid transparent;
+        }
+        .nav-item:hover {
+            background-color: #f1f5f9;
+        }
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+        .tab-active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .accordion-content {
+            display: none;
+        }
+        .accordion-content.open {
+            display: block;
+        }
+    </style>
+</head>
+<body class="flex flex-col md:flex-row min-h-screen">
+
+    <!-- Chosen Palette: Slate (Backgrounds/Text) and Indigo (Accents/Primary Actions), with Emerald/Rose for quiz feedback. -->
+    
+    <!-- Application Structure Plan: The application is designed as a dynamic study dashboard with a persistent side navigation. It is divided into four main functional areas based on active learning: 'Core Concepts' for reading and visual data consumption (using Chart.js to visualize the Shared Responsibility model), 'Case Studies' utilizing an accordion pattern to encourage active recall before revealing answers, 'Exam Prep' containing a functional JavaScript quiz engine for immediate feedback on MCQs/MSQs, and 'Glossary & Essays' featuring a searchable data table and flip-card style essays. This structure prevents cognitive overload, allowing the user to switch contexts based on their study hour (Hour 1: Concepts, Hour 2: Quiz, Hour 3: Essays). -->
+
+    <!-- Visualization & Content Choices: 
+    - Shared Responsibility Model -> Goal: Compare -> Viz: Stacked Bar Chart (Chart.js) -> Interaction: Hover tooltips -> Justification: Shows the shifting weight of responsibility visually better than a table. -> Method: Chart.js Canvas. 
+    - Case Studies -> Goal: Organize/Inform -> Viz: Accordion List -> Interaction: Click to reveal -> Justification: Forces the student to think of the answer before seeing the solution, increasing retention. -> Method: HTML/Tailwind + Vanilla JS.
+    - Exam MCQs/MSQs -> Goal: Inform/Test -> Viz: Interactive Quiz UI -> Interaction: Radio/Checkbox selection & auto-scoring -> Justification: Simulates the real exam environment. -> Method: Vanilla JS state management.
+    - Glossary -> Goal: Organize/Search -> Viz: Searchable Table -> Interaction: Text input filtering -> Justification: Fast access to acronym definitions during open-book study. -> Method: Vanilla JS filtering.
+    -->
+
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <nav class="w-full md:w-64 bg-white shadow-lg z-10 flex flex-col fixed md:sticky top-0 md:h-screen">
+        <div class="p-6 bg-indigo-600 text-white flex-shrink-0">
+            <h1 class="text-2xl font-bold tracking-tight">&#9729;&#65039; Cloud Master</h1>
+            <p class="text-sm mt-2 opacity-80">Mid-Term Exam Review</p>
+        </div>
+        <div class="flex-grow overflow-y-auto py-4 flex flex-row md:flex-col gap-1 px-2 scrollbar-hide">
+            <button onclick="navigate('intro')" id="btn-intro" class="nav-item nav-active flex items-center p-3 w-full text-left rounded-r-lg font-medium text-slate-700">
+                <span class="mr-3 text-lg">&#128218;</span> Dashboard
+            </button>
+            <button onclick="navigate('concepts')" id="btn-concepts" class="nav-item flex items-center p-3 w-full text-left rounded-r-lg font-medium text-slate-700">
+                <span class="mr-3 text-lg">&#128200;</span> Core Concepts
+            </button>
+            <button onclick="navigate('cases')" id="btn-cases" class="nav-item flex items-center p-3 w-full text-left rounded-r-lg font-medium text-slate-700">
+                <span class="mr-3 text-lg">&#128269;</span> Case Studies
+            </button>
+            <button onclick="navigate('quiz')" id="btn-quiz" class="nav-item flex items-center p-3 w-full text-left rounded-r-lg font-medium text-slate-700">
+                <span class="mr-3 text-lg">&#9989;</span> Exam Prep
+            </button>
+            <button onclick="navigate('essays')" id="btn-essays" class="nav-item flex items-center p-3 w-full text-left rounded-r-lg font-medium text-slate-700">
+                <span class="mr-3 text-lg">&#128172;</span> Short Essays
+            </button>
+            <button onclick="navigate('glossary')" id="btn-glossary" class="nav-item flex items-center p-3 w-full text-left rounded-r-lg font-medium text-slate-700">
+                <span class="mr-3 text-lg">&#128214;</span> Glossary
+            </button>
+        </div>
+    </nav>
+
+    <main class="flex-grow p-6 md:p-10 lg:p-14 w-full max-w-7xl mx-auto mt-20 md:mt-0">
+        
+        <section id="intro" class="tab-content tab-active">
+            <div class="bg-white rounded-2xl shadow-sm p-8 border border-slate-100 mb-8">
+                <h2 class="text-3xl font-extrabold text-slate-900 mb-4">Welcome to the Discipline of the Cloud</h2>
+                <p class="text-lg text-slate-600 mb-6 italic">"The cloud is not a destination — it is a discipline. Master the concepts here and you will recognize them in every data pipeline, API call, and architecture decision you encounter in your career."</p>
+                
+                <div class="bg-indigo-50 rounded-xl p-6 border border-indigo-100">
+                    <h3 class="text-xl font-bold text-indigo-900 mb-3">How to Use This Interactive Guide</h3>
+                    <p class="text-slate-700 mb-4">This portal translates the static 3-Hour Study Guide into an interactive learning environment. Follow this recommended study flow:</p>
+                    <ul class="space-y-3 text-slate-700">
+                        <li class="flex items-start"><span class="text-indigo-600 font-bold mr-2">&#10112;</span> <strong>Hour 1: Core Concepts & Case Studies.</strong> Explore the visual models and test your applied knowledge by clicking through the scenarios.</li>
+                        <li class="flex items-start"><span class="text-indigo-600 font-bold mr-2">&#10113;</span> <strong>Hour 2: Exam Prep (Quiz).</strong> Test your rote and applied knowledge using the interactive 80-question MCQ/MSQ engine.</li>
+                        <li class="flex items-start"><span class="text-indigo-600 font-bold mr-2">&#10114;</span> <strong>Hour 3: Essays & Synthesis.</strong> Read the essay prompts, draft your mental answer, and reveal the model answer to check your understanding. Use the Glossary to cement vocabulary.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow cursor-pointer" onclick="navigate('concepts')">
+                    <div class="text-4xl mb-4">&#128200;</div>
+                    <h4 class="text-lg font-bold text-slate-900">Chapters 1-6 Review</h4>
+                    <p class="text-slate-500 text-sm mt-2">NIST definitions, Service Models, Storage, Security, SOA, and Governance.</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow cursor-pointer" onclick="navigate('cases')">
+                    <div class="text-4xl mb-4">&#128269;</div>
+                    <h4 class="text-lg font-bold text-slate-900">Applied Case Studies</h4>
+                    <p class="text-slate-500 text-sm mt-2">Real-world scenarios from Netflix to Genomics Labs to test your architectural decision-making.</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow cursor-pointer" onclick="navigate('quiz')">
+                    <div class="text-4xl mb-4">&#9989;</div>
+                    <h4 class="text-lg font-bold text-slate-900">Interactive Exam</h4>
+                    <p class="text-slate-500 text-sm mt-2">Practice with 45 auto-grading MCQs and 35 MSQs to identify your weak spots immediately.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="concepts" class="tab-content">
+            <div class="mb-8">
+                <h2 class="text-3xl font-extrabold text-slate-900 mb-2">Core Conceptual Foundations</h2>
+                <p class="text-lg text-slate-600">This section synthesizes Chapters 1 through 6. Interact with the elements below to review the NIST characteristics, analyze the Shared Responsibility Model visually, and explore essential architectures.</p>
+            </div>
+
+            <div class="mb-12">
+                <h3 class="text-2xl font-bold text-slate-800 border-b-2 border-slate-200 pb-2 mb-6">The 5 Essential Characteristics (NIST SP 800-145)</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div class="bg-white p-5 rounded-lg border-l-4 border-indigo-500 shadow-sm hover:-translate-y-1 transition-transform">
+                        <h4 class="font-bold text-indigo-900 text-lg mb-2">1. On-demand self-service</h4>
+                        <p class="text-slate-600 text-sm">Spin up servers at 2 AM without calling anyone. No ticket, no waiting.</p>
+                    </div>
+                    <div class="bg-white p-5 rounded-lg border-l-4 border-indigo-500 shadow-sm hover:-translate-y-1 transition-transform">
+                        <h4 class="font-bold text-indigo-900 text-lg mb-2">2. Broad network access</h4>
+                        <p class="text-slate-600 text-sm">Resources are reachable from any device over standard protocols.</p>
+                    </div>
+                    <div class="bg-white p-5 rounded-lg border-l-4 border-indigo-500 shadow-sm hover:-translate-y-1 transition-transform">
+                        <h4 class="font-bold text-indigo-900 text-lg mb-2">3. Resource pooling</h4>
+                        <p class="text-slate-600 text-sm">One physical infrastructure serves many tenants simultaneously (multi-tenancy).</p>
+                    </div>
+                    <div class="bg-white p-5 rounded-lg border-l-4 border-indigo-500 shadow-sm hover:-translate-y-1 transition-transform">
+                        <h4 class="font-bold text-indigo-900 text-lg mb-2">4. Rapid elasticity</h4>
+                        <p class="text-slate-600 text-sm">Scale out for peak traffic, scale back in when demand drops.</p>
+                    </div>
+                    <div class="bg-white p-5 rounded-lg border-l-4 border-indigo-500 shadow-sm hover:-translate-y-1 transition-transform">
+                        <h4 class="font-bold text-indigo-900 text-lg mb-2">5. Measured service</h4>
+                        <p class="text-slate-600 text-sm">See exactly what you consumed and cost (Pay-as-you-go / PAYG).</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-12 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                <h3 class="text-2xl font-bold text-slate-800 mb-2">The Shared Responsibility Model</h3>
+                <p class="text-slate-600 mb-6 text-sm">This is the most common source of cloud breaches. The chart below illustrates how security responsibilities shift from the Customer (You) to the Provider across different service models. Hover over the segments to see examples of what is managed.</p>
+                <div class="chart-container">
+                    <canvas id="responsibilityChart"></canvas>
+                </div>
+                <div class="mt-6 text-sm text-slate-700 bg-slate-50 p-4 rounded-lg">
+                    <strong>The Flat Analogy:</strong> The building management (Provider) secures the main entrance and fire escapes. You, the tenant (Customer), are responsible for locking your own front door. If your window is left open, that's a customer failure, not an infrastructure failure.
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <h3 class="text-xl font-bold text-slate-800 mb-4">&#128194; Data Storage Architectures</h3>
+                    <ul class="space-y-4">
+                        <li class="border-b border-slate-100 pb-3">
+                            <strong class="text-indigo-700 block">Block Storage (AWS EBS)</strong>
+                            <span class="text-sm text-slate-600">Fixed-size blocks. Low latency, high IOPS. Best for relational databases (PostgreSQL) and VM boot volumes.</span>
+                        </li>
+                        <li class="border-b border-slate-100 pb-3">
+                            <strong class="text-indigo-700 block">File Storage (AWS EFS)</strong>
+                            <span class="text-sm text-slate-600">Hierarchical folders via NFS/SMB. Best for multi-user collaboration and shared scripts.</span>
+                        </li>
+                        <li>
+                            <strong class="text-indigo-700 block">Object Storage (AWS S3)</strong>
+                            <span class="text-sm text-slate-600">Flat namespace (buckets). Unstructured data, scalable, global ID. Best for Data Lakes and ML training datasets.</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <h3 class="text-xl font-bold text-slate-800 mb-4">&#9881;&#65039; Service-Oriented Architecture (SOA)</h3>
+                    <p class="text-sm text-slate-600 mb-4">A paradigm for organizing distributed capabilities. Services do one specific job, expose a well-defined interface, and are loosely coupled.</p>
+                    <div class="bg-slate-50 p-4 rounded border border-slate-200">
+                        <strong class="text-slate-800 block mb-2">SOAP vs. REST</strong>
+                        <div class="grid grid-cols-2 gap-2 text-sm">
+                            <div>
+                                <strong class="text-indigo-600">REST (Modern)</strong>
+                                <ul class="list-disc pl-4 text-slate-600 mt-1">
+                                    <li>Architectural Style</li>
+                                    <li>JSON, lightweight</li>
+                                    <li>Stateless, easily scalable</li>
+                                    <li>Standard for Web/ML APIs</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <strong class="text-indigo-600">SOAP (Legacy/Enterprise)</strong>
+                                <ul class="list-disc pl-4 text-slate-600 mt-1">
+                                    <li>Strict Protocol</li>
+                                    <li>XML, verbose</li>
+                                    <li>WS-Security built-in</li>
+                                    <li>Banking, Healthcare</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="cases" class="tab-content">
+            <div class="mb-8">
+                <h2 class="text-3xl font-extrabold text-slate-900 mb-2">Applied Case Studies</h2>
+                <p class="text-lg text-slate-600">Read the scenario, consider your architectural approach, and click the questions to reveal the answers. Active recall strengthens memory retention better than passive reading.</p>
+            </div>
+            
+            <div id="case-studies-container" class="space-y-6">
+            </div>
+        </section>
+
+        <section id="quiz" class="tab-content">
+            <div class="mb-8">
+                <h2 class="text-3xl font-extrabold text-slate-900 mb-2">Interactive Exam Simulator</h2>
+                <p class="text-lg text-slate-600">Select your answers and submit to receive immediate scoring and detailed explanations. This section contains exactly 45 MCQs and 35 MSQs (80 questions total).</p>
+            </div>
+
+            <div class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-200">
+                <div class="flex justify-between items-center mb-6 pb-4 border-b border-slate-100">
+                    <h3 class="text-xl font-bold text-slate-800" id="quiz-progress">Question 1 of X</h3>
+                    <div class="text-sm font-semibold py-1 px-3 bg-indigo-100 text-indigo-800 rounded-full" id="quiz-score-badge">Score: 0</div>
+                </div>
+
+                <div id="quiz-container">
+                </div>
+
+                <div id="quiz-controls" class="mt-8 flex justify-between items-center hidden flex-col md:flex-row gap-4">
+                    <div id="quiz-feedback" class="text-sm font-medium p-4 rounded-lg flex-grow w-full"></div>
+                    <button id="btn-next-q" onclick="nextQuestion()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg transition-colors flex-shrink-0 w-full md:w-auto">Next Question &#10140;</button>
+                </div>
+                
+                <div id="quiz-submit-area" class="mt-8">
+                    <button id="btn-submit-q" onclick="submitAnswer()" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 px-6 rounded-lg transition-colors">Submit Answer</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="essays" class="tab-content">
+            <div class="mb-8">
+                <h2 class="text-3xl font-extrabold text-slate-900 mb-2">Short Essay Prompts (15 Total)</h2>
+                <p class="text-lg text-slate-600">Mental rehearsal space. Read the prompt, formulate your 5-10 sentence answer considering the underlying architecture, then click to reveal the model response.</p>
+            </div>
+
+            <div id="essays-container" class="grid grid-cols-1 gap-6">
+            </div>
+        </section>
+
+        <section id="glossary" class="tab-content">
+            <div class="mb-8">
+                <h2 class="text-3xl font-extrabold text-slate-900 mb-2">Key Abbreviations Glossary</h2>
+                <p class="text-lg text-slate-600">Quickly lookup acronyms frequently used in cloud architecture exams.</p>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="p-4 border-b border-slate-200 bg-slate-50">
+                    <input type="text" id="glossary-search" onkeyup="filterGlossary()" placeholder="Search acronyms (e.g., IAM, JSON)..." class="w-full p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse" id="glossary-table">
+                        <thead>
+                            <tr class="bg-slate-100 text-slate-700 text-sm uppercase tracking-wider">
+                                <th class="p-4 font-bold border-b border-slate-200 w-1/3">Abbreviation</th>
+                                <th class="p-4 font-bold border-b border-slate-200">Full Form</th>
+                            </tr>
+                        </thead>
+                        <tbody id="glossary-body" class="text-slate-700">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // --- Navigation Logic ---
+        function navigate(sectionId) {
+            document.querySelectorAll('.tab-content').forEach(el => {
+                el.classList.remove('tab-active');
+            });
+            document.querySelectorAll('.nav-item').forEach(el => {
+                el.classList.remove('nav-active');
+            });
+            
+            document.getElementById(sectionId).classList.add('tab-active');
+            document.getElementById('btn-' + sectionId).classList.add('nav-active');
+            window.scrollTo(0,0);
+        }
+
+        // --- Chart.js Implementation ---
+        const ctx = document.getElementById('responsibilityChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['On-Premises', 'IaaS', 'PaaS', 'SaaS'],
+                datasets: [
+                    {
+                        label: 'Customer Manages (Security IN the cloud)',
+                        data: [100, 60, 30, 5],
+                        backgroundColor: '#4338ca', 
+                        borderWidth: 1,
+                        borderColor: '#312e81'
+                    },
+                    {
+                        label: 'Provider Manages (Security OF the cloud)',
+                        data: [0, 40, 70, 95],
+                        backgroundColor: '#cbd5e1',
+                        borderWidth: 1,
+                        borderColor: '#94a3b8'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            afterLabel: function(context) {
+                                const type = context.chart.data.labels[context.dataIndex];
+                                if (context.datasetIndex === 0) {
+                                    if(type === 'IaaS') return 'Apps, Data, Runtime, OS, IAM';
+                                    if(type === 'PaaS') return 'Apps, Data, IAM';
+                                    if(type === 'SaaS') return 'Data, Identity Access';
+                                } else {
+                                    if(type === 'IaaS') return 'Virtualization, Hardware, Network';
+                                    if(type === 'PaaS') return 'OS, Runtime, Virtualization, HW';
+                                    if(type === 'SaaS') return 'App Logic, OS, Network, HW';
+                                }
+                                return '';
+                            }
+                        }
+                    },
+                    legend: { position: 'bottom' }
+                },
+                scales: {
+                    x: { stacked: true, grid: { display: false } },
+                    y: { 
+                        stacked: true, 
+                        max: 100, 
+                        ticks: { callback: function(value) { return value + "%"; } }
+                    }
+                }
+            }
+        });
+
+        // --- Data: Case Studies ---
+        const caseStudies = [
+            {
+                title: "The Overprovisioned University Lab",
+                scenario: "A university's IT department has been running 50 large EC2 instances for a data science class. The semester ended 3 months ago, but no one shut the instances down. The university's cloud bill has tripled.",
+                q1: "Which NIST characteristic is being exploited inefficiently here?",
+                a1: "<strong>Measured service</strong> — Cloud charges for what you consume. The rapid elasticity characteristic was supposed to allow scale-down when demand dropped, but no auto-scaling policy was configured.",
+                q2: "What governance mechanism could have prevented this?",
+                a2: "Budget alerts, idle resource policies (AWS Config), tagging with lifecycle dates (course-end-date), or resource scheduling to automatically stop instances.",
+                q3: "How does this relate to CapEx vs. OpEx?",
+                a3: "CapEx would have required buying physical servers upfront (sunk cost). OpEx (cloud) makes the waste more visible and measurable, highlighting the decision not to terminate."
+            },
+            {
+                title: "The Startup and the Exposed S3 Bucket",
+                scenario: "DataSparrow stores anonymised clinical trial datasets on Amazon S3. A security researcher discovers the bucket's ACL allows public read access. No data has been stolen, but the breach must be reported.",
+                q1: "Under the Shared Responsibility Model, who is at fault?",
+                a1: "<strong>DataSparrow (the customer).</strong> AWS secured the infrastructure. The S3 ACL configuration is unambiguously the customer's responsibility. AWS did not configure the bucket as public.",
+                q2: "What three checks should the startup implement immediately?",
+                a2: "1. Enable Block Public Access. 2. Audit the bucket policy for wildcard principals. 3. Enable AWS CloudTrail to check if data was actually read.",
+                q3: "What regulation likely requires them to report this incident?",
+                a3: "<strong>GDPR</strong> (if EU citizens) or <strong>HIPAA</strong> (if US). GDPR mandates reporting to the supervisory authority within 72 hours."
+            },
+            {
+                title: "Choosing a Storage Architecture for a Genomics Lab",
+                scenario: "A lab generates: 1) raw DNA sequence files (hundreds of GB each, rarely read), 2) a relational database of patient metadata, 3) Python scripts shared among 12 researchers.",
+                q1: "Which storage architecture is right for each data type?",
+                a1: "1) DNA files -> <strong>Object Storage</strong> (S3). 2) Relational database -> <strong>Block Storage</strong> (EBS) for IOPS/ACID. 3) Shared scripts -> <strong>File Storage</strong> (EFS/NFS).",
+                q2: "What data classification issue should concern the lab director?",
+                a2: "Patient genomic data is highly sensitive PII. Must ensure data classification labels, encryption at rest (KMS), least-privilege IAM, and signed compliance agreements (BAA/DPA)."
+            }
+        ];
+
+        function renderCaseStudies() {
+            const container = document.getElementById('case-studies-container');
+            caseStudies.forEach((cs, idx) => {
+                const html = `
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                        <div class="bg-slate-50 p-6 border-b border-slate-200 cursor-pointer flex justify-between items-center hover:bg-slate-100 transition-colors" onclick="toggleAccordion('case-${idx}')">
+                            <div>
+                                <span class="text-xs font-bold text-indigo-600 uppercase tracking-wider">Case Study ${idx + 1}</span>
+                                <h3 class="text-xl font-bold text-slate-800 mt-1">${cs.title}</h3>
+                            </div>
+                            <span class="text-2xl text-slate-400" id="icon-case-${idx}">&#9660;</span>
+                        </div>
+                        <div class="p-6">
+                            <p class="text-slate-700 italic border-l-4 border-indigo-200 pl-4 mb-6">${cs.scenario}</p>
+                            
+                            <div id="case-${idx}" class="accordion-content space-y-4">
+                                <div class="bg-indigo-50 p-4 rounded-lg">
+                                    <p class="font-bold text-indigo-900 text-sm mb-1">Q: ${cs.q1}</p>
+                                    <p class="text-slate-700 text-sm">&#10140; ${cs.a1}</p>
+                                </div>
+                                <div class="bg-indigo-50 p-4 rounded-lg">
+                                    <p class="font-bold text-indigo-900 text-sm mb-1">Q: ${cs.q2}</p>
+                                    <p class="text-slate-700 text-sm">&#10140; ${cs.a2}</p>
+                                </div>
+                                <div class="bg-indigo-50 p-4 rounded-lg">
+                                    <p class="font-bold text-indigo-900 text-sm mb-1">Q: ${cs.q3}</p>
+                                    <p class="text-slate-700 text-sm">&#10140; ${cs.a3}</p>
+                                </div>
+                            </div>
+                            <button onclick="toggleAccordion('case-${idx}')" class="mt-4 text-sm text-indigo-600 font-semibold hover:text-indigo-800" id="btn-text-case-${idx}">Reveal Answers</button>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += html;
+            });
+        }
+
+        function toggleAccordion(id) {
+            const el = document.getElementById(id);
+            const icon = document.getElementById(`icon-${id}`);
+            const btn = document.getElementById(`btn-text-${id}`);
+            if (el.classList.contains('open')) {
+                el.classList.remove('open');
+                icon.innerHTML = '&#9660;';
+                if(btn) btn.innerText = "Reveal Answers";
+            } else {
+                el.classList.add('open');
+                icon.innerHTML = '&#9650;';
+                if(btn) btn.innerText = "Hide Answers";
+            }
+        }
+
+        // --- Data: 80 Questions (45 MCQs + 35 MSQs) ---
+        const quizData = [
+            // --- MCQs (1-45) ---
+            { type: 'mcq', q: "1. The Capital One data breach of 2019 was primarily caused by:", options: ["A vulnerability in AWS physical infrastructure", "An overly permissive IAM role on a cloud service", "An unpatched hypervisor", "Ransomware on on-premises servers"], correct: [1], explanation: "An overly permissive IAM role allowed access to S3 buckets. A customer configuration failure under the Shared Responsibility Model." },
+            { type: 'mcq', q: "2. Which storage architecture has the lowest latency and highest IOPS, making it ideal for relational databases?", options: ["Object Storage", "File Storage", "Block Storage", "Cold Archive Storage"], correct: [2], explanation: "Block storage divides disks into fixed-size blocks enabling direct, low-level I/O access for sub-millisecond latency." },
+            { type: 'mcq', q: "3. A Dockerfile is best described as:", options: ["A running instance", "Instructions for building a Docker image", "A Kubernetes YAML", "A registry entry"], correct: [1], explanation: "A Dockerfile is the 'recipe' for building a Docker image." },
+            { type: 'mcq', q: "4. According to NIST, which characteristic allows users to automatically request compute resources without human interaction?", options: ["Broad network access", "Resource pooling", "On-demand self-service", "Measured service"], correct: [2], explanation: "On-demand self-service enables users to provision resources autonomously." },
+            { type: 'mcq', q: "5. In the CAP theorem, what does the 'P' stand for?", options: ["Performance", "Partition Tolerance", "Persistence", "Parallelism"], correct: [1], explanation: "Partition Tolerance: the system continues to operate despite network failures dropping messages between nodes." },
+            { type: 'mcq', q: "6. Which cloud service model gives the customer the MOST control over the operating system?", options: ["SaaS", "PaaS", "IaaS", "FaaS"], correct: [2], explanation: "In IaaS, the customer manages the OS, runtime, data, and applications." },
+            { type: 'mcq', q: "7. What is the defining characteristic of a 'Hybrid Cloud'?", options: ["Uses multiple public clouds", "Combines on-premises infrastructure with a public cloud", "A cloud shared by specific organizations", "A cloud exclusively for one company"], correct: [1], explanation: "Hybrid cloud links on-premises (private) infrastructure with public cloud services." },
+            { type: 'mcq', q: "8. Which Big Data 'V' refers to the accuracy and trustworthiness of the data?", options: ["Volume", "Velocity", "Variety", "Veracity"], correct: [3], explanation: "Veracity refers to data quality and truthfulness." },
+            { type: 'mcq', q: "9. In Hadoop, which component is responsible for resource management and job scheduling?", options: ["HDFS", "MapReduce", "YARN", "Hive"], correct: [2], explanation: "YARN (Yet Another Resource Negotiator) manages cluster resources and schedules jobs." },
+            { type: 'mcq', q: "10. Spark is often faster than Hadoop MapReduce because it processes data:", options: ["On GPUs", "In-memory", "Using NoSQL", "On edge devices"], correct: [1], explanation: "Spark utilizes Resilient Distributed Datasets (RDDs) for in-memory processing, avoiding disk I/O bottlenecks." },
+            { type: 'mcq', q: "11. Which data architecture is characterized by storing raw, unstructured data in its native format?", options: ["Data Warehouse", "Relational Database", "Data Lake", "Data Mart"], correct: [2], explanation: "A Data Lake stores massive amounts of raw data (often in Object Storage) before it is structured for analysis." },
+            { type: 'mcq', q: "12. In a Serverless (FaaS) architecture, what triggers the execution of code?", options: ["A persistent server daemon", "Events (e.g., HTTP request, file upload)", "A manual console login", "A cron job only"], correct: [1], explanation: "Serverless functions are event-driven, running only when triggered by specific events." },
+            { type: 'mcq', q: "13. What is the primary purpose of a Hypervisor?", options: ["To containerize applications", "To route network traffic", "To abstract and isolate hardware resources into VMs", "To manage API gateways"], correct: [2], explanation: "A hypervisor (VMM) creates and runs virtual machines by abstracting physical hardware." },
+            { type: 'mcq', q: "14. A Type 1 bare-metal hypervisor installs:", options: ["On top of a host OS", "Directly on the physical hardware", "Inside a Docker container", "Within a web browser"], correct: [1], explanation: "Type 1 hypervisors interact directly with the hardware, offering better performance than Type 2." },
+            { type: 'mcq', q: "15. Which of the following is an example of PaaS?", options: ["AWS EC2", "Google Workspace", "Heroku", "A physical server"], correct: [2], explanation: "Heroku provides a platform allowing customers to develop, run, and manage applications without dealing with infrastructure." },
+            { type: 'mcq', q: "16. What does RTO stand for in disaster recovery?", options: ["Recovery Time Objective", "Return To Operations", "Resource Transfer Output", "Recovery Tolerance Origin"], correct: [0], explanation: "RTO is the maximum acceptable delay between the interruption of service and the restoration of service." },
+            { type: 'mcq', q: "17. What does RPO stand for?", options: ["Resource Processing Object", "Recovery Point Objective", "Redundant Point Operations", "Return Point Origin"], correct: [1], explanation: "RPO defines the maximum acceptable amount of data loss measured in time." },
+            { type: 'mcq', q: "18. Which AWS service is best suited for archiving data that is rarely accessed?", options: ["Amazon RDS", "Amazon S3 Glacier", "Amazon EBS", "Amazon DynamoDB"], correct: [1], explanation: "Glacier is a secure, durable, and extremely low-cost storage class for data archiving." },
+            { type: 'mcq', q: "19. In a microservices architecture, services communicate primarily via:", options: ["Shared memory", "Direct hardware interrupts", "Network-based APIs (like REST/gRPC)", "USB protocols"], correct: [2], explanation: "Microservices are loosely coupled and communicate over networks using standard protocols like HTTP/REST." },
+            { type: 'mcq', q: "20. The concept of 'Infrastructure as Code' (IaC) is best demonstrated by using:", options: ["Microsoft Word", "AWS Management Console GUI", "Terraform", "Photoshop"], correct: [2], explanation: "Terraform allows you to define and provision data center infrastructure using a declarative configuration language." },
+            { type: 'mcq', q: "21. A VPC (Virtual Private Cloud) provides:", options: ["A physical server rack", "A logically isolated section of the cloud network", "A managed database", "A global CDN"], correct: [1], explanation: "A VPC allows you to launch cloud resources into a virtual network that you define and control." },
+            { type: 'mcq', q: "22. The term 'Scale Out' refers to:", options: ["Adding more RAM to a server", "Adding more CPUs to a server", "Adding more instances/nodes to a cluster", "Upgrading the network bandwidth"], correct: [2], explanation: "Scaling out (horizontal scaling) means adding more machines to your pool of resources." },
+            { type: 'mcq', q: "23. 'Scale Up' refers to:", options: ["Adding more machines", "Increasing the size/power of an existing machine", "Deploying to multiple regions", "Decreasing latency"], correct: [1], explanation: "Scaling up (vertical scaling) involves upgrading the CPU, RAM, or storage of an existing server." },
+            { type: 'mcq', q: "24. What is the main advantage of Object Storage over File Storage?", options: ["It supports hierarchical folders perfectly", "It is infinitely scalable due to a flat namespace", "It has the lowest latency for databases", "It cannot be accessed via the internet"], correct: [1], explanation: "Object storage uses a flat namespace and metadata, allowing it to scale massively without the overhead of a complex file system hierarchy." },
+            { type: 'mcq', q: "25. Which acronym describes the principle of granting only the permissions necessary to complete a task?", options: ["CIA", "PoLP (Principle of Least Privilege)", "IAM", "RBAC"], correct: [1], explanation: "The Principle of Least Privilege states that a user/service should only have the bare minimum access rights required." },
+            { type: 'mcq', q: "26. Kubernetes is primarily used for:", options: ["Writing application code", "Container orchestration", "Database management", "Hardware virtualization"], correct: [1], explanation: "Kubernetes automates the deployment, scaling, and management of containerized applications." },
+            { type: 'mcq', q: "27. In big data analytics, 'ETL' stands for:", options: ["Extract, Transform, Load", "Execute, Transfer, Log", "Evaluate, Test, Launch", "Enterprise Technology Layer"], correct: [0], explanation: "ETL is the process of extracting data from systems, transforming it into a clean format, and loading it into a data warehouse." },
+            { type: 'mcq', q: "28. What is a key benefit of a Content Delivery Network (CDN)?", options: ["Executing heavy backend ML models", "Reducing latency by caching static assets close to users", "Providing block storage for databases", "Replacing IAM roles"], correct: [1], explanation: "CDNs distribute content to edge locations globally, reducing the physical distance data must travel to the end user." },
+            { type: 'mcq', q: "29. Which JSON structure represents an array?", options: ["{ \"name\": \"John\" }", "[ \"apple\", \"banana\" ]", "<name>John</name>", "name: John"], correct: [1], explanation: "In JSON, arrays are ordered lists of values enclosed in square brackets []." },
+            { type: 'mcq', q: "30. A 'multi-tenant' architecture means:", options: ["One customer has many servers", "Many customers share the same physical infrastructure securely", "The software is installed on a local desktop", "The database has multiple tables"], correct: [1], explanation: "Multi-tenancy allows a single instance of software or hardware to serve multiple distinct user groups (tenants) while keeping their data isolated." },
+            { type: 'mcq', q: "31. The AWS service that routes end users to Internet applications by translating names like www.example.com into IP addresses is:", options: ["AWS Direct Connect", "Amazon Route 53", "Amazon VPC", "AWS Transit Gateway"], correct: [1], explanation: "Route 53 is AWS's highly available and scalable cloud Domain Name System (DNS) web service." },
+            { type: 'mcq', q: "32. In Spark, what does 'Lazy Evaluation' mean?", options: ["Spark runs slowly", "Transformations are not executed until an Action is called", "Data is never deleted", "Spark waits for user input"], correct: [1], explanation: "Spark builds a DAG of transformations but does not execute them until an action (like count or collect) is triggered, optimizing the execution plan." },
+            { type: 'mcq', q: "33. Which of the following is a NoSQL database?", options: ["PostgreSQL", "MySQL", "Oracle RDBMS", "MongoDB"], correct: [3], explanation: "MongoDB is a document-oriented NoSQL database, unlike the others which use relational models." },
+            { type: 'mcq', q: "34. What is the primary function of an API Gateway?", options: ["To store object data", "To act as a single entry point for routing client requests to microservices", "To compile source code", "To provide physical network cables"], correct: [1], explanation: "An API Gateway manages and routes incoming API calls to the appropriate backend microservices, often handling auth and rate limiting." },
+            { type: 'mcq', q: "35. A fundamental principle of REST architectures is that they are:", options: ["Stateful", "Stateless", "XML-only", "Hardware-bound"], correct: [1], explanation: "REST APIs are stateless; each request from client to server must contain all the information needed to understand the request." },
+            { type: 'mcq', q: "36. Which cloud pricing model converts capital expenditure (CapEx) to operational expenditure (OpEx)?", options: ["Upfront server purchase", "Pay-as-you-go", "Five-year hardware lease", "On-premises data center build"], correct: [1], explanation: "Pay-as-you-go replaces large upfront fixed costs (CapEx) with variable, consumption-based monthly costs (OpEx)." },
+            { type: 'mcq', q: "37. Apache Kafka is primarily used for:", options: ["Relational data storage", "Distributed event streaming and messaging", "Virtual machine orchestration", "Static website hosting"], correct: [1], explanation: "Kafka is a distributed event streaming platform capable of handling trillions of events a day." },
+            { type: 'mcq', q: "38. In the Shared Responsibility Model, physical data center security is managed by:", options: ["The Cloud Provider", "The Customer", "A third-party auditor", "The local government"], correct: [0], explanation: "The cloud provider (AWS, Azure, GCP) is always responsible for the physical security of the data centers." },
+            { type: 'mcq', q: "39. What is a 'Spot Instance' in AWS?", options: ["A reserved server paid upfront", "Unused EC2 capacity available at a steep discount but can be interrupted", "A server dedicated to one customer", "A server used only for databases"], correct: [1], explanation: "Spot Instances offer spare compute capacity at steep discounts, but the provider can reclaim them with short notice." },
+            { type: 'mcq', q: "40. In MapReduce, what does the 'Reduce' function do?", options: ["Splits data into smaller blocks", "Filters and sorts data", "Aggregates and summarizes the outputs from the Map function", "Deletes old data"], correct: [2], explanation: "The Reduce function takes the intermediate key-value pairs generated by the Mapper and aggregates them into a final output." },
+            { type: 'mcq', q: "41. Which compliance standard pertains to the protection of credit card data?", options: ["HIPAA", "GDPR", "PCI-DSS", "FERPA"], correct: [2], explanation: "Payment Card Industry Data Security Standard (PCI-DSS) ensures all companies that process credit card information maintain a secure environment." },
+            { type: 'mcq', q: "42. What is 'Vendor Lock-in'?", options: ["Securing servers with physical locks", "When a customer cannot easily transition to a competitor's cloud due to proprietary tech", "Locking IAM accounts after 3 failed logins", "Using a VPN"], correct: [1], explanation: "Vendor lock-in occurs when switching to another cloud provider is prohibitively expensive or complex." },
+            { type: 'mcq', q: "43. A system that scales automatically based on CPU utilization is demonstrating:", options: ["Resource pooling", "Rapid elasticity", "Measured service", "Broad network access"], correct: [1], explanation: "Rapid elasticity allows the system to automatically provision and de-provision resources based on real-time demand." },
+            { type: 'mcq', q: "44. In HDFS, the default block size is typically:", options: ["4 KB", "1 MB", "128 MB or 256 MB", "1 GB"], correct: [2], explanation: "HDFS uses large block sizes (typically 128MB) to minimize disk seek time and optimize for streaming large datasets." },
+            { type: 'mcq', q: "45. Which tool is used to orchestrate complex data pipelines (DAGs)?", options: ["Apache Airflow", "Docker", "Amazon S3", "Git"], correct: [0], explanation: "Apache Airflow is a platform to programmatically author, schedule, and monitor workflows as Directed Acyclic Graphs (DAGs)." },
+
+            // --- MSQs (46-80) ---
+            { type: 'msq', q: "46. Under the Shared Responsibility Model in an IaaS environment, which of the following are the CUSTOMER's responsibility? (Select all that apply)", options: ["Physical server hardware", "Patching the guest OS on virtual machines", "Configuring IAM policies", "Hypervisor security", "Security group (firewall) rules"], correct: [1, 2, 4], explanation: "In IaaS, the provider owns hardware and hypervisor. The customer is responsible for everything above it: OS patching, IAM, and network/firewall configuration." },
+            { type: 'msq', q: "47. Which of the following are characteristics of object storage? (Select all that apply)", options: ["Hierarchical folder/file structure", "Flat namespace of objects inside a bucket", "Each object has associated metadata", "Best for low-latency database workloads", "Data accessed via HTTP/HTTPS APIs"], correct: [1, 2, 4], explanation: "Object storage uses a flat namespace (buckets), attaches metadata to objects, and is accessed via HTTP APIs. Hierarchical folders describe file storage; low-latency describes block storage." },
+            { type: 'msq', q: "48. Select the primary benefits of using Containers over Virtual Machines. (Select all that apply)", options: ["Containers share the host OS kernel", "Containers are lighter and start faster", "Containers require a hypervisor", "Containers provide better hardware isolation than VMs", "Containers ensure consistency across dev and prod environments"], correct: [0, 1, 4], explanation: "Containers share the OS kernel, making them lightweight and fast to boot, and they package code to ensure consistency. VMs provide better strict hardware isolation." },
+            { type: 'msq', q: "49. Which of the following are recognized cloud deployment models? (Select all that apply)", options: ["Public Cloud", "Private Cloud", "Relational Cloud", "Hybrid Cloud", "Community Cloud"], correct: [0, 1, 3, 4], explanation: "Public, Private, Hybrid, and Community are the four standard cloud deployment models." },
+            { type: 'msq', q: "50. Which statements are TRUE regarding Serverless computing? (Select all that apply)", options: ["There are no physical servers involved at all", "You pay only for the exact compute time used", "It requires you to manually patch the OS", "It scales automatically with the number of events", "AWS Lambda is an example"], correct: [1, 3, 4], explanation: "Serverless still uses physical servers (managed by the provider), but abstracts them away. You pay per execution, it auto-scales, and you don't manage the OS." },
+            { type: 'msq', q: "51. Identify the 'Vs' of Big Data. (Select all that apply)", options: ["Volume", "Velocity", "Virtualization", "Variety", "VPN"], correct: [0, 1, 3], explanation: "The core Vs of big data are Volume, Velocity, Variety (and often Veracity and Value). Virtualization and VPN are network/compute concepts." },
+            { type: 'msq', q: "52. What are the core components of the Apache Hadoop framework? (Select all that apply)", options: ["HDFS", "EC2", "YARN", "MapReduce", "S3"], correct: [0, 2, 3], explanation: "Hadoop's core consists of HDFS (storage), YARN (resource management), and MapReduce (processing). EC2 and S3 are AWS services." },
+            { type: 'msq', q: "53. Which of the following are NoSQL database types? (Select all that apply)", options: ["Relational", "Key-Value", "Document", "Graph", "Tabular"], correct: [1, 2, 3], explanation: "Key-Value (Redis), Document (MongoDB), and Graph (Neo4j) are common NoSQL database types." },
+            { type: 'msq', q: "54. Select the best practices for securing an AWS account. (Select all that apply)", options: ["Enable MFA on the root account", "Embed access keys directly in source code", "Use IAM roles for EC2 instances instead of long-term credentials", "Make all S3 buckets public by default", "Apply the Principle of Least Privilege"], correct: [0, 2, 4], explanation: "MFA, IAM roles, and PoLP are security best practices. Embedding keys and making buckets public are severe security risks." },
+            { type: 'msq', q: "55. Which factors contribute to the total cost of ownership (TCO) in an on-premises data center? (Select all that apply)", options: ["Hardware procurement", "Real estate and cooling", "Pay-as-you-go elastic API calls", "IT staff salaries for hardware maintenance", "Power consumption"], correct: [0, 1, 3, 4], explanation: "On-premises TCO includes physical servers, facility costs, power, and maintenance staff. Pay-as-you-go is a cloud OpEx characteristic." },
+            { type: 'msq', q: "56. Which of the following represent Infrastructure as Code (IaC) tools? (Select all that apply)", options: ["Terraform", "AWS CloudFormation", "Microsoft Excel", "Ansible", "Adobe Premiere"], correct: [0, 1, 3], explanation: "Terraform, CloudFormation, and Ansible are tools used to define and deploy infrastructure via code." },
+            { type: 'msq', q: "57. In a microservices architecture, which design patterns are commonly used? (Select all that apply)", options: ["Monolithic database", "API Gateway", "Circuit Breaker", "Service Discovery", "Shared global state variables"], correct: [1, 2, 3], explanation: "API Gateways, Circuit Breakers, and Service Discovery are essential microservice patterns. Monolithic DBs and shared state are anti-patterns." },
+            { type: 'msq', q: "58. What advantages does a Data Lake have over a traditional Data Warehouse? (Select all that apply)", options: ["Stores structured, semi-structured, and unstructured data", "Always provides sub-millisecond ACID transactions", "Uses schema-on-read rather than schema-on-write", "Is usually cheaper for massive scale data storage", "Eliminates the need for any data governance"], correct: [0, 2, 3], explanation: "Data Lakes store all data types using schema-on-read and are cost-effective at scale. They do NOT eliminate governance needs or guarantee sub-millisecond ACID transactions natively." },
+            { type: 'msq', q: "59. Which statements describe Apache Spark RDDs (Resilient Distributed Datasets)? (Select all that apply)", options: ["They are mutable (can be changed in place)", "They are immutable (cannot be changed once created)", "They are evaluated lazily", "They can be cached in memory", "They are stored entirely on a single machine"], correct: [1, 2, 3], explanation: "RDDs are immutable, lazily evaluated, partitioned across a cluster, and can be cached in RAM for speed." },
+            { type: 'msq', q: "60. Select the components necessary to establish a highly available web architecture. (Select all that apply)", options: ["A single EC2 instance", "A Load Balancer", "Auto Scaling Groups", "Deploying across multiple Availability Zones", "A single point of failure"], correct: [1, 2, 3], explanation: "High availability requires removing single points of failure via Load Balancers, Auto Scaling, and multi-AZ deployments." },
+            { type: 'msq', q: "61. Which of the following are characteristics of RESTful APIs? (Select all that apply)", options: ["Stateless communication", "Use of standard HTTP methods (GET, POST, PUT, DELETE)", "Requires XML for payloads", "Client-Server separation", "Maintains session state on the server"], correct: [0, 1, 3], explanation: "REST is stateless, uses standard HTTP verbs, and enforces client-server separation. It heavily uses JSON, not just XML, and does NOT maintain session state on the server." },
+            { type: 'msq', q: "62. What are the primary advantages of utilizing a Content Delivery Network (CDN)? (Select all that apply)", options: ["Decreased latency for global users", "Reduced load on the origin server", "Processing complex machine learning jobs", "DDoS mitigation capabilities", "Executing heavy database joins"], correct: [0, 1, 3], explanation: "CDNs cache content globally to reduce latency and origin load, and often provide edge security. They do not run ML jobs or DB joins." },
+            { type: 'msq', q: "63. Which services are considered 'Serverless' in AWS? (Select all that apply)", options: ["AWS Lambda", "Amazon EC2", "Amazon DynamoDB", "Amazon S3", "AWS Elastic Beanstalk"], correct: [0, 2, 3], explanation: "Lambda, DynamoDB, and S3 require no server provisioning and scale automatically. EC2 and Elastic Beanstalk involve server management." },
+            { type: 'msq', q: "64. Select the correct statements regarding Symmetric vs Asymmetric encryption. (Select all that apply)", options: ["Symmetric uses the same key for encryption and decryption", "Asymmetric uses a public key and a private key", "Symmetric is generally faster than Asymmetric", "Asymmetric uses the exact same key for both parties", "Symmetric is best for secure key exchange over public networks"], correct: [0, 1, 2], explanation: "Symmetric uses one fast key. Asymmetric uses a public/private pair and is slower, making it better for key exchange, while symmetric is better for bulk data." },
+            { type: 'msq', q: "65. What are common use cases for Apache Kafka? (Select all that apply)", options: ["Real-time log aggregation", "Website activity tracking", "Replacing an Oracle SQL database", "Stream processing", "Long-term cold archive storage"], correct: [0, 1, 3], explanation: "Kafka is designed for high-throughput, real-time event streaming. It is not an RDBMS replacement or a cold archive solution." },
+            { type: 'msq', q: "66. Which characteristics define an API? (Select all that apply)", options: ["Defines a contract for software interaction", "Hides internal implementation details", "Requires a physical UI for humans", "Allows different systems to communicate", "Is written exclusively in Python"], correct: [0, 1, 3], explanation: "APIs define software contracts, abstract internal logic, and enable system communication. They are language-agnostic and meant for machines, not humans." },
+            { type: 'msq', q: "67. Identify the benefits of Multi-tenancy in cloud computing. (Select all that apply)", options: ["Lower costs due to shared infrastructure", "Absolute physical isolation of data", "Efficient resource utilization for the provider", "Easier centralized updates and maintenance", "Customers have access to other customers' data"], correct: [0, 2, 3], explanation: "Multi-tenancy lowers costs, maximizes resource use, and simplifies updates. It provides *logical* isolation, not physical, and absolutely does NOT share data between tenants." },
+            { type: 'msq', q: "68. Which statements describe Kubernetes (K8s) correctly? (Select all that apply)", options: ["It is an open-source container orchestration platform", "It manages scaling of containers", "It replaces the need for a cloud provider", "It provides self-healing capabilities", "It uses 'Pods' as the smallest deployable unit"], correct: [0, 1, 3, 4], explanation: "K8s orchestrates containers, scales them, self-heals by restarting failed containers, and manages Pods. It runs *on top of* cloud infrastructure." },
+            { type: 'msq', q: "69. What are valid methods to scale a relational database? (Select all that apply)", options: ["Vertical scaling (adding RAM/CPU to the master node)", "Read replicas (for read-heavy workloads)", "Sharding (partitioning data across multiple databases)", "Converting it to a Data Lake", "Deploying a CDN in front of it"], correct: [0, 1, 2], explanation: "Scaling up, read replicas, and sharding are standard RDBMS scaling techniques. Data lakes and CDNs solve different architectural problems." },
+            { type: 'msq', q: "70. Which features are provided by AWS Identity and Access Management (IAM)? (Select all that apply)", options: ["User creation", "Granular permission policies", "Data encryption at rest", "Multi-Factor Authentication (MFA)", "Role-based access for EC2 instances"], correct: [0, 1, 3, 4], explanation: "IAM handles users, roles, policies, and MFA. Encryption at rest is handled by AWS KMS, not IAM." },
+            { type: 'msq', q: "71. In the context of disaster recovery, High Availability (HA) architectures typically involve: (Select all that apply)", options: ["A single monolithic server", "Geographic redundancy (Multi-AZ or Multi-Region)", "Automated failover mechanisms", "Manual tape backups only", "Load balancing traffic"], correct: [1, 2, 4], explanation: "HA relies on redundancy, load balancing, and automated failover to ensure continuous uptime." },
+            { type: 'msq', q: "72. Which of the following describe a 'Microservices' architecture? (Select all that apply)", options: ["All code compiled into a single executable", "Services are loosely coupled", "Services can be deployed independently", "A failure in one service always brings down the entire application", "Services communicate via lightweight protocols"], correct: [1, 2, 4], explanation: "Microservices are loosely coupled, independently deployable, and communicate via networks. They are designed so that a single failure does *not* crash the whole system." },
+            { type: 'msq', q: "73. What are key characteristics of a Data Warehouse? (Select all that apply)", options: ["Schema-on-write", "Stores unstructured image files", "Optimized for complex analytical queries (OLAP)", "Typically uses columnar storage formats", "Optimized for high-speed transactional inserts (OLTP)"], correct: [0, 2, 3], explanation: "Data warehouses enforce schema on write, are optimized for OLAP aggregations, and often use columnar storage. They do not store unstructured images or optimize for OLTP." },
+            { type: 'msq', q: "74. Identify valid reasons an organization might choose a Private Cloud deployment. (Select all that apply)", options: ["Strict regulatory compliance requires data to remain on-premises", "Desire to eliminate upfront CapEx", "Need for absolute physical control over hardware", "It is always cheaper than public cloud", "Legacy applications cannot be refactored for the public cloud"], correct: [0, 2, 4], explanation: "Private clouds offer physical control and help meet strict regulations or support legacy apps. They *increase* CapEx and are often more expensive than public cloud." },
+            { type: 'msq', q: "75. Which actions represent 'horizontal scaling'? (Select all that apply)", options: ["Upgrading from a 2-core to an 8-core CPU", "Adding 5 more identical web servers behind a load balancer", "Increasing the size of an EBS volume", "Adding worker nodes to a Kubernetes cluster", "Adding more RAM to a database server"], correct: [1, 3], explanation: "Horizontal scaling (scaling out) involves adding more distinct instances or nodes to share the load." },
+            { type: 'msq', q: "76. In an AWS environment, what does an Auto Scaling Group (ASG) do? (Select all that apply)", options: ["Ensures a minimum number of instances are running", "Scales out automatically when CPU metrics trigger an alarm", "Automatically rewrites application code for performance", "Replaces unhealthy instances", "Backs up databases automatically"], correct: [0, 1, 3], explanation: "ASGs maintain a minimum baseline, scale dynamically based on metrics, and perform health checks to replace failed instances." },
+            { type: 'msq', q: "77. Which are common Big Data file formats optimized for analytics? (Select all that apply)", options: ["CSV", "Apache Parquet", "TXT", "Apache ORC", "JPEG"], correct: [1, 3], explanation: "Parquet and ORC are highly optimized columnar storage formats used extensively in big data analytics for faster reads and high compression." },
+            { type: 'msq', q: "78. Select the statements that apply to SOAP APIs. (Select all that apply)", options: ["Uses XML exclusively for message formatting", "Is generally considered lighter and faster than REST", "Has built-in standards for security and transactions (WS-Security)", "Is heavily used in legacy enterprise and financial systems", "Uses JSON as the default payload"], correct: [0, 2, 3], explanation: "SOAP is a strict protocol using XML, known for its heavy footprint but strong built-in enterprise standards like WS-Security." },
+            { type: 'msq', q: "79. What distinguishes 'Edge Computing' from traditional Cloud Computing? (Select all that apply)", options: ["Processing occurs closer to the data source (IoT devices)", "It reduces latency by avoiding round-trips to a central data center", "It centralizes all data into one massive server", "It saves bandwidth by filtering data locally before sending it to the cloud", "It requires no hardware"], correct: [0, 1, 3], explanation: "Edge computing pushes processing to the network's edge (near the user/device) to cut latency and bandwidth usage." },
+            { type: 'msq', q: "80. Which of the following are valid uses for Amazon S3? (Select all that apply)", options: ["Hosting a static HTML/JS website", "Running a high-traffic SQL database", "Serving as the storage layer for a Data Lake", "Storing daily automated database backups", "Hosting the boot volume for an EC2 instance"], correct: [0, 2, 3], explanation: "S3 is perfect for static websites, data lakes, and backups. It cannot host databases (too high latency) or act as a boot volume (requires EBS block storage)." }
+        ];
+
+        let currentQIndex = 0;
+        let score = 0;
+
+        function renderQuiz() {
+            const container = document.getElementById('quiz-container');
+            const qData = quizData[currentQIndex];
+            document.getElementById('quiz-progress').innerText = `Question ${currentQIndex + 1} of ${quizData.length}`;
+            document.getElementById('quiz-score-badge').innerText = `Score: ${score}`;
+            
+            let typeHint = qData.type === 'msq' ? '<span class="text-xs bg-rose-100 text-rose-800 px-2 py-1 rounded ml-2 shadow-sm">Select multiple answers</span>' : '';
+            
+            let html = `<h4 class="text-lg font-bold text-slate-800 mb-4">${qData.q} ${typeHint}</h4><div class="space-y-3">`;
+            
+            qData.options.forEach((opt, idx) => {
+                let inputType = qData.type === 'mcq' ? 'radio' : 'checkbox';
+                let inputName = qData.type === 'mcq' ? 'quiz-mcq' : `quiz-msq-${idx}`;
+                html += `
+                    <label class="flex items-center p-4 border border-slate-200 rounded-lg cursor-pointer hover:bg-indigo-50 transition-colors group" id="label-opt-${idx}">
+                        <input type="${inputType}" name="${inputName}" value="${idx}" class="w-5 h-5 text-indigo-600 focus:ring-indigo-500">
+                        <span class="ml-3 text-slate-700 group-hover:text-indigo-900 leading-snug">${opt}</span>
+                    </label>
+                `;
+            });
+            html += `</div>`;
+            container.innerHTML = html;
+            
+            document.getElementById('quiz-controls').classList.add('hidden');
+            document.getElementById('quiz-submit-area').classList.remove('hidden');
+            document.getElementById('quiz-feedback').className = "text-sm font-medium p-4 rounded-lg flex-grow w-full";
+            document.getElementById('quiz-feedback').innerText = "";
+        }
+
+        function submitAnswer() {
+            const qData = quizData[currentQIndex];
+            let selected = [];
+            
+            if (qData.type === 'mcq') {
+                const checked = document.querySelector('input[name="quiz-mcq"]:checked');
+                if (checked) selected.push(parseInt(checked.value));
+            } else {
+                qData.options.forEach((_, idx) => {
+                    const cb = document.querySelector(`input[name="quiz-msq-${idx}"]`);
+                    if (cb.checked) selected.push(idx);
+                });
+            }
+
+            if (selected.length === 0) {
+                alert("Please select an answer.");
+                return;
+            }
+
+            // Disable inputs
+            document.querySelectorAll('input').forEach(el => el.disabled = true);
+
+            // Check correctness
+            const isCorrect = JSON.stringify(selected.sort()) === JSON.stringify(qData.correct.sort());
+            
+            const feedbackEl = document.getElementById('quiz-feedback');
+            if (isCorrect) {
+                if (qData.type === 'mcq') score++;
+                if (qData.type === 'msq') score += 2; // MSQs worth 2 points
+                feedbackEl.innerHTML = `<strong>&#10003; Correct!</strong> ${qData.explanation}`;
+                feedbackEl.classList.add('bg-emerald-100', 'text-emerald-800', 'border', 'border-emerald-200');
+            } else {
+                feedbackEl.innerHTML = `<strong>&#10007; Incorrect.</strong> ${qData.explanation}`;
+                feedbackEl.classList.add('bg-rose-100', 'text-rose-800', 'border', 'border-rose-200');
+            }
+
+            // Highlight answers
+            qData.options.forEach((_, idx) => {
+                const label = document.getElementById(`label-opt-${idx}`);
+                if (qData.correct.includes(idx)) {
+                    label.classList.replace('border-slate-200', 'border-emerald-500');
+                    label.classList.add('bg-emerald-50');
+                } else if (selected.includes(idx) && !qData.correct.includes(idx)) {
+                    label.classList.replace('border-slate-200', 'border-rose-500');
+                    label.classList.add('bg-rose-50');
+                }
+            });
+
+            document.getElementById('quiz-score-badge').innerText = `Score: ${score}`;
+            document.getElementById('quiz-submit-area').classList.add('hidden');
+            document.getElementById('quiz-controls').classList.remove('hidden');
+            
+            if (currentQIndex === quizData.length - 1) {
+                document.getElementById('btn-next-q').innerText = "Finish Review";
+            }
+        }
+
+        function nextQuestion() {
+            if (currentQIndex < quizData.length - 1) {
+                currentQIndex++;
+                renderQuiz();
+            } else {
+                let maxScore = 45 + (35 * 2); // 45 MCQs (1pt) + 35 MSQs (2pts)
+                document.getElementById('quiz-container').innerHTML = `
+                    <div class="text-center py-10">
+                        <div class="text-5xl mb-4">&#127881;</div>
+                        <h3 class="text-2xl font-bold text-slate-800 mb-2">Review Complete!</h3>
+                        <p class="text-lg text-slate-600">Final Score: ${score} out of ${maxScore}</p>
+                        <p class="text-sm text-slate-500 mt-2">MCQs = 1 pt | MSQs = 2 pts</p>
+                        <button onclick="currentQIndex=0; score=0; renderQuiz();" class="mt-6 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg shadow-md transition-transform hover:-translate-y-1">Restart Full Exam</button>
+                    </div>
+                `;
+                document.getElementById('quiz-controls').classList.add('hidden');
+            }
+        }
+
+        // --- Data: 15 Short Essay Questions ---
+        const essays = [
+            {
+                q: "Explain the difference between IaaS, PaaS, and SaaS. Use one concrete data science example for each.",
+                a: "IaaS (renting raw compute): You rent an EC2 GPU instance, manually install the host OS, CUDA drivers, and PyTorch environment. PaaS (provider manages OS/runtime): You use Databricks; you write a Spark job and the platform handles the underlying cluster and OS. SaaS (provider manages everything): You upload a CSV via a web browser to Google AutoML and receive a prediction model without touching infrastructure."
+            },
+            {
+                q: "What is the Shared Responsibility Model, and why does misunderstanding it lead to data breaches?",
+                a: "The model dictates that the Provider secures the 'security OF the cloud' (hardware, network, data centers, hypervisor) while the Customer secures the 'security IN the cloud' (IAM policies, OS patching, app code, data encryption). Misunderstanding leads to breaches because customers mistakenly assume the provider automatically secures everything; e.g., a customer leaves an S3 bucket publicly readable, resulting in a breach that is entirely the customer's fault."
+            },
+            {
+                q: "Explain what a DAG is in the context of Apache Airflow and data orchestration.",
+                a: "A Directed Acyclic Graph (DAG) represents a data pipeline where nodes represent distinct tasks and edges represent logical dependencies, explicitly forbidding loops (acyclic). It ensures tasks execute in the exact required order (e.g., Extract finishes before Transform begins) and allows orchestration tools to handle automated retries, parallel execution, and failure alerts elegantly."
+            },
+            {
+                q: "Contrast 'Scaling Up' (Vertical) with 'Scaling Out' (Horizontal). Give an advantage of each.",
+                a: "Scaling Up involves adding more power (CPU, RAM) to a single existing server. Advantage: It is simple and requires no application architecture changes. Scaling Out involves adding more distinct server instances to a pool behind a load balancer. Advantage: It allows for infinite theoretical scalability and provides high availability (if one node dies, others survive)."
+            },
+            {
+                q: "Compare Block Storage, File Storage, and Object Storage. Which is best for an image hosting website?",
+                a: "Block storage handles fixed-size chunks of data with ultra-low latency, ideal for databases. File storage organizes data in a hierarchical tree (folders/directories) accessible via protocols like NFS, ideal for shared workspaces. Object storage uses a flat namespace with metadata and global IDs, scaling infinitely via HTTP APIs. For an image hosting website, Object Storage (like S3) is best due to its massive scalability, low cost, and native web accessibility."
+            },
+            {
+                q: "What is the difference between a Type 1 and Type 2 Hypervisor?",
+                a: "A Type 1 hypervisor (Bare Metal) runs directly on the physical host hardware to control hardware and manage guest operating systems (e.g., VMware ESXi). It is highly performant and secure. A Type 2 hypervisor (Hosted) runs as a software application on top of a conventional host operating system (e.g., VirtualBox running on Windows). It is easier to set up for personal use but incurs significant performance overhead."
+            },
+            {
+                q: "Why are Docker containers generally preferred over Virtual Machines for microservices?",
+                a: "Virtual Machines require a full, heavy guest Operating System for every instance, consuming vast memory and CPU just to idle. Docker containers share the host machine's OS kernel, isolating only the application processes and dependencies. This makes containers exceptionally lightweight, allowing them to boot in milliseconds and enabling developers to pack significantly more microservices onto a single physical server."
+            },
+            {
+                q: "Briefly explain how the Hadoop MapReduce framework processes large datasets.",
+                a: "MapReduce splits massive datasets into smaller chunks. In the 'Map' phase, worker nodes process these chunks in parallel, filtering and sorting data into intermediate key-value pairs. In the 'Reduce' phase, other nodes aggregate these intermediate results based on the keys to generate the final summarized output. This paradigm brings the computation directly to the data rather than moving massive data over the network."
+            },
+            {
+                q: "What is 'Lazy Evaluation' in Apache Spark, and why does it improve performance?",
+                a: "In Spark, 'Transformations' (like map or filter) do not compute results immediately. Instead, Spark builds a logical execution plan (a DAG). It only executes the computations when an 'Action' (like count or save) is called. This lazy evaluation allows Spark's optimizer to analyze the entire pipeline, merge operations, and minimize disk/memory reads, vastly improving execution speed."
+            },
+            {
+                q: "Explain the architectural difference between a Data Warehouse and a Data Lake.",
+                a: "A Data Warehouse follows 'Schema-on-Write', meaning data must be heavily cleaned, structured, and transformed (ETL) before it is loaded into highly optimized relational tables for fast business intelligence querying. A Data Lake follows 'Schema-on-Read', accepting massive volumes of raw, unstructured, or semi-structured data (ELT) exactly as it arrives, deferring the structuring process until a data scientist explicitly needs to query it."
+            },
+            {
+                q: "Summarize the CAP Theorem in distributed databases.",
+                a: "The CAP theorem states that a distributed data store can only simultaneously provide two of three guarantees: Consistency (every read receives the most recent write), Availability (every request receives a non-error response), and Partition Tolerance (the system continues operating despite network failures dropping messages). Because network partitions are inevitable in the cloud, databases must inherently trade off between Consistency and Availability."
+            },
+            {
+                q: "What is Serverless Computing? Name one major benefit and one major drawback.",
+                a: "Serverless (FaaS) is an execution model where the cloud provider dynamically manages the allocation of machine resources, allowing developers to write and deploy code functions without provisioning or patching servers. Benefit: You pay only for the exact milliseconds your code runs, and it auto-scales instantly. Drawback: 'Cold starts' can introduce latency when a function is triggered after a period of inactivity."
+            },
+            {
+                q: "Define RPO and RTO in Disaster Recovery planning.",
+                a: "Recovery Point Objective (RPO) is the maximum acceptable amount of data loss, measured in time (e.g., an RPO of 1 hour means backups must happen hourly). Recovery Time Objective (RTO) is the maximum acceptable downtime before the service must be fully restored and operational (e.g., an RTO of 4 hours means IT has 4 hours to fix an outage). Lowering both values exponentially increases infrastructure costs."
+            },
+            {
+                q: "Describe a scenario where a company should use a Hybrid Cloud model rather than a pure Public Cloud.",
+                a: "A bank wants to launch a new, highly elastic mobile banking application but is legally restricted from storing sensitive customer financial records outside its own physical data center. A Hybrid Cloud architecture allows them to host the scalable web/app tiers in AWS (Public Cloud) while routing database queries back via a secure, dedicated connection to their on-premises mainframe (Private Cloud)."
+            },
+            {
+                q: "What does 'Vendor Lock-in' mean, and how can containerization help mitigate it?",
+                a: "Vendor lock-in occurs when a customer becomes highly dependent on a specific cloud provider's proprietary services (e.g., AWS DynamoDB), making migrating to a competitor technically difficult and prohibitively expensive. Containerization (via Docker/Kubernetes) mitigates this by abstracting the application and its dependencies into a portable, standardized unit that can run identically on AWS, Azure, Google Cloud, or an on-premises server."
+            }
+        ];
+
+        function renderEssays() {
+            const container = document.getElementById('essays-container');
+            essays.forEach((essay, idx) => {
+                const html = `
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 hover:shadow-md transition-shadow">
+                        <h3 class="text-lg font-bold text-slate-800 mb-3"><span class="text-indigo-600">Q${idx + 1}:</span> ${essay.q}</h3>
+                        <button onclick="toggleAccordion('essay-${idx}')" class="text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 py-2 px-4 rounded-lg mb-4 transition-colors font-semibold">Reveal Model Answer</button>
+                        <div id="essay-${idx}" class="accordion-content bg-indigo-50 border-l-4 border-indigo-500 p-5 rounded-r-lg shadow-inner">
+                            <p class="text-slate-800 text-sm leading-relaxed">${essay.a}</p>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += html;
+            });
+        }
+
+        // --- Data: Glossary ---
+        const glossaryRaw = [
+            { abbr: "API", full: "Application Programming Interface" },
+            { abbr: "AZ", full: "Availability Zone" },
+            { abbr: "CapEx", full: "Capital Expenditure" },
+            { abbr: "CDN", full: "Content Delivery Network" },
+            { abbr: "CIA", full: "Confidentiality, Integrity, Availability" },
+            { abbr: "DAG", full: "Directed Acyclic Graph" },
+            { abbr: "EBS", full: "Elastic Block Store (AWS)" },
+            { abbr: "EC2", full: "Elastic Compute Cloud (AWS)" },
+            { abbr: "GDPR", full: "General Data Protection Regulation" },
+            { abbr: "HIPAA", full: "Health Insurance Portability and Accountability Act" },
+            { abbr: "IaaS", full: "Infrastructure as a Service" },
+            { abbr: "IaC", full: "Infrastructure as Code" },
+            { abbr: "IAM", full: "Identity and Access Management" },
+            { abbr: "JSON", full: "JavaScript Object Notation" },
+            { abbr: "K8s", full: "Kubernetes" },
+            { abbr: "OpEx", full: "Operational Expenditure" },
+            { abbr: "PaaS", full: "Platform as a Service" },
+            { abbr: "REST", full: "Representational State Transfer" },
+            { abbr: "SaaS", full: "Software as a Service" },
+            { abbr: "SOA", full: "Service-Oriented Architecture" }
+        ];
+
+        function renderGlossary() {
+            const tbody = document.getElementById('glossary-body');
+            tbody.innerHTML = '';
+            glossaryRaw.forEach(item => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="p-4 border-b border-slate-100 font-mono font-bold text-indigo-700">${item.abbr}</td>
+                        <td class="p-4 border-b border-slate-100">${item.full}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        function filterGlossary() {
+            const term = document.getElementById('glossary-search').value.toLowerCase();
+            const rows = document.getElementById('glossary-body').getElementsByTagName('tr');
+            for(let i=0; i < rows.length; i++) {
+                const text = rows[i].innerText.toLowerCase();
+                if(text.includes(term)) {
+                    rows[i].style.display = "";
+                } else {
+                    rows[i].style.display = "none";
+                }
+            }
+        }
+
+        // Initialize Application
+        document.addEventListener('DOMContentLoaded', () => {
+            renderCaseStudies();
+            renderQuiz();
+            renderEssays();
+            renderGlossary();
+        });
+    </script>
+</body>
+</html>
+
+
+
