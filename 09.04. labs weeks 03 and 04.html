@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud Computing & Big Data Analytics - Lab Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chosen Palette: Warm Neutrals with Subtle Teal Accents (Stone, Teal, Amber) -->
+    <!-- Application Structure Plan: The SPA uses a sidebar-navigation dashboard structure. This allows students to non-linearly jump between the course overview, Week 03 (Cloud), Week 04 (Big Data), and Assessment criteria. This structure was chosen because a lab guide acts as both a sequential tutorial and a reference manual; a dashboard layout supports both learning flows perfectly without overwhelming the user with a massive wall of text. -->
+    <!-- Visualization & Content Choices: 
+         1. Ponderation/Weights -> Goal: Inform -> Viz: Doughnut Chart (Chart.js) -> Interaction: Hover tooltips -> Justification: Shows part-to-whole relationship clearly.
+         2. Grading Rubric -> Goal: Compare -> Viz: Horizontal Bar Chart (Chart.js) -> Interaction: Hover tooltips -> Justification: Easily compares point values across different criteria.
+         3. The 5 Vs of Big Data -> Goal: Inform/Organize -> Viz: Interactive Flip Cards (HTML/CSS/JS) -> Interaction: Click to flip -> Justification: Encourages active learning of key definitions.
+         4. Cloud Provider Comparison -> Goal: Compare -> Viz: Tabbed Interface (HTML/JS) -> Interaction: Click tabs -> Justification: Prevents clutter, allows side-by-side mental comparison.
+         5. Hadoop Ecosystem -> Goal: Organize/Relationships -> Viz: Interactive Grid (HTML/JS) -> Interaction: Click to reveal details -> Justification: Maps the ecosystem visually while keeping text descriptions hidden until requested. Library/Method confirms NO SVG/Mermaid. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container { height: 350px; }
+        }
+        .flip-card {
+            perspective: 1000px;
+            height: 160px;
+        }
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+        .flip-card.flipped .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+        .flip-card-front, .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 0.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        .flip-card-back {
+            transform: rotateY(180deg);
+        }
+        .nav-active {
+            background-color: #f5f5f4;
+            color: #0d9488;
+            border-right: 4px solid #0d9488;
+            font-weight: 600;
+        }
+        .tab-active {
+            border-bottom: 2px solid #0d9488;
+            color: #0d9488;
+            font-weight: 600;
+        }
+        .eco-item-active {
+            background-color: #0d9488;
+            color: white;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body class="bg-stone-50 text-stone-800 flex flex-col md:flex-row min-h-screen">
+
+    <nav class="w-full md:w-64 bg-white shadow-lg flex flex-col z-10 sticky top-0 md:h-screen">
+        <div class="p-6 border-b border-stone-100">
+            <h1 class="text-2xl font-bold text-stone-900 tracking-tight">Lab Guide</h1>
+            <p class="text-xs text-stone-500 mt-1 uppercase tracking-wider">Weeks 03 & 04</p>
+        </div>
+        <div class="flex flex-row md:flex-col overflow-x-auto md:overflow-visible">
+            <button onclick="navigate('overview')" id="btn-overview" class="nav-btn nav-active text-left px-6 py-4 hover:bg-stone-50 transition-colors whitespace-nowrap md:whitespace-normal">
+                &#127970; Overview & Scope
+            </button>
+            <button onclick="navigate('cloud')" id="btn-cloud" class="nav-btn text-left px-6 py-4 hover:bg-stone-50 transition-colors whitespace-nowrap md:whitespace-normal">
+                &#9729; Week 03: Cloud
+            </button>
+            <button onclick="navigate('bigdata')" id="btn-bigdata" class="nav-btn text-left px-6 py-4 hover:bg-stone-50 transition-colors whitespace-nowrap md:whitespace-normal">
+                &#128200; Week 04: Big Data
+            </button>
+            <button onclick="navigate('assessment')" id="btn-assessment" class="nav-btn text-left px-6 py-4 hover:bg-stone-50 transition-colors whitespace-nowrap md:whitespace-normal">
+                &#128203; Assessment & Trends
+            </button>
+        </div>
+        <div class="mt-auto p-6 hidden md:block">
+            <div class="bg-amber-50 border border-amber-200 p-4 rounded-lg text-xs text-amber-800">
+                <strong>&#9888; Disclaimer:</strong> Use authorised, sandboxed, or free-tier environments only. Do not enter payment details unadvised.
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-1 p-6 md:p-10 lg:p-14 overflow-y-auto w-full max-w-7xl mx-auto">
+        
+        <section id="sec-overview" class="nav-section block animate-fade-in">
+            <header class="mb-10">
+                <h2 class="text-4xl font-extrabold text-stone-900 mb-4">Cloud Computing and Big Data Analytics</h2>
+                <p class="text-lg text-stone-600 leading-relaxed max-w-3xl">
+                    This interactive dashboard outlines your continuous project for Weeks 03 and 04. You will explore major hyperscale cloud providers, deploy virtual machines, configure storage, and build a foundational understanding of distributed systems using Hadoop and Apache Spark.
+                </p>
+            </header>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-stone-200">
+                    <h3 class="text-xl font-bold mb-4 border-b pb-2 text-stone-800">Course Ponderation</h3>
+                    <p class="text-sm text-stone-600 mb-6">This segment (Weeks 03-04) holds the highest weight in your overall semester grade. Hover over the chart to see details.</p>
+                    <div class="chart-container">
+                        <canvas id="ponderationChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-stone-200 flex flex-col justify-center">
+                    <h3 class="text-xl font-bold mb-4 border-b pb-2 text-stone-800">Project Parameters</h3>
+                    <ul class="space-y-4">
+                        <li class="flex items-start">
+                            <span class="text-teal-600 mr-3 text-xl">&#9201;</span>
+                            <div>
+                                <strong class="block text-stone-800">Time Commitment</strong>
+                                <span class="text-sm text-stone-600">~8 hours per week across 6 distinct laboratory sessions.</span>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-teal-600 mr-3 text-xl">&#128221;</span>
+                            <div>
+                                <strong class="block text-stone-800">Final Output</strong>
+                                <span class="text-sm text-stone-600">A maximum 7-page A4 comprehensive report combining all four weeks of learning. Quality over quantity.</span>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-teal-600 mr-3 text-xl">&#128269;</span>
+                            <div>
+                                <strong class="block text-stone-800">Philosophy</strong>
+                                <span class="text-sm text-stone-600">Exploration and learning over blind replication. You are expected to research alternatives and be creative.</span>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="sec-cloud" class="nav-section hidden animate-fade-in">
+            <header class="mb-10">
+                <h2 class="text-3xl font-extrabold text-stone-900 mb-4">Week 03: Cloud Providers & Infrastructure</h2>
+                <p class="text-lg text-stone-600 leading-relaxed max-w-3xl">
+                    In this section, you will compare AWS, Azure, and GCP, establish your first cloud deployment, and distinguish between different data storage architectures in modern cloud computing.
+                </p>
+            </header>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-stone-200 overflow-hidden mb-12">
+                <div class="flex border-b border-stone-200 bg-stone-50 overflow-x-auto">
+                    <button onclick="switchTab('aws')" id="tab-aws" class="cloud-tab tab-active px-6 py-4 font-medium transition-colors">Amazon Web Services</button>
+                    <button onclick="switchTab('azure')" id="tab-azure" class="cloud-tab px-6 py-4 font-medium text-stone-500 hover:text-stone-800 transition-colors">Microsoft Azure</button>
+                    <button onclick="switchTab('gcp')" id="tab-gcp" class="cloud-tab px-6 py-4 font-medium text-stone-500 hover:text-stone-800 transition-colors">Google Cloud</button>
+                </div>
+                
+                <div class="p-8">
+                    <div id="content-aws" class="tab-content block">
+                        <h4 class="text-2xl font-bold text-stone-800 mb-4">AWS Profile</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <p class="text-sm text-stone-600 mb-2"><strong>Compute:</strong> EC2 (Elastic Compute Cloud)</p>
+                                <p class="text-sm text-stone-600 mb-2"><strong>Storage:</strong> S3 (Object), EBS (Block), EFS (File)</p>
+                                <p class="text-sm text-stone-600 mb-2"><strong>CLI Access:</strong> AWS CloudShell or local <code>aws cli</code></p>
+                                <div class="mt-4 p-4 bg-stone-100 rounded-lg font-mono text-xs text-stone-800">
+                                    aws s3 mb s3://my-unique-bucket-2026<br>
+                                    echo "Hello" > file.txt<br>
+                                    aws s3 cp file.txt s3://my-unique-bucket-2026/
+                                </div>
+                            </div>
+                            <div>
+                                <h5 class="font-semibold text-stone-800 mb-2">Session Task Goals</h5>
+                                <ul class="list-disc pl-5 text-sm text-stone-600 space-y-1">
+                                    <li>Create an S3 bucket and upload a file.</li>
+                                    <li>Generate SSH keys and launch a t2.micro instance.</li>
+                                    <li>Create and attach an EBS gp2 volume.</li>
+                                    <li>Ensure complete cleanup to avoid billing.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="content-azure" class="tab-content hidden">
+                        <h4 class="text-2xl font-bold text-stone-800 mb-4">Azure Profile</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <p class="text-sm text-stone-600 mb-2"><strong>Compute:</strong> Azure Virtual Machines</p>
+                                <p class="text-sm text-stone-600 mb-2"><strong>Storage:</strong> Blob Storage (Object), Managed Disks (Block)</p>
+                                <p class="text-sm text-stone-600 mb-2"><strong>CLI Access:</strong> Azure Cloud Shell or local <code>az cli</code></p>
+                                <div class="mt-4 p-4 bg-stone-100 rounded-lg font-mono text-xs text-stone-800">
+                                    az group create --name MyLabRG --location westeurope<br>
+                                    az storage account create --name mystorage<br>
+                                    az group delete --name MyLabRG --yes
+                                </div>
+                            </div>
+                            <div>
+                                <h5 class="font-semibold text-stone-800 mb-2">Session Task Goals</h5>
+                                <ul class="list-disc pl-5 text-sm text-stone-600 space-y-1">
+                                    <li>Establish a Resource Group and Storage Account.</li>
+                                    <li>Create an Ubuntu LTS Standard_B1s VM.</li>
+                                    <li>Connect via SSH and verify system resources.</li>
+                                    <li>Ensure complete cleanup to avoid billing.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="content-gcp" class="tab-content hidden">
+                        <h4 class="text-2xl font-bold text-stone-800 mb-4">GCP Profile</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <p class="text-sm text-stone-600 mb-2"><strong>Compute:</strong> Compute Engine</p>
+                                <p class="text-sm text-stone-600 mb-2"><strong>Storage:</strong> Cloud Storage (Object), Persistent Disk (Block)</p>
+                                <p class="text-sm text-stone-600 mb-2"><strong>CLI Access:</strong> Google Cloud Shell or local <code>gcloud</code></p>
+                                <div class="mt-4 p-4 bg-stone-100 rounded-lg font-mono text-xs text-stone-800">
+                                    gsutil mb -l europe-west1 gs://my-bucket-2026<br>
+                                    echo "Hello" > file.txt<br>
+                                    gsutil cp file.txt gs://my-bucket-2026/
+                                </div>
+                            </div>
+                            <div>
+                                <h5 class="font-semibold text-stone-800 mb-2">Session Task Goals</h5>
+                                <ul class="list-disc pl-5 text-sm text-stone-600 space-y-1">
+                                    <li>Deploy a Cloud Storage bucket using gsutil.</li>
+                                    <li>Provision a cloud VM instance.</li>
+                                    <li>Explore the regional architecture of the provider.</li>
+                                    <li>Ensure complete cleanup to avoid billing.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="text-2xl font-bold text-stone-800 mb-6">Cloud Storage Paradigms</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-xl border-t-4 border-teal-500 shadow-sm">
+                    <h4 class="font-bold text-lg mb-2">Object Storage</h4>
+                    <p class="text-sm text-stone-600 mb-4">Flat namespace accessed via HTTP APIs. Best for unstructured data, backups, and media.</p>
+                    <span class="inline-block bg-stone-100 text-stone-700 text-xs px-2 py-1 rounded">e.g., AWS S3</span>
+                </div>
+                <div class="bg-white p-6 rounded-xl border-t-4 border-teal-600 shadow-sm">
+                    <h4 class="font-bold text-lg mb-2">Block Storage</h4>
+                    <p class="text-sm text-stone-600 mb-4">Raw storage volumes attached directly to VMs, acting like physical hard drives for OS and databases.</p>
+                    <span class="inline-block bg-stone-100 text-stone-700 text-xs px-2 py-1 rounded">e.g., AWS EBS</span>
+                </div>
+                <div class="bg-white p-6 rounded-xl border-t-4 border-teal-700 shadow-sm">
+                    <h4 class="font-bold text-lg mb-2">File Storage</h4>
+                    <p class="text-sm text-stone-600 mb-4">Hierarchical shared file systems using standard protocols (NFS/SMB) for multiple simultaneous connections.</p>
+                    <span class="inline-block bg-stone-100 text-stone-700 text-xs px-2 py-1 rounded">e.g., AWS EFS</span>
+                </div>
+            </div>
+        </section>
+
+        <section id="sec-bigdata" class="nav-section hidden animate-fade-in">
+            <header class="mb-10">
+                <h2 class="text-3xl font-extrabold text-stone-900 mb-4">Week 04: Big Data & Distributed Systems</h2>
+                <p class="text-lg text-stone-600 leading-relaxed max-w-3xl">
+                    Understand why single-machine processing fails at scale. Explore the 5 Vs of Big Data, map the Hadoop ecosystem, and run your first PySpark data analysis on a distributed architecture framework.
+                </p>
+            </header>
+
+            <h3 class="text-2xl font-bold text-stone-800 mb-6">The 5 Vs of Big Data</h3>
+            <p class="text-sm text-stone-500 mb-6">Click on any card to reveal its definition and real-world example.</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-12">
+                
+                <div class="flip-card cursor-pointer" onclick="this.classList.toggle('flipped')">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front bg-teal-600 text-white shadow-md">
+                            <h4 class="text-xl font-bold">Volume</h4>
+                        </div>
+                        <div class="flip-card-back bg-white border border-teal-200 text-stone-800 shadow-md">
+                            <h5 class="font-bold text-sm text-teal-700 mb-1">Quantity of data</h5>
+                            <p class="text-xs">Ex: Petabytes of sensor logs generated daily.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flip-card cursor-pointer" onclick="this.classList.toggle('flipped')">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front bg-teal-600 text-white shadow-md">
+                            <h4 class="text-xl font-bold">Velocity</h4>
+                        </div>
+                        <div class="flip-card-back bg-white border border-teal-200 text-stone-800 shadow-md">
+                            <h5 class="font-bold text-sm text-teal-700 mb-1">Speed of generation</h5>
+                            <p class="text-xs">Ex: Real-time stock tickers and market ingestion.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flip-card cursor-pointer" onclick="this.classList.toggle('flipped')">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front bg-teal-600 text-white shadow-md">
+                            <h4 class="text-xl font-bold">Variety</h4>
+                        </div>
+                        <div class="flip-card-back bg-white border border-teal-200 text-stone-800 shadow-md">
+                            <h5 class="font-bold text-sm text-teal-700 mb-1">Different formats</h5>
+                            <p class="text-xs">Ex: Text, images, JSON, and unstructured binary.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flip-card cursor-pointer" onclick="this.classList.toggle('flipped')">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front bg-teal-600 text-white shadow-md">
+                            <h4 class="text-xl font-bold">Veracity</h4>
+                        </div>
+                        <div class="flip-card-back bg-white border border-teal-200 text-stone-800 shadow-md">
+                            <h5 class="font-bold text-sm text-teal-700 mb-1">Quality & trust</h5>
+                            <p class="text-xs">Ex: Managing noisy or corrupted IoT sensor data.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flip-card cursor-pointer" onclick="this.classList.toggle('flipped')">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front bg-amber-500 text-white shadow-md">
+                            <h4 class="text-xl font-bold">Value</h4>
+                        </div>
+                        <div class="flip-card-back bg-white border border-amber-200 text-stone-800 shadow-md">
+                            <h5 class="font-bold text-sm text-amber-600 mb-1">Actionable insight</h5>
+                            <p class="text-xs">Ex: Generating predictive maintenance alerts.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-stone-900 text-stone-100 rounded-2xl p-8 mb-12 shadow-xl">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                    <div>
+                        <h3 class="text-2xl font-bold mb-4 text-white">Interactive Hadoop Ecosystem</h3>
+                        <p class="text-sm text-stone-400 mb-6">Select a component to understand its role in the distributed processing framework.</p>
+                        
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                            <button onclick="showEcoInfo('hdfs')" id="eco-hdfs" class="eco-btn bg-stone-800 hover:bg-stone-700 p-3 rounded text-center text-sm font-semibold transition-all">HDFS</button>
+                            <button onclick="showEcoInfo('yarn')" id="eco-yarn" class="eco-btn bg-stone-800 hover:bg-stone-700 p-3 rounded text-center text-sm font-semibold transition-all">YARN</button>
+                            <button onclick="showEcoInfo('mapreduce')" id="eco-mapreduce" class="eco-btn bg-stone-800 hover:bg-stone-700 p-3 rounded text-center text-sm font-semibold transition-all">MapReduce</button>
+                            <button onclick="showEcoInfo('spark')" id="eco-spark" class="eco-btn bg-stone-800 hover:bg-stone-700 p-3 rounded text-center text-sm font-semibold transition-all border border-teal-500">Spark</button>
+                            <button onclick="showEcoInfo('hive')" id="eco-hive" class="eco-btn bg-stone-800 hover:bg-stone-700 p-3 rounded text-center text-sm font-semibold transition-all">Hive</button>
+                            <button onclick="showEcoInfo('kafka')" id="eco-kafka" class="eco-btn bg-stone-800 hover:bg-stone-700 p-3 rounded text-center text-sm font-semibold transition-all">Kafka</button>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-stone-800 rounded-xl p-6 border border-stone-700 flex flex-col justify-center min-h-[200px]">
+                        <div id="eco-display">
+                            <h4 class="text-xl font-bold text-teal-400 mb-2">Select a Component</h4>
+                            <p class="text-stone-300 text-sm">Click the buttons on the left to explore the distributed architecture.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="text-2xl font-bold text-stone-800 mb-4">Spark Execution Architecture</h3>
+            <div class="bg-white p-6 rounded-xl border border-stone-200 shadow-sm">
+                <p class="text-sm text-stone-600 mb-4">Apache Spark relies on a resilient architecture using RDDs (Resilient Distributed Datasets) and DataFrames, executing lazy transformations and fast in-memory DAGs (Directed Acyclic Graphs).</p>
+                <div class="bg-stone-50 p-4 rounded font-mono text-sm text-stone-800 whitespace-pre overflow-x-auto border border-stone-200">
+Driver Program
+└── SparkContext / SparkSession
+    ├── Cluster Manager (YARN/Standalone)
+    └── Worker Node 1               Worker Node 2
+        └── Executor                    └── Executor
+            ├── Task                        ├── Task
+            └── Cache                       └── Cache
+                </div>
+            </div>
+        </section>
+
+        <section id="sec-assessment" class="nav-section hidden animate-fade-in">
+            <header class="mb-10">
+                <h2 class="text-3xl font-extrabold text-stone-900 mb-4">Assessment & Future Trends</h2>
+                <p class="text-lg text-stone-600 leading-relaxed max-w-3xl">
+                    Review the grading rubric for your final report output and explore the cutting-edge trends shaping the future of cloud computing and big data.
+                </p>
+            </header>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-stone-200">
+                    <h3 class="text-xl font-bold mb-4 border-b pb-2 text-stone-800">Grading Rubric (100 Points)</h3>
+                    <p class="text-sm text-stone-600 mb-6">Ensure your 7-page report adequately addresses these technical and structural criteria.</p>
+                    <div class="chart-container">
+                        <canvas id="rubricChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-stone-200">
+                    <h3 class="text-xl font-bold mb-4 border-b pb-2 text-stone-800">Research Trends</h3>
+                    <p class="text-sm text-stone-600 mb-4">Your report conclusion must include research on at least two of the following industry trajectories:</p>
+                    <ul class="space-y-3">
+                        <li class="p-3 bg-stone-50 rounded border border-stone-100 hover:border-teal-300 transition-colors">
+                            <strong class="block text-stone-800">Serverless Computing</strong>
+                            <span class="text-xs text-stone-500">AWS Lambda, Azure Functions, GCP Cloud Run.</span>
+                        </li>
+                        <li class="p-3 bg-stone-50 rounded border border-stone-100 hover:border-teal-300 transition-colors">
+                            <strong class="block text-stone-800">Edge Computing</strong>
+                            <span class="text-xs text-stone-500">Convergence of cloud resources physically closer to data sources.</span>
+                        </li>
+                        <li class="p-3 bg-stone-50 rounded border border-stone-100 hover:border-teal-300 transition-colors">
+                            <strong class="block text-stone-800">MLOps & AI Integration</strong>
+                            <span class="text-xs text-stone-500">Operating machine learning pipelines natively within cloud platforms.</span>
+                        </li>
+                        <li class="p-3 bg-stone-50 rounded border border-stone-100 hover:border-teal-300 transition-colors">
+                            <strong class="block text-stone-800">Data Mesh Architecture</strong>
+                            <span class="text-xs text-stone-500">A decentralised, sociotechnical approach to enterprise data ownership.</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        const navSections = ['overview', 'cloud', 'bigdata', 'assessment'];
+        
+        function navigate(targetId) {
+            navSections.forEach(id => {
+                document.getElementById('sec-' + id).classList.add('hidden');
+                document.getElementById('sec-' + id).classList.remove('block');
+                document.getElementById('btn-' + id).classList.remove('nav-active');
+            });
+            document.getElementById('sec-' + targetId).classList.remove('hidden');
+            document.getElementById('sec-' + targetId).classList.add('block');
+            document.getElementById('btn-' + targetId).classList.add('nav-active');
+            
+            if (targetId === 'assessment' && !window.rubricChartRendered) {
+                renderRubricChart();
+                window.rubricChartRendered = true;
+            }
+        }
+
+        const cloudTabs = ['aws', 'azure', 'gcp'];
+        
+        function switchTab(tabId) {
+            cloudTabs.forEach(id => {
+                document.getElementById('content-' + id).classList.add('hidden');
+                document.getElementById('content-' + id).classList.remove('block');
+                document.getElementById('tab-' + id).classList.remove('tab-active');
+                document.getElementById('tab-' + id).classList.add('text-stone-500');
+            });
+            document.getElementById('content-' + tabId).classList.remove('hidden');
+            document.getElementById('content-' + tabId).classList.add('block');
+            document.getElementById('tab-' + tabId).classList.add('tab-active');
+            document.getElementById('tab-' + tabId).classList.remove('text-stone-500');
+        }
+
+        const ecoData = {
+            'hdfs': { title: 'HDFS', desc: 'Hadoop Distributed File System. The primary distributed storage layer that replicates data blocks across commodity hardware for fault tolerance.' },
+            'yarn': { title: 'YARN', desc: 'Yet Another Resource Negotiator. The cluster management technology responsible for allocating system resources to various distributed applications.' },
+            'mapreduce': { title: 'MapReduce', desc: 'The original batch processing framework. Splits data into chunks (Map) and aggregates the results (Reduce) using disk I/O.' },
+            'spark': { title: 'Apache Spark', desc: 'A fast, general-purpose distributed computing engine that operates primarily in-memory, making it significantly faster than traditional MapReduce.' },
+            'hive': { title: 'Apache Hive', desc: 'Provides a SQL-like interface to query data stored in HDFS, translating queries into MapReduce, Spark, or Tez jobs.' },
+            'kafka': { title: 'Apache Kafka', desc: 'A distributed event streaming platform used for high-throughput, low-latency data pipelines and real-time analytics.' }
+        };
+
+        function showEcoInfo(key) {
+            const btns = document.querySelectorAll('.eco-btn');
+            btns.forEach(btn => btn.classList.remove('eco-item-active'));
+            document.getElementById('eco-' + key).classList.add('eco-item-active');
+            
+            const display = document.getElementById('eco-display');
+            display.innerHTML = '<h4 class="text-2xl font-bold text-teal-400 mb-3">' + ecoData[key].title + '</h4><p class="text-stone-300 text-base leading-relaxed">' + ecoData[key].desc + '</p>';
+        }
+
+        const pondCtx = document.getElementById('ponderationChart').getContext('2d');
+        new Chart(pondCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Weeks 01-02 (Part 1)', 'Weeks 03-04 (Part 2)', 'Comprehensive Exam'],
+                datasets: [{
+                    data: [1, 2, 1],
+                    backgroundColor: ['#d6d3d1', '#0d9488', '#a8a29e'],
+                    borderWidth: 0,
+                    hoverOffset: 10
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { font: { family: "'Segoe UI', sans-serif" } } },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.label || '';
+                                if (label) { label += ': '; }
+                                label += 'Weight ' + context.raw + ' (25% per 1 point)';
+                                return label;
+                            }
+                        }
+                    }
+                },
+                cutout: '70%'
+            }
+        });
+
+        function renderRubricChart() {
+            const rubricCtx = document.getElementById('rubricChart').getContext('2d');
+            new Chart(rubricCtx, {
+                type: 'bar',
+                data: {
+                    labels: [
+                        ['Cloud Deployment', '(Screenshots/Commands)'],
+                        ['Provider Comparison', '(Depth & Accuracy)'],
+                        ['Ecosystem Diagrams', '(Quality/Completeness)'],
+                        ['Hadoop Install &', 'MapReduce Job'],
+                        ['Spark Analysis', '(EDA & Insights)'],
+                        ['Report Clarity', '& Originality']
+                    ],
+                    datasets: [{
+                        label: 'Points Available',
+                        data: [20, 15, 15, 20, 20, 10],
+                        backgroundColor: '#0d9488',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { beginAtZero: true, max: 25 },
+                        y: { ticks: { font: { size: 11, family: "'Segoe UI', sans-serif" } } }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+        
+        window.rubricChartRendered = false;
+    </script>
+</body>
+</html>
+
+
+

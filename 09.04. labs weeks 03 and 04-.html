@@ -1,0 +1,1718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cloud Computing & Big Data Analytics — Weeks 03 & 04 | cyber_soho × SIU</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;600&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:        #0b0d0f;
+  --bg2:       #111416;
+  --bg3:       #181b1e;
+  --border:    #242830;
+  --cyan:      #00e5c8;
+  --cyan-dim:  #00b09c;
+  --amber:     #f59e0b;
+  --red:       #ef4444;
+  --green:     #22c55e;
+  --text:      #c8cdd6;
+  --text-dim:  #626b7a;
+  --text-head: #eef0f4;
+  --mono:      'JetBrains Mono', monospace;
+  --sans:      'DM Sans', sans-serif;
+  --display:   'Syne', sans-serif;
+  --radius:    10px;
+  --glow:      0 0 18px rgba(0,229,200,.18), 0 0 40px rgba(0,229,200,.07);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.75;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── NOISE TEXTURE OVERLAY ─────────────────────────── */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+  opacity: .6;
+}
+
+/* ── SCROLLBAR ─────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--cyan-dim); }
+
+/* ── HEADER / HERO ─────────────────────────────────── */
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding: 80px 0 60px;
+  border-bottom: 1px solid var(--border);
+  background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(0,229,200,.08) 0%, transparent 70%);
+}
+
+.hero-grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(0,229,200,.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,229,200,.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+  mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, black 30%, transparent 100%);
+}
+
+.container { max-width: 1060px; margin: 0 auto; padding: 0 28px; }
+
+.hero-tag {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(0,229,200,.08);
+  border: 1px solid rgba(0,229,200,.2);
+  border-radius: 30px;
+  padding: 5px 14px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--cyan);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  margin-bottom: 24px;
+}
+
+.hero-tag::before { content: '●'; font-size: 8px; animation: blink 1.8s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
+
+h1.hero-title {
+  font-family: var(--display);
+  font-size: clamp(28px, 5vw, 52px);
+  font-weight: 800;
+  line-height: 1.1;
+  color: var(--text-head);
+  margin-bottom: 16px;
+  max-width: 740px;
+}
+
+h1.hero-title em {
+  font-style: normal;
+  color: var(--cyan);
+  display: block;
+}
+
+.hero-sub {
+  font-size: 15px;
+  color: var(--text-dim);
+  max-width: 600px;
+  margin-bottom: 36px;
+}
+
+.hero-meta {
+  display: flex; flex-wrap: wrap; gap: 16px;
+}
+
+.meta-chip {
+  display: flex; align-items: center; gap: 7px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px 14px;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+.meta-chip strong { color: var(--text-head); font-weight: 500; }
+.meta-chip .icon { font-size: 16px; }
+
+/* ── DISCLAIMER BOX ────────────────────────────────── */
+.disclaimer {
+  margin: 32px 0;
+  background: linear-gradient(135deg, rgba(239,68,68,.06) 0%, rgba(245,158,11,.04) 100%);
+  border: 1px solid rgba(239,68,68,.25);
+  border-left: 3px solid var(--red);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  position: relative;
+}
+.disclaimer-title {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--red);
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  margin-bottom: 8px;
+  display: flex; align-items: center; gap: 8px;
+}
+.disclaimer p { font-size: 13.5px; color: var(--text-dim); }
+.disclaimer strong { color: var(--amber); }
+
+/* ── STICKY NAV ────────────────────────────────────── */
+.sticky-nav {
+  position: sticky; top: 0;
+  z-index: 100;
+  background: rgba(11,13,15,.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+
+.nav-inner {
+  display: flex; align-items: center; gap: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 0 28px;
+  max-width: 1060px;
+  margin: 0 auto;
+}
+.nav-inner::-webkit-scrollbar { display: none; }
+
+.nav-link {
+  flex-shrink: 0;
+  padding: 14px 16px;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text-dim);
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  transition: color .2s, border-color .2s;
+  white-space: nowrap;
+}
+.nav-link:hover, .nav-link.active {
+  color: var(--cyan);
+  border-bottom-color: var(--cyan);
+}
+.nav-link span { color: var(--text-dim); margin-right: 4px; font-size: 10px; }
+
+/* ── PROGRESS TRACKER ──────────────────────────────── */
+.progress-bar {
+  height: 2px;
+  background: linear-gradient(90deg, var(--cyan), var(--amber));
+  width: 0%;
+  transition: width .1s;
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 200;
+}
+
+/* ── MAIN LAYOUT ───────────────────────────────────── */
+.main-content { padding: 48px 0 80px; }
+
+/* ── OVERVIEW CARDS ────────────────────────────────── */
+.overview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 48px;
+}
+
+.overview-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  transition: border-color .25s;
+}
+.overview-card:hover { border-color: rgba(0,229,200,.3); }
+
+.card-num {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--cyan);
+  letter-spacing: .1em;
+  margin-bottom: 6px;
+}
+.card-title {
+  font-family: var(--display);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-head);
+  margin-bottom: 6px;
+}
+.card-desc { font-size: 13px; color: var(--text-dim); }
+
+/* ── PONDERATION TABLE ─────────────────────────────── */
+.pond-table-wrap { margin-bottom: 48px; }
+
+/* ── SECTION TITLES ────────────────────────────────── */
+.week-label {
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 28px;
+  margin-top: 56px;
+}
+.week-badge {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  background: rgba(0,229,200,.1);
+  border: 1px solid rgba(0,229,200,.25);
+  color: var(--cyan);
+  padding: 4px 12px;
+  border-radius: 4px;
+}
+.week-line { flex: 1; height: 1px; background: var(--border); }
+
+/* ── SESSION ACCORDION ─────────────────────────────── */
+.session {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 16px;
+  overflow: hidden;
+  transition: border-color .25s;
+}
+.session:hover { border-color: rgba(0,229,200,.2); }
+.session.open { border-color: rgba(0,229,200,.35); }
+.session.open { box-shadow: var(--glow); }
+
+.session-header {
+  display: flex; align-items: center; gap: 16px;
+  padding: 20px 24px;
+  cursor: pointer;
+  user-select: none;
+  transition: background .2s;
+}
+.session-header:hover { background: rgba(0,229,200,.03); }
+
+.session-num {
+  width: 36px; height: 36px;
+  border-radius: 8px;
+  background: rgba(0,229,200,.1);
+  border: 1px solid rgba(0,229,200,.2);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--cyan);
+  flex-shrink: 0;
+}
+
+.session-info { flex: 1; }
+.session-day { font-family: var(--mono); font-size: 11px; color: var(--text-dim); margin-bottom: 2px; }
+.session-title {
+  font-family: var(--display);
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-head);
+}
+
+.session-meta { display: flex; gap: 8px; flex-shrink: 0; }
+.tag {
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 3px 9px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+}
+.tag.green { border-color: rgba(34,197,94,.3); color: var(--green); background: rgba(34,197,94,.06); }
+.tag.amber { border-color: rgba(245,158,11,.3); color: var(--amber); background: rgba(245,158,11,.06); }
+.tag.cyan  { border-color: rgba(0,229,200,.3); color: var(--cyan); background: rgba(0,229,200,.06); }
+
+.session-chevron {
+  color: var(--text-dim);
+  transition: transform .3s;
+  flex-shrink: 0;
+  font-size: 18px;
+}
+.session.open .session-chevron { transform: rotate(180deg); color: var(--cyan); }
+
+.session-body {
+  display: none;
+  padding: 0 24px 28px;
+  border-top: 1px solid var(--border);
+}
+.session.open .session-body { display: block; }
+
+/* ── STEP BLOCKS ───────────────────────────────────── */
+.step {
+  margin-top: 24px;
+  padding: 20px;
+  background: var(--bg3);
+  border-radius: var(--radius);
+  border-left: 3px solid var(--cyan);
+}
+.step-title {
+  font-family: var(--display);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--cyan);
+  margin-bottom: 10px;
+  display: flex; align-items: center; gap: 8px;
+}
+.step-title .step-n {
+  width: 20px; height: 20px;
+  background: var(--cyan);
+  color: var(--bg);
+  border-radius: 50%;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ── CODE BLOCKS ───────────────────────────────────── */
+.code-wrap {
+  position: relative;
+  margin: 16px 0;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.code-top {
+  display: flex; align-items: center; justify-content: space-between;
+  background: #12151a;
+  padding: 7px 14px;
+  border-bottom: 1px solid var(--border);
+}
+.code-lang {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: .1em;
+}
+.copy-btn {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-dim);
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 3px 10px;
+  cursor: pointer;
+  transition: color .2s, border-color .2s;
+}
+.copy-btn:hover { color: var(--cyan); border-color: rgba(0,229,200,.4); }
+.copy-btn.copied { color: var(--green); border-color: rgba(34,197,94,.4); }
+
+pre {
+  background: #0d1017;
+  padding: 18px 20px;
+  overflow-x: auto;
+  margin: 0;
+}
+code {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 1.7;
+  color: #abb2bf;
+}
+
+/* Syntax highlights */
+.kw { color: #c678dd; }
+.cm { color: #5c6370; font-style: italic; }
+.st { color: #98c379; }
+.fn { color: #61afef; }
+.nx { color: #e06c75; }
+.at { color: #d19a66; }
+
+/* ── TABLES ────────────────────────────────────────── */
+.table-wrap { overflow-x: auto; margin: 16px 0; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+th {
+  background: #12151a;
+  color: var(--cyan);
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  padding: 11px 14px;
+  border: 1px solid var(--border);
+  text-align: left;
+}
+td {
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  color: var(--text);
+  vertical-align: top;
+}
+tr:nth-child(even) td { background: rgba(255,255,255,.02); }
+tr:hover td { background: rgba(0,229,200,.025); }
+
+/* ── TIP BOXES ─────────────────────────────────────── */
+.tip {
+  margin: 16px 0;
+  padding: 14px 18px;
+  border-radius: var(--radius);
+  font-size: 13.5px;
+  display: flex; gap: 12px; align-items: flex-start;
+}
+.tip-icon { font-size: 17px; flex-shrink: 0; margin-top: 1px; }
+.tip.info { background: rgba(0,229,200,.05); border: 1px solid rgba(0,229,200,.15); }
+.tip.warn { background: rgba(239,68,68,.05); border: 1px solid rgba(239,68,68,.2); }
+.tip.idea { background: rgba(245,158,11,.05); border: 1px solid rgba(245,158,11,.2); }
+.tip.alt  { background: rgba(168,85,247,.05); border: 1px solid rgba(168,85,247,.2); }
+.tip a { color: var(--cyan); }
+
+/* ── OBJECTIVES LIST ───────────────────────────────── */
+.objectives {
+  background: rgba(0,229,200,.03);
+  border: 1px solid rgba(0,229,200,.1);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  margin-bottom: 16px;
+}
+.objectives-title {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--cyan);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.objectives ul { padding-left: 18px; }
+.objectives li { margin-bottom: 4px; font-size: 13.5px; }
+
+/* ── ECOSYSTEM DIAGRAM ─────────────────────────────── */
+.ecosystem-diagram {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin: 16px 0;
+  font-family: var(--mono);
+  font-size: 12px;
+}
+.ecosystem-row {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  justify-content: center;
+  margin: 8px 0;
+}
+.eco-box {
+  padding: 7px 14px;
+  border-radius: 6px;
+  border: 1px solid;
+  font-size: 12px;
+  transition: transform .2s;
+  cursor: default;
+}
+.eco-box:hover { transform: translateY(-2px); }
+.eco-box.storage { border-color: rgba(0,229,200,.4); color: var(--cyan); background: rgba(0,229,200,.07); }
+.eco-box.resource { border-color: rgba(245,158,11,.4); color: var(--amber); background: rgba(245,158,11,.07); }
+.eco-box.processing { border-color: rgba(168,85,247,.4); color: #c084fc; background: rgba(168,85,247,.07); }
+.eco-box.query { border-color: rgba(34,197,94,.4); color: var(--green); background: rgba(34,197,94,.07); }
+.eco-box.stream { border-color: rgba(239,68,68,.4); color: #f87171; background: rgba(239,68,68,.07); }
+.eco-arrow { text-align: center; color: var(--text-dim); font-size: 18px; margin: 4px 0; }
+
+/* ── 5Vs TABLE ─────────────────────────────────────── */
+.vs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin: 16px 0;
+}
+.v-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  text-align: center;
+  transition: border-color .2s;
+}
+.v-card:hover { border-color: rgba(0,229,200,.3); }
+.v-big { font-family: var(--display); font-size: 28px; font-weight: 800; color: var(--cyan); margin-bottom: 4px; }
+.v-name { font-family: var(--mono); font-size: 12px; color: var(--text-head); margin-bottom: 6px; }
+.v-desc { font-size: 12px; color: var(--text-dim); }
+
+/* ── REPORT STRUCTURE ──────────────────────────────── */
+.report-structure {
+  counter-reset: section;
+  margin: 16px 0;
+}
+.report-item {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 12px 16px;
+  border-radius: 6px;
+  margin-bottom: 6px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  font-size: 13.5px;
+  transition: background .2s;
+}
+.report-item:hover { background: rgba(0,229,200,.04); }
+.report-item-num {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--cyan);
+  font-weight: 600;
+  width: 20px;
+  flex-shrink: 0;
+}
+.report-item-content { flex: 1; }
+.report-item-title { font-weight: 500; color: var(--text-head); }
+.report-item-desc { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+.report-item-pages { font-family: var(--mono); font-size: 11px; color: var(--amber); white-space: nowrap; }
+
+/* ── GRADING RUBRIC ────────────────────────────────── */
+.rubric-bar {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 10px;
+}
+.rubric-label { font-size: 13px; color: var(--text); min-width: 240px; flex-shrink: 0; }
+.rubric-track {
+  flex: 1; height: 6px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.rubric-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--cyan), var(--cyan-dim));
+  transform-origin: left;
+  transform: scaleX(0);
+  transition: transform .8s cubic-bezier(.22,1,.36,1);
+}
+.rubric-fill.animate { transform: scaleX(1); }
+.rubric-pts { font-family: var(--mono); font-size: 12px; color: var(--cyan); min-width: 32px; text-align: right; }
+
+/* ── FUTURE TRENDS ─────────────────────────────────── */
+.trends-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+  margin: 16px 0;
+}
+.trend-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px;
+  transition: border-color .25s, transform .25s;
+}
+.trend-card:hover { border-color: rgba(0,229,200,.3); transform: translateY(-3px); }
+.trend-icon { font-size: 24px; margin-bottom: 8px; }
+.trend-name { font-family: var(--display); font-size: 14px; font-weight: 700; color: var(--text-head); margin-bottom: 4px; }
+.trend-desc { font-size: 12.5px; color: var(--text-dim); }
+.trend-link { display: inline-block; margin-top: 8px; font-family: var(--mono); font-size: 11px; color: var(--cyan); text-decoration: none; }
+.trend-link:hover { text-decoration: underline; }
+
+/* ── SECTION HEADERS ───────────────────────────────── */
+h2 {
+  font-family: var(--display);
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text-head);
+  margin-bottom: 16px;
+  margin-top: 40px;
+}
+h3 {
+  font-family: var(--display);
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-head);
+  margin-bottom: 12px;
+  margin-top: 24px;
+}
+p { margin-bottom: 12px; color: var(--text); }
+a { color: var(--cyan); text-decoration: none; }
+a:hover { text-decoration: underline; }
+strong { color: var(--text-head); font-weight: 600; }
+ul, ol { padding-left: 22px; margin-bottom: 12px; }
+li { margin-bottom: 5px; }
+
+/* ── DIVIDER ───────────────────────────────────────── */
+.divider { height: 1px; background: var(--border); margin: 40px 0; }
+
+/* ── QUICK REF PANEL ───────────────────────────────── */
+.quick-ref {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin: 32px 0;
+}
+.quick-ref-title {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--cyan);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  display: flex; align-items: center; gap: 8px;
+}
+.qr-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+}
+.qr-item {
+  display: flex; flex-direction: column;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  text-decoration: none;
+  transition: border-color .2s;
+}
+.qr-item:hover { border-color: rgba(0,229,200,.35); }
+.qr-item-label { font-size: 12.5px; color: var(--text-head); font-weight: 500; margin-bottom: 3px; }
+.qr-item-url { font-family: var(--mono); font-size: 10px; color: var(--text-dim); }
+
+/* ── FOOTER ────────────────────────────────────────── */
+footer.site-footer {
+  background: #0d0f11;
+  border-top: 1px solid var(--border);
+  padding: 28px 0;
+}
+
+/* ── CHECKLIST ─────────────────────────────────────── */
+.checklist { list-style: none; padding: 0; }
+.checklist li {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255,255,255,.04);
+  font-size: 13.5px;
+}
+.checklist li:last-child { border-bottom: none; }
+.chk {
+  width: 18px; height: 18px;
+  border: 1.5px solid var(--border);
+  border-radius: 4px;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: background .2s, border-color .2s;
+  margin-top: 2px;
+}
+.chk.done { background: var(--cyan); border-color: var(--cyan); }
+.chk.done::after { content: '✓'; font-size: 11px; color: var(--bg); font-weight: 700; }
+.chk-label.done { text-decoration: line-through; color: var(--text-dim); }
+
+/* ── ANIMATIONS ────────────────────────────────────── */
+.fade-in {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity .55s ease, transform .55s ease;
+}
+.fade-in.visible { opacity: 1; transform: none; }
+
+/* ── RESPONSIVE ────────────────────────────────────── */
+@media (max-width: 640px) {
+  .session-meta { display: none; }
+  h1.hero-title { font-size: 26px; }
+  .qr-grid { grid-template-columns: 1fr; }
+  .rubric-label { min-width: 150px; font-size: 12px; }
+}
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="container">
+    <div class="hero-tag">Weeks 03 &amp; 04 &nbsp;·&nbsp; Ponderation 1–2–1</div>
+    <h1 class="hero-title">Cloud Computing<em>&amp; Big Data Analytics</em></h1>
+    <p class="hero-sub">A practical, step-by-step laboratory guide for Digital Science students at Schiller International University. Six sessions, six deliverables, one complete project segment.</p>
+    <div class="hero-meta">
+      <div class="meta-chip"><span class="icon">⏱</span><strong>~8 hrs/week</strong>&nbsp;· 6 sessions</div>
+      <div class="meta-chip"><span class="icon">📄</span>Max <strong>7 pages A4</strong> report</div>
+      <div class="meta-chip"><span class="icon">⚖️</span>Weight <strong>×2</strong> of final grade</div>
+      <div class="meta-chip"><span class="icon">🎓</span>Newbie–Graduate level</div>
+    </div>
+  </div>
+</section>
+
+<!-- NAV -->
+<nav class="sticky-nav">
+  <div class="nav-inner">
+    <a class="nav-link" href="#overview"><span>#</span>Overview</a>
+    <a class="nav-link" href="#week3"><span>#</span>Week 03</a>
+    <a class="nav-link" href="#week4"><span>#</span>Week 04</a>
+    <a class="nav-link" href="#report"><span>#</span>Report</a>
+    <a class="nav-link" href="#rubric"><span>#</span>Grading</a>
+    <a class="nav-link" href="#trends"><span>#</span>Trends</a>
+    <a class="nav-link" href="#quickref"><span>#</span>Resources</a>
+    <a class="nav-link" href="#checklist"><span>#</span>Checklist</a>
+  </div>
+</nav>
+
+<main class="main-content">
+<div class="container">
+
+<!-- DISCLAIMER -->
+<div class="disclaimer fade-in">
+  <div class="disclaimer-title">⚠ Educational & Legal Disclaimer</div>
+  <p>This laboratory uses tools, platforms, and techniques that closely mirror <strong>real-world enterprise environments</strong>. All activities must be conducted strictly within authorised, sandboxed, free-tier, or locally simulated environments. No activity described herein authorises unauthorised access, penetration testing, or use of third-party infrastructure without explicit written permission.</p>
+  <br>
+  <p>All tools, platforms, and frameworks referenced in this lab are <strong>open suggestions only</strong>. Students are strongly encouraged — and expected — to <strong>research alternatives</strong>, adapt the approach to whatever tools are available, and be creative. Build your own tools if you can. The spirit of the exercise is exploration and learning, not replication.</p>
+</div>
+
+<!-- OVERVIEW -->
+<section id="overview">
+  <h2>Overview &amp; Context</h2>
+  <p>This continuous project spans <strong>Weeks 03 and 04</strong> and constitutes the highest-weighted segment of your full-semester project. Your work here builds directly on what you produced in Weeks 01 and 02 and feeds your final submission.</p>
+
+  <div class="overview-grid fade-in">
+    <div class="overview-card">
+      <div class="card-num">01 / SCOPE</div>
+      <div class="card-title">Cloud Provider Comparison</div>
+      <div class="card-desc">AWS (Amazon Web Services) vs Azure (Microsoft Azure) vs GCP (Google Cloud Platform) — services, regions, market share, trade-offs.</div>
+    </div>
+    <div class="overview-card">
+      <div class="card-num">02 / SCOPE</div>
+      <div class="card-title">Hands-On Deployment</div>
+      <div class="card-desc">Launch real cloud resources via CLI (Command-Line Interface), IaaS (Infrastructure as a Service) and PaaS (Platform as a Service) in practice.</div>
+    </div>
+    <div class="overview-card">
+      <div class="card-num">03 / SCOPE</div>
+      <div class="card-title">Storage &amp; Virtual Machines</div>
+      <div class="card-desc">Object, block, and file storage. Launch, configure, and connect to a VM (Virtual Machine). Attach block storage volumes.</div>
+    </div>
+    <div class="overview-card">
+      <div class="card-num">04 / SCOPE</div>
+      <div class="card-title">Big Data &amp; Distributed Systems</div>
+      <div class="card-desc">Hadoop (distributed data processing framework), HDFS (Hadoop Distributed File System), YARN (Yet Another Resource Negotiator), Spark, MapReduce — conceptual &amp; practical.</div>
+    </div>
+  </div>
+
+  <h3>Ponderation 1–2–1 Explained</h3>
+  <div class="table-wrap fade-in">
+  <table>
+    <thead><tr><th>Component</th><th>Weight</th><th>Covers</th></tr></thead>
+    <tbody>
+      <tr><td>Continuous Project — Weeks 01–02</td><td><span class="tag">×1</span></td><td>Architecture, Virtualisation, SOA (Service-Oriented Architecture), Governance</td></tr>
+      <tr><td><strong>Continuous Project — Weeks 03–04</strong></td><td><span class="tag cyan">×2</span></td><td><strong>Cloud Providers, Big Data, Spark, Hadoop — this document</strong></td></tr>
+      <tr><td>Final Comprehensive Exam</td><td><span class="tag">×1</span></td><td>All four weeks</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>Full Course Scope (all four weeks)</h3>
+  <div class="table-wrap fade-in">
+  <table>
+    <thead><tr><th>Week</th><th>Core Topics</th><th>Assessment</th></tr></thead>
+    <tbody>
+      <tr><td>01</td><td>Cloud Computing Architecture, Virtualisation, Data Storage, Cloud Services, Cloud Security</td><td>Discussion Activities</td></tr>
+      <tr><td>02</td><td>Service-Oriented Architectures (SOA), Cloud Tools &amp; Applications, Cloud Computing, Cloud Governance</td><td>Discussion Activities</td></tr>
+      <tr><td style="color:var(--cyan)">—</td><td style="color:var(--cyan)"><strong>Midterm Assessment</strong></td><td style="color:var(--cyan)">Comprehensive Exam</td></tr>
+      <tr><td><strong>03</strong></td><td><strong>Basics of Cloud Computing using AWS, Azure, GCP; Storage &amp; Virtual Machines</strong></td><td>Discussion + Activities</td></tr>
+      <tr><td><strong>04</strong></td><td><strong>Big Data, Distributed Systems &amp; Apache Spark; Cloud Providers Comparison &amp; Future Trends</strong></td><td>Discussion + Activities</td></tr>
+      <tr><td style="color:var(--amber)">—</td><td style="color:var(--amber)"><strong>Final Assessment &amp; Overall Course Feedback</strong></td><td style="color:var(--amber)">Comprehensive Exam</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- WEEK 03 -->
+<section id="week3">
+  <div class="week-label fade-in">
+    <div class="week-badge">Week 03 — 4 Sessions</div>
+    <div class="week-line"></div>
+  </div>
+
+  <!-- SESSION 1 -->
+  <div class="session fade-in" id="s1">
+    <div class="session-header" onclick="toggleSession('s1')">
+      <div class="session-num">1</div>
+      <div class="session-info">
+        <div class="session-day">Day 1 · ~2 hours</div>
+        <div class="session-title">Cloud Providers Comparison</div>
+      </div>
+      <div class="session-meta">
+        <span class="tag amber">Research</span>
+        <span class="tag green">Free tier</span>
+      </div>
+      <div class="session-chevron">⌄</div>
+    </div>
+    <div class="session-body">
+      <div class="objectives">
+        <div class="objectives-title">🎯 Learning Objectives</div>
+        <ul>
+          <li>Compare AWS, Azure, and GCP (Google Cloud Platform) across services, regions, pricing, and market position</li>
+          <li>Set up at least one free-tier cloud account securely</li>
+          <li>Navigate a cloud provider console and locate key sections</li>
+        </ul>
+      </div>
+
+      <div class="tip info"><span class="tip-icon">📖</span><div>Before touching any console, spend 15 minutes skimming the official documentation of <a href="https://aws.amazon.com" target="_blank">AWS</a>, <a href="https://azure.microsoft.com" target="_blank">Microsoft Azure</a>, and <a href="https://cloud.google.com" target="_blank">Google Cloud Platform</a>. Also review the canonical cloud definition from <a href="https://csrc.nist.gov/publications/detail/sp/800-145/final" target="_blank"><strong>NIST SP 800-145</strong></a> (National Institute of Standards and Technology).</div></div>
+
+      <div class="step">
+        <div class="step-title"><span class="step-n">1</span>Build Your Comparison Framework (20 min)</div>
+        <p>Create a table in any editor covering these dimensions for each provider:</p>
+        <div class="table-wrap">
+        <table>
+          <thead><tr><th>Dimension</th><th>AWS</th><th>Azure</th><th>GCP</th></tr></thead>
+          <tbody>
+            <tr><td>Founded / Cloud Launch Year</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr><td>Global regions (current)</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr><td>Primary IaaS compute service</td><td>EC2</td><td>Virtual Machines</td><td>Compute Engine</td></tr>
+            <tr><td>Managed Kubernetes (K8s) service</td><td>EKS</td><td>AKS</td><td>GKE</td></tr>
+            <tr><td>Free-tier availability</td><td>✓ 12 months</td><td>✓ 30 days + $200</td><td>✓ 90 days + $300</td></tr>
+            <tr><td>Market share % (cite your source)</td><td>—</td><td>—</td><td>—</td></tr>
+          </tbody>
+        </table>
+        </div>
+        <div class="tip idea"><span class="tip-icon">💡</span><div>For market share data, look for the most recent <a href="https://www.gartner.com" target="_blank">Gartner</a> or <a href="https://www.statista.com" target="_blank">Statista</a> cloud infrastructure report. Always note the date of your source — this data changes quarterly.</div></div>
+      </div>
+
+      <div class="step">
+        <div class="step-title"><span class="step-n">2</span>Sign Up for a Free Tier (30 min)</div>
+        <p>You need at least one active free-tier account for the practical exercises ahead:</p>
+        <ul>
+          <li><a href="https://aws.amazon.com/free/" target="_blank"><strong>AWS Free Tier</strong></a> — 12-month access to core services (EC2 t2.micro, S3, etc.)</li>
+          <li><a href="https://azure.microsoft.com/en-us/free/" target="_blank"><strong>Azure Free Account</strong></a> — USD 200 credits for 30 days</li>
+          <li><a href="https://cloud.google.com/free/" target="_blank"><strong>GCP Free Trial</strong></a> — USD 300 credits for 90 days</li>
+        </ul>
+        <div class="tip warn"><span class="tip-icon">⚠️</span><div><strong>Never enter payment details if you are not prepared to be charged.</strong> Use prepaid virtual cards or educational accounts if available. Your institution's IT department may have institutional credits — ask before paying.</div></div>
+      </div>
+
+      <div class="step">
+        <div class="step-title"><span class="step-n">3</span>Explore the Console (30 min)</div>
+        <p>Log in and document (screenshot + 2-sentence description) each of the following:</p>
+        <ol>
+          <li><strong>Dashboard / Home</strong> — what information is surfaced by default?</li>
+          <li><strong>Billing / Cost Explorer</strong> — where can you track spending?</li>
+          <li><strong>IAM (Identity and Access Management)</strong> — how is user and role management structured?</li>
+          <li><strong>Compute section</strong> (EC2 / Virtual Machines / Compute Engine)</li>
+          <li><strong>Storage section</strong> (S3 / Blob Storage / Cloud Storage — GCS)</li>
+        </ol>
+      </div>
+
+      <div class="step">
+        <div class="step-title"><span class="step-n">4</span>Write Your Report Section (20 min)</div>
+        <p>Write a <strong>half-page maximum</strong> section titled <em>"Cloud Provider Comparison"</em>. Address:</p>
+        <ul>
+          <li>Which provider would you recommend for a European SME (Small and Medium-sized Enterprise) and why?</li>
+          <li>What is the primary regulatory framework governing cloud data in Europe? Reference <a href="https://gdpr.eu" target="_blank"><strong>GDPR</strong></a> (General Data Protection Regulation) and the <a href="https://digital-strategy.ec.europa.eu" target="_blank"><strong>EU Data Act</strong></a>.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- SESSION 2 -->
+  <div class="session fade-in" id="s2">
+    <div class="session-header" onclick="toggleSession('s2')">
+      <div class="session-num">2</div>
+      <div class="session-info">
+        <div class="session-day">Day 2 · ~2 hours</div>
+        <div class="session-title">Basics of Cloud Computing — First Deployment</div>
+      </div>
+      <div class="session-meta">
+        <span class="tag cyan">CLI</span>
+        <span class="tag amber">Hands-on</span>
+      </div>
+      <div class="session-chevron">⌄</div>
+    </div>
+    <div class="session-body">
+      <div class="objectives">
+        <div class="objectives-title">🎯 Learning Objectives</div>
+        <ul>
+          <li>Install and configure the CLI (Command-Line Interface) for at least one cloud provider</li>
+          <li>Deploy your first cloud object (storage bucket) via the command line</li>
+          <li>Identify which service model — IaaS, PaaS, or SaaS — your deployment represents</li>
+        </ul>
+      </div>
+
+      <div class="step">
+        <div class="step-title"><span class="step-n">1</span>Install the CLI (20 min)</div>
+
+        <div class="tip alt"><span class="tip-icon">🔁</span><div><strong>No local install?</strong> Use free, browser-based shells: <a href="https://shell.cloud.google.com" target="_blank">Google Cloud Shell</a>, <a href="https://console.aws.amazon.com/cloudshell" target="_blank">AWS CloudShell</a>, or <a href="https://shell.azure.com" target="_blank">Azure Cloud Shell</a>. Zero installation required.</div></div>
+
+        <div class="code-wrap">
+          <div class="code-top"><span class="code-lang">bash — AWS CLI</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+          <pre><code><span class="cm"># On Linux / macOS</span>
+curl <span class="st">"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip"</span> -o <span class="st">"awscliv2.zip"</span>
+unzip awscliv2.zip
+sudo ./aws/install
+aws --version</code></pre>
+        </div>
+
+        <div class="code-wrap">
+          <div class="code-top"><span class="code-lang">bash — Azure CLI</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+          <pre><code>curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+az --version</code></pre>
+        </div>
+
+        <div class="code-wrap">
+          <div class="code-top"><span class="code-lang">bash — gcloud CLI (GCP)</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+          <pre><code>curl https://sdk.cloud.google.com | bash
+exec -l $SHELL
+gcloud init</code></pre>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-title"><span class="step-n">2</span>Authenticate and List Regions (10 min)</div>
+        <div class="code-wrap">
+          <div class="code-top"><span class="code-lang">bash</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+          <pre><code><span class="cm"># AWS</span>
+aws configure
+aws ec2 describe-regions --output table
+
+<span class="cm"># Azure</span>
+az login
+az account list-locations --output table
+
+<span class="cm"># GCP</span>
+gcloud auth login
+gcloud compute regions list</code></pre>
+        </div>
+        <p>Document your observations: how many regions does your provider operate in? Which is geographically closest to your location?</p>
+      </div>
+
+      <div class="step">
+        <div class="step-title"><span class="step-n">3</span>Deploy Your First Cloud Resource (30 min)</div>
+        <div class="code-wrap">
+          <div class="code-top"><span class="code-lang">bash — AWS S3 (Simple Storage Service) bucket</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+          <pre><code>aws s3 mb s3://your-unique-bucket-name-2026
+echo <span class="st">"Hello Cloud"</span> &gt; hello.txt
+aws s3 cp hello.txt s3://your-unique-bucket-name-2026/
+aws s3 ls s3://your-unique-bucket-name-2026/
+<span class="cm"># IMPORTANT: Delete when done to avoid charges</span>
+aws s3 rb s3://your-unique-bucket-name-2026 --force</code></pre>
+        </div>
+        <div class="code-wrap">
+          <div class="code-top"><span class="code-lang">bash — Azure Blob Storage</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+          <pre><code>az group create --name MyLabRG --location westeurope
+az storage account create \
+  --name mylabstorage2026 \
+  --resource-group MyLabRG \
+  --location westeurope \
+  --sku Standard_LRS
+<span class="cm"># IMPORTANT: Delete when done</span>
+az group delete --name MyLabRG --yes --no-wait</code></pre>
+        </div>
+        <div class="code-wrap">
+          <div class="code-top"><span class="code-lang">bash — GCP Cloud Storage (GCS)</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+          <pre><code>gsutil mb -l europe-west1 gs://your-unique-bucket-name-2026
+echo <span class="st">"Hello Cloud"</span> &gt; hello.txt
+gsutil cp hello.txt gs://your-unique-bucket-name-2026/
+<span class="cm"># IMPORTANT: Delete when done</span>
+gsutil rm -r gs://your-unique-bucket-name-2026</code></pre>
+        </div>
+        <div class="tip warn"><span class="tip-icon">⚠️</span><div><strong>Always clean up resources after each session.</strong> Cloud providers charge by the second for running resources. One forgotten VM or bucket can consume your entire free-tier credit overnight.</div></div>
+      </div>
+
+      <div class="step">
+        <div class="step-title"><span class="step-n">4</span>Report Section (20 min)</div>
+        <p>Write a <strong>half-page</strong> section titled <em>"First Deployment — IaaS/PaaS/SaaS in Practice."</em> Describe which service model your chosen action falls under and why. A storage bucket is IaaS or PaaS? Argue your position.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SESSION 3 -->
+  <div class="session fade-in" id="s3">
+    <div class="session-header" onclick="toggleSession('s3')">
+      <div class="session-num">3</div>
+      <div class="session-info">
+        <div class="session-day">Day 3 · ~2 hours</div>
+        <div class="session-title">Storage and Virtual Machines</div>
+      </div>
+      <div class="session-meta">
+        <span class="tag green">VM launch</span>
+        <span class="tag cyan">SSH</span>
+      </div>
+      <div class="session-chevron">⌄</div>
+    </div>
+    <div class="session-body">
+      <div class="objectives">
+        <div class="objectives-title">🎯 Learning Objectives</div>
+        <ul>
+          <li>Distinguish between object storage, block storage, and file storage — and know when to use each</li>
+          <li>Launch and configure a free-tier VM (Virtual Machine)</li>
+          <li>Connect via SSH (Secure Shell) and perform basic system inspection</li>
+          <li>Attach additional block storage and mount it inside the OS (Operating System)</li>
+        </ul>
+      </div>
+
+      <h3>Storage Types Reference</h3>
+      <div class="table-wrap fade-in">
+      <table>
+        <thead><tr><th>Type</th><th>Protocol</th><th>Best for</th><th>AWS</th><th>Azure</th><th>GCP</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Object</strong></td><td>HTTP API</td><td>Unstructured data, backups, static web assets</td><td>S3</td><td>Blob Storage</td><td>GCS</td></tr>
+          <tr><td><strong>Block</strong></td><td>iSCSI / NVMe</td><td>VM root disks, databases, high-IOPS workloads</td><td>EBS (Elastic Block Store)</td><td>Managed Disks</td><td>Persistent Disk</td></tr>
+          <tr><td><strong>File</strong></td><td>NFS / SMB</td><td>Shared file systems, lift-and-shift applications</td><td>EFS (Elastic File System)</td><td>Azure Files</td><td>Filestore</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <div class="step">
+        <div class="step-title"><span class="step-n">1</span>Launch a Virtual Machine (40 min)</div>
+        <div class="tip alt"><span class="tip-icon">🔁</span><div>Cannot use a cloud VM? Use <a href="https://www.virtualbox.org/" target="_blank"><strong>VirtualBox</strong></a> (free, open-source) locally, or <a href="https://www.oracle.com/cloud/free/" target="_blank"><strong>Oracle Cloud Free Tier</strong></a> (always-free VMs). Be creative — research your options!</div></div>
+        <div class="code-wrap">
+          <div class="code-top"><span class="code-lang">bash — AWS EC2 (Elastic Compute Cloud) t2.micro</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+          <pre><code><span class="cm"># Create SSH (Secure Shell) key pair</span>
+aws ec2 create-key-pair \
+  --key-name MyLabKey \
+  --query <span class="st">'KeyMaterial'</span> \
+  --output text &gt; MyLabKey.pem
+chmod 400 MyLabKey.pem
+
+<span class="cm"># Launch Amazon Linux 2 instance (free tier eligible)</span>
+aws ec2 run-instances \
+  --image-id ami-0c02fb55956c7d316 \
+  --instance-type t2.micro \
+  --key-name MyLabKey \
+  --count 1
+
+<span class="cm"># List your instances</span>
+aws ec2 describe-instances \
+  --query <span class="st">'Reservations[*].Instances[*].[InstanceId,State.Name,PublicIpAddress]'</span> \
+  --output table</code></pre>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-title"><span class="step-n">2</span>Connect and Explore (20 min)</div>
+        <div class="code-wrap">
+          <div class="code-top"><span class="code-lang">bash</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+          <pre><code><span class="cm"># Connect via SSH</span>
+ssh -i MyLabKey.pem ec2-user@&lt;your-public-ip&gt;
+
+<span class="cm"># System diagnostics inside the VM</span>
+uname -a            <span class="cm"># Kernel information</span>
+df -h               <span class="cm"># Disk space usage</span>
+free -m             <span class="cm"># RAM (Random Access Memory) usage in MB (Megabytes)</span>
+lscpu               <span class="cm"># CPU (Central Processing Unit) information</span>
+cat /etc/os-release <span class="cm"># OS (Operating System) version</span></code></pre>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-title"><span class="step-n">3</span>Attach Block Storage (20 min)</div>
+        <div class="code-wrap">
+          <div class="code-top"><span class="code-lang">bash — AWS EBS (Elastic Block Store)</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+          <pre><code><span class="cm"># Create a 1 GB gp2 (General Purpose SSD) volume</span>
+aws ec2 create-volume \
+  --availability-zone us-east-1a \
+  --size 1 \
+  --volume-type gp2
+
+<span class="cm"># Attach (replace with your IDs)</span>
+aws ec2 attach-volume \
+  --instance-id i-XXXXXXXXXXXXXXXXX \
+  --volume-id vol-XXXXXXXXXXXXXXXXX \
+  --device /dev/sdf
+
+<span class="cm"># On the VM: format with ext4 and mount</span>
+sudo mkfs -t ext4 /dev/sdf
+sudo mkdir /mnt/mydata
+sudo mount /dev/sdf /mnt/mydata
+df -h</code></pre>
+        </div>
+        <div class="tip warn"><span class="tip-icon">⚠️</span><div><strong>Terminate your VM and delete all volumes when done.</strong> "Stopping" a VM still incurs EBS storage charges. Always "terminate" (not just "stop") to avoid unexpected costs.</div></div>
+      </div>
+
+      <div class="step">
+        <div class="step-title"><span class="step-n">4</span>Report Section (20 min)</div>
+        <p>Write a <strong>half-page</strong> section titled <em>"Storage Types and Virtual Machine Configuration."</em> Include a diagram showing your VM, its root volume, and the attached EBS volume. Add a table comparing object, block, and file storage for at least 3 real-world use cases.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SESSION 4 -->
+  <div class="session fade-in" id="s4">
+    <div class="session-header" onclick="toggleSession('s4')">
+      <div class="session-num">4</div>
+      <div class="session-info">
+        <div class="session-day">Day 4 · ~2 hours</div>
+        <div class="session-title">Big Data &amp; Distributed Systems — Conceptual Foundation</div>
+      </div>
+      <div class="session-meta">
+        <span class="tag amber">Diagrams</span>
+        <span class="tag cyan">Theory</span>
+      </div>
+      <div class="session-chevron">⌄</div>
+    </div>
+    <div class="session-body">
+      <div class="objectives">
+        <div class="objectives-title">🎯 Learning Objectives</div>
+        <ul>
+          <li>Define "big data" using the 5 Vs framework</li>
+          <li>Map the full Hadoop ecosystem and explain each component's role</li>
+          <li>Understand Apache Spark's architecture and why it outperforms MapReduce</li>
+        </ul>
+      </div>
+
+      <h3>The 5 Vs of Big Data</h3>
+      <div class="vs-grid fade-in">
+        <div class="v-card"><div class="v-big">V</div><div class="v-name">Volume</div><div class="v-desc">Petabytes of sensor logs, transaction records, social media posts</div></div>
+        <div class="v-card"><div class="v-big">V</div><div class="v-name">Velocity</div><div class="v-desc">Real-time stock tickers, live IoT (Internet of Things) sensor feeds</div></div>
+        <div class="v-card"><div class="v-big">V</div><div class="v-name">Variety</div><div class="v-desc">Text, images, JSON (JavaScript Object Notation), binary, video, audio</div></div>
+        <div class="v-card"><div class="v-big">V</div><div class="v-name">Veracity</div><div class="v-desc">Noisy, incomplete, or inconsistent data from uncontrolled sources</div></div>
+        <div class="v-card"><div class="v-big">V</div><div class="v-name">Value</div><div class="v-desc">Actionable insights extracted — the end goal of all big data processing</div></div>
+      </div>
+
+      <h3>The Hadoop Ecosystem</h3>
+      <div class="tip info"><span class="tip-icon">📖</span><div>Primary sources: <a href="https://hadoop.apache.org/docs/stable/" target="_blank"><strong>Apache Hadoop Documentation</strong></a> and the original <a href="https://research.google/pubs/pub62/" target="_blank"><strong>Google MapReduce paper (2004)</strong></a> — the intellectual origin of Hadoop.</div></div>
+      <div class="ecosystem-diagram fade-in">
+        <div style="text-align:center;color:var(--text-dim);font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px;">Hadoop Ecosystem — hover to explore</div>
+        <div class="ecosystem-row"><div class="eco-box stream" title="Distributed event streaming">Apache Kafka</div><div class="eco-box stream" title="Distributed coordination">Apache ZooKeeper</div></div>
+        <div class="eco-arrow">↓ ingestion &amp; coordination ↓</div>
+        <div class="ecosystem-row"><div class="eco-box processing" title="Fast in-memory engine">Apache Spark</div><div class="eco-box processing" title="Original batch processing">MapReduce</div></div>
+        <div class="eco-row" style="display:flex;justify-content:center;gap:8px;margin:8px 0;flex-wrap:wrap;">
+          <div class="eco-box query" title="SQL-like querying on Hadoop">Apache Hive</div>
+          <div class="eco-box query" title="Dataflow scripting">Apache Pig</div>
+          <div class="eco-box query" title="NoSQL column-family database">Apache HBase</div>
+        </div>
+        <div class="eco-arrow">↑ runs on ↑</div>
+        <div class="ecosystem-row"><div class="eco-box resource" title="Resource management layer">YARN — Yet Another Resource Negotiator</div></div>
+        <div class="eco-arrow">↑ reads/writes ↑</div>
+        <div class="ecosystem-row"><div class="eco-box storage" title="Distributed file system — replication factor, blocks">HDFS — Hadoop Distributed File System</div></div>
+      </div>
+
+      <div class="step">
+        <div class="step-title"><span class="step-n">1</span>Map the Ecosystem (30 min)</div>
+        <p>Recreate this diagram by hand or using <a href="https://app.diagrams.net/" target="_blank">diagrams.net (draw.io)</a> (free). Annotate each component with 1–2 sentences. Include all 9 components shown above.</p>
+      </div>
+
+      <div class="step">
+        <div class="step-title"><span class="step-n">2</span>Understand Spark Architecture (30 min)</div>
+        <div class="code-wrap">
+          <div class="code-top"><span class="code-lang">ascii — Spark Architecture</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+          <pre><code>Driver Program
+    └── SparkContext / SparkSession
+            ├── Cluster Manager (YARN / Mesos / Kubernetes / Standalone)
+            └── Worker Node 1                Worker Node 2
+                    └── Executor                    └── Executor
+                            ├── Task                        ├── Task
+                            └── Cache                       └── Cache</code></pre>
+        </div>
+        <p>Write 2–3-sentence definitions of: <strong>RDD (Resilient Distributed Dataset)</strong>, <strong>DataFrame</strong>, <strong>Transformation vs. Action</strong> (lazy evaluation), and <strong>DAG (Directed Acyclic Graph)</strong>.</p>
+      </div>
+
+      <div class="step">
+        <div class="step-title"><span class="step-n">3</span>Report Section (30 min)</div>
+        <p>Write a <strong>one-page maximum</strong> section titled <em>"Big Data: Distributed Systems and the Hadoop/Spark Ecosystem."</em> In your own words (not copied), explain: why single-machine processing fails at scale; how HDFS distributes data (replication, blocks); why Spark is faster than MapReduce (in-memory vs. disk I/O — Input/Output); and one real-world industry use case combining Spark and cloud storage.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WEEK 04 -->
+<section id="week4">
+  <div class="week-label fade-in">
+    <div class="week-badge">Week 04 — 2 Sessions</div>
+    <div class="week-line"></div>
+  </div>
+
+  <!-- SESSION 5 -->
+  <div class="session fade-in" id="s5">
+    <div class="session-header" onclick="toggleSession('s5')">
+      <div class="session-num">5</div>
+      <div class="session-info">
+        <div class="session-day">Day 5 · ~2 hours</div>
+        <div class="session-title">Hadoop — Installation and Initial Setup</div>
+      </div>
+      <div class="session-meta">
+        <span class="tag green">Install</span>
+        <span class="tag amber">MapReduce</span>
+      </div>
+      <div class="session-chevron">⌄</div>
+    </div>
+    <div class="session-body">
+      <div class="objectives">
+        <div class="objectives-title">🎯 Learning Objectives</div>
+        <ul>
+          <li>Install Hadoop in pseudo-distributed mode on a local or cloud VM</li>
+          <li>Configure the four core XML (Extensible Markup Language) files</li>
+          <li>Run a canonical WordCount MapReduce job and inspect the output</li>
+        </ul>
+      </div>
+
+      <div class="tip alt"><span class="tip-icon">🔁</span><div><strong>Alternatives to local install:</strong> <a href="https://hub.docker.com/r/apache/hadoop" target="_blank">Docker image</a> (<code>docker pull apache/hadoop</code>), <a href="https://www.cloudera.com/downloads/cdh.html" target="_blank">Cloudera QuickStart VM</a>, <a href="https://aws.amazon.com/emr/" target="_blank">AWS EMR (Elastic MapReduce)</a>, <a href="https://azure.microsoft.com/en-us/products/hdinsight/" target="_blank">Azure HDInsight</a>, or <a href="https://cloud.google.com/dataproc" target="_blank">GCP Dataproc</a>. Be creative — these steps assume Ubuntu 22.04 LTS (Long-Term Support).</div></div>
+
+      <div class="step">
+        <div class="step-title"><span class="step-n">1</span>Prerequisites (20 min)</div>
+        <div class="code-wrap">
+          <div class="code-top"><span class="code-lang">bash</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+          <pre><code><span class="cm"># Update packages</span>
+sudo apt update &amp;&amp; sudo apt upgrade -y
+
+<span class="cm"># Install Java 11 (JDK — Java Development Kit)</span>
+sudo apt install -y openjdk-11-jdk
+java -version
+
+<span class="cm"># Create dedicated hadoop OS user (best practice — isolate permissions)</span>
+sudo adduser hadoop
+sudo usermod -aG sudo hadoop
+su - hadoop
+
+<span class="cm"># Generate SSH (Secure Shell) key for passwordless local connection</span>
+ssh-keygen -t rsa -P <span class="st">''</span> -f ~/.ssh/id_rsa
+cat ~/.ssh/id_rsa.pub &gt;&gt; ~/.ssh/authorized_keys
+chmod 0600 ~/.ssh/authorized_keys
+ssh localhost   <span class="cm"># Should connect without password prompt</span></code></pre>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-title"><span class="step-n">2</span>Download and Install Hadoop (20 min)</div>
+        <div class="code-wrap">
+          <div class="code-top"><span class="code-lang">bash</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+          <pre><code><span class="cm"># Check https://hadoop.apache.org/releases.html for the latest version</span>
+wget https://downloads.apache.org/hadoop/common/hadoop-3.3.6/hadoop-3.3.6.tar.gz
+tar -xzf hadoop-3.3.6.tar.gz
+sudo mv hadoop-3.3.6 /usr/local/hadoop
+sudo chown -R hadoop:hadoop /usr/local/hadoop
+
+<span class="cm"># Set environment variables in .bashrc</span>
+echo <span class="st">'export HADOOP_HOME=/usr/local/hadoop'</span> &gt;&gt; ~/.bashrc
+echo <span class="st">'export PATH=$PATH:$HADOOP_HOME/sbin:$HADOOP_HOME/bin'</span> &gt;&gt; ~/.bashrc
+source ~/.bashrc
+
+hadoop version   <span class="cm"># Verify installation</span></code></pre>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-title"><span class="step-n">3</span>Configure the Four Core XML Files (30 min)</div>
+        <div class="code-wrap">
+          <div class="code-top"><span class="code-lang">xml — core-site.xml (default filesystem URI)</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+          <pre><code>&lt;configuration&gt;
+  &lt;property&gt;
+    &lt;name&gt;fs.defaultFS&lt;/name&gt;
+    &lt;value&gt;hdfs://localhost:9000&lt;/value&gt;
+  &lt;/property&gt;
+&lt;/configuration&gt;</code></pre>
+        </div>
+        <div class="code-wrap">
+          <div class="code-top"><span class="code-lang">xml — hdfs-site.xml (replication factor = 1)</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+          <pre><code>&lt;configuration&gt;
+  &lt;property&gt;
+    &lt;name&gt;dfs.replication&lt;/name&gt;
+    &lt;value&gt;1&lt;/value&gt;
+  &lt;/property&gt;
+  &lt;property&gt;
+    &lt;name&gt;dfs.namenode.name.dir&lt;/name&gt;
+    &lt;value&gt;/home/hadoop/hadoopdata/namenode&lt;/value&gt;
+  &lt;/property&gt;
+  &lt;property&gt;
+    &lt;name&gt;dfs.datanode.data.dir&lt;/name&gt;
+    &lt;value&gt;/home/hadoop/hadoopdata/datanode&lt;/value&gt;
+  &lt;/property&gt;
+&lt;/configuration&gt;</code></pre>
+        </div>
+        <div class="code-wrap">
+          <div class="code-top"><span class="code-lang">xml — mapred-site.xml (use YARN as framework)</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+          <pre><code>&lt;configuration&gt;
+  &lt;property&gt;
+    &lt;name&gt;mapreduce.framework.name&lt;/name&gt;
+    &lt;value&gt;yarn&lt;/value&gt;
+  &lt;/property&gt;
+&lt;/configuration&gt;</code></pre>
+        </div>
+        <div class="code-wrap">
+          <div class="code-top"><span class="code-lang">xml — yarn-site.xml (NodeManager auxiliary services)</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+          <pre><code>&lt;configuration&gt;
+  &lt;property&gt;
+    &lt;name&gt;yarn.nodemanager.aux-services&lt;/name&gt;
+    &lt;value&gt;mapreduce_shuffle&lt;/value&gt;
+  &lt;/property&gt;
+&lt;/configuration&gt;</code></pre>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-title"><span class="step-n">4</span>Format, Start, and Verify (30 min)</div>
+        <div class="code-wrap">
+          <div class="code-top"><span class="code-lang">bash</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+          <pre><code><span class="cm"># Format NameNode — do this ONCE only, destroys existing data!</span>
+hdfs namenode -format
+
+<span class="cm"># Start HDFS (Hadoop Distributed File System) daemons</span>
+start-dfs.sh
+start-yarn.sh
+
+<span class="cm"># Verify all JVM (Java Virtual Machine) processes are running</span>
+jps
+<span class="cm"># Expected output: NameNode, DataNode, SecondaryNameNode,
+#                  ResourceManager, NodeManager</span>
+
+<span class="cm"># Access Web UI (User Interface) in browser:</span>
+<span class="cm"># http://localhost:9870  →  NameNode UI</span>
+<span class="cm"># http://localhost:8088  →  YARN ResourceManager UI</span>
+
+<span class="cm"># Upload a sample file to HDFS</span>
+hdfs dfs -mkdir -p /user/hadoop/input
+echo <span class="st">"The quick brown fox jumps over the lazy dog"</span> &gt; sample.txt
+hdfs dfs -put sample.txt /user/hadoop/input/
+
+<span class="cm"># Run the canonical WordCount MapReduce job</span>
+hadoop jar $HADOOP_HOME/share/hadoop/mapreduce/hadoop-mapreduce-examples-3.3.6.jar \
+  wordcount /user/hadoop/input /user/hadoop/output
+
+<span class="cm"># View results</span>
+hdfs dfs -cat /user/hadoop/output/part-r-00000</code></pre>
+        </div>
+        <div class="tip info"><span class="tip-icon">ℹ️</span><div>Take screenshots of the NameNode UI and YARN UI. Write a <strong>half-page report section</strong>: "Hadoop Setup and First MapReduce Job." Annotate each screenshot. Explain in 2–3 sentences why WordCount is the canonical "Hello World" of distributed computing.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SESSION 6 -->
+  <div class="session fade-in" id="s6">
+    <div class="session-header" onclick="toggleSession('s6')">
+      <div class="session-num">6</div>
+      <div class="session-info">
+        <div class="session-day">Day 6 · ~2 hours</div>
+        <div class="session-title">Apache Spark — Installation and First Analysis</div>
+      </div>
+      <div class="session-meta">
+        <span class="tag cyan">PySpark</span>
+        <span class="tag green">EDA</span>
+      </div>
+      <div class="session-chevron">⌄</div>
+    </div>
+    <div class="session-body">
+      <div class="objectives">
+        <div class="objectives-title">🎯 Learning Objectives</div>
+        <ul>
+          <li>Install Apache Spark and PySpark (Python API for Apache Spark)</li>
+          <li>Use the DataFrame API to load, inspect, and transform a real dataset</li>
+          <li>Perform basic EDA (Exploratory Data Analysis) and articulate findings</li>
+        </ul>
+      </div>
+
+      <div class="tip alt"><span class="tip-icon">🔁</span><div><strong>No local install preferred?</strong> Use <a href="https://colab.research.google.com" target="_blank">Google Colab</a> (free, zero setup), <a href="https://community.cloud.databricks.com" target="_blank">Databricks Community Edition</a> (free, managed Spark notebooks), or <a href="https://aws.amazon.com/emr/features/studio/" target="_blank">Amazon EMR Studio</a>. All three are excellent and industry-standard — choose what suits you and research further alternatives!</div></div>
+
+      <div class="step">
+        <div class="step-title"><span class="step-n">1</span>Install Spark (20 min)</div>
+        <div class="code-wrap">
+          <div class="code-top"><span class="code-lang">bash</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+          <pre><code><span class="cm"># Check https://spark.apache.org/downloads.html for latest release</span>
+wget https://downloads.apache.org/spark/spark-3.5.1/spark-3.5.1-bin-hadoop3.tgz
+tar -xzf spark-3.5.1-bin-hadoop3.tgz
+sudo mv spark-3.5.1-bin-hadoop3 /usr/local/spark
+
+echo <span class="st">'export SPARK_HOME=/usr/local/spark'</span> &gt;&gt; ~/.bashrc
+echo <span class="st">'export PATH=$PATH:$SPARK_HOME/bin:$SPARK_HOME/sbin'</span> &gt;&gt; ~/.bashrc
+source ~/.bashrc
+
+<span class="cm"># Install Python dependencies</span>
+sudo apt install -y python3-pip
+pip3 install pyspark jupyterlab pandas matplotlib
+
+spark-shell --version   <span class="cm"># Scala shell verification</span>
+pyspark --version       <span class="cm"># Python shell verification</span></code></pre>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-title"><span class="step-n">2</span>Launch PySpark and Explore the DataFrame API (30 min)</div>
+        <div class="code-wrap">
+          <div class="code-top"><span class="code-lang">python — PySpark interactive session</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+          <pre><code><span class="kw">from</span> pyspark.sql <span class="kw">import</span> SparkSession
+
+spark = SparkSession.builder \
+    .appName(<span class="st">"MyFirstSparkApp"</span>) \
+    .master(<span class="st">"local[*]"</span>) \
+    .getOrCreate()
+
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Spark version: {spark.version}"</span>)
+
+<span class="cm"># Create a DataFrame from a Python list</span>
+data = [
+    (<span class="st">"Alice"</span>, 29, <span class="st">"Engineer"</span>),
+    (<span class="st">"Bob"</span>,   35, <span class="st">"Analyst"</span>),
+    (<span class="st">"Clara"</span>, 27, <span class="st">"Data Scientist"</span>),
+    (<span class="st">"David"</span>, 42, <span class="st">"Manager"</span>)
+]
+columns = [<span class="st">"Name"</span>, <span class="st">"Age"</span>, <span class="st">"Role"</span>]
+df = spark.createDataFrame(data, columns)
+
+df.show()          <span class="cm"># Display rows</span>
+df.printSchema()   <span class="cm"># Print column types</span>
+df.describe().show()  <span class="cm"># Basic statistics</span>
+
+<span class="cm"># Transformation (lazy — not executed until an Action is called)</span>
+filtered = df.filter(df[<span class="st">"Age"</span>] &lt; 35)
+filtered.show()    <span class="cm"># Action triggers execution</span>
+
+<span class="cm"># SQL (Structured Query Language) query on a temp view</span>
+df.createOrReplaceTempView(<span class="st">"employees"</span>)
+spark.sql(<span class="st">"SELECT Role, AVG(Age) as avg_age FROM employees GROUP BY Role"</span>).show()
+
+spark.stop()</code></pre>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-title"><span class="step-n">3</span>Load and Analyse a Real Dataset (30 min)</div>
+        <div class="tip idea"><span class="tip-icon">💡</span><div>Download any public CSV (Comma-Separated Values) dataset from: <a href="https://archive.ics.uci.edu/ml/index.php" target="_blank">UCI Machine Learning Repository</a>, <a href="https://www.kaggle.com/datasets" target="_blank">Kaggle Public Datasets</a>, <a href="https://data.europa.eu" target="_blank">European Data Portal</a>, or <a href="https://data.worldbank.org" target="_blank">World Bank Open Data</a>. Be thorough in your research — there are thousands of fascinating datasets available freely.</div></div>
+        <div class="code-wrap">
+          <div class="code-top"><span class="code-lang">python — EDA (Exploratory Data Analysis)</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+          <pre><code><span class="kw">from</span> pyspark.sql.functions <span class="kw">import</span> col, count, when, isnan
+
+<span class="cm"># Load dataset</span>
+df = spark.read.csv(<span class="st">"your_dataset.csv"</span>, header=<span class="kw">True</span>, inferSchema=<span class="kw">True</span>)
+
+<span class="cm"># Basic shape and schema</span>
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Rows: {df.count()}, Columns: {len(df.columns)}"</span>)
+df.printSchema()
+df.show(5)
+
+<span class="cm"># Count null (missing) values per column</span>
+null_counts = df.select(
+    [count(when(isnan(c) | col(c).isNull(), c)).alias(c) <span class="kw">for</span> c <span class="kw">in</span> df.columns]
+)
+null_counts.show()
+
+<span class="cm"># Group and aggregate (adapt column names to your dataset)</span>
+df.groupBy(df.columns[0]).count() \
+  .orderBy(<span class="st">"count"</span>, ascending=<span class="kw">False</span>) \
+  .show(10)</code></pre>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-title"><span class="step-n">4</span>Final Report Section (30 min)</div>
+        <p>Write a <strong>one-page maximum</strong> section titled <em>"Apache Spark — Architecture and First Analysis."</em> Include:</p>
+        <ul>
+          <li>What dataset you chose and why</li>
+          <li>The schema (column names and data types) of the dataset</li>
+          <li>The 3 most interesting observations from your EDA</li>
+          <li>A comparison: what would differ if you ran this job on a 1 TB (Terabyte) dataset in a cloud-native Spark environment (e.g., Databricks, AWS EMR, GCP Dataproc)?</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- REPORT STRUCTURE -->
+<section id="report">
+  <h2>Report Structure &amp; Submission</h2>
+  <p>Your submitted report must be <strong>no longer than 7 pages in A4 format</strong>.</p>
+  <div class="report-structure fade-in">
+    <div class="report-item"><div class="report-item-num">1.</div><div class="report-item-content"><div class="report-item-title">Title Page</div><div class="report-item-desc">Name, student ID, university, course name, date</div></div><div class="report-item-pages">1 page</div></div>
+    <div class="report-item"><div class="report-item-num">2.</div><div class="report-item-content"><div class="report-item-title">Introduction</div><div class="report-item-desc">Brief scope — what you set out to do</div></div><div class="report-item-pages">½ page</div></div>
+    <div class="report-item"><div class="report-item-num">3.</div><div class="report-item-content"><div class="report-item-title">Cloud Provider Comparison</div><div class="report-item-desc">Session 1 findings: table + recommendation + GDPR note</div></div><div class="report-item-pages">1 page</div></div>
+    <div class="report-item"><div class="report-item-num">4.</div><div class="report-item-content"><div class="report-item-title">First Cloud Deployment</div><div class="report-item-desc">Session 2: what you deployed, service model, screenshots</div></div><div class="report-item-pages">1 page</div></div>
+    <div class="report-item"><div class="report-item-num">5.</div><div class="report-item-content"><div class="report-item-title">Storage and Virtual Machines</div><div class="report-item-desc">Session 3: storage types, VM config, diagram</div></div><div class="report-item-pages">1 page</div></div>
+    <div class="report-item"><div class="report-item-num">6.</div><div class="report-item-content"><div class="report-item-title">Big Data &amp; Distributed Systems</div><div class="report-item-desc">Session 4: ecosystem diagram, architecture notes</div></div><div class="report-item-pages">1 page</div></div>
+    <div class="report-item"><div class="report-item-num">7.</div><div class="report-item-content"><div class="report-item-title">Hadoop Setup &amp; Spark Analysis</div><div class="report-item-desc">Sessions 5–6: install, WordCount output, Spark EDA (Exploratory Data Analysis)</div></div><div class="report-item-pages">1 page</div></div>
+    <div class="report-item"><div class="report-item-num">8.</div><div class="report-item-content"><div class="report-item-title">Conclusion &amp; Future Trends</div><div class="report-item-desc">What you learned; where cloud and big data are heading (2 trends minimum)</div></div><div class="report-item-pages">½ page</div></div>
+    <div class="report-item"><div class="report-item-num">9.</div><div class="report-item-content"><div class="report-item-title">References</div><div class="report-item-desc">All sources cited, including official documentation URLs</div></div><div class="report-item-pages">Remaining</div></div>
+  </div>
+  <div class="tip warn" style="margin-top:16px;"><span class="tip-icon">📝</span><div><strong>Originality notice:</strong> Your report must be your own work, written in your own words. Direct copying from documentation, articles, or peer work will result in a zero grade for the entire semester component. Paraphrase, synthesise, and always cite your sources.</div></div>
+</section>
+
+<!-- GRADING -->
+<section id="rubric">
+  <h2>Grading Rubric <span style="font-family:var(--mono);font-size:14px;color:var(--text-dim)">(Weeks 03–04, Weight ×2)</span></h2>
+  <div id="rubricSection" class="fade-in">
+    <div class="rubric-bar"><span class="rubric-label">Cloud deployment — screenshots &amp; commands</span><div class="rubric-track"><div class="rubric-fill" data-pct="0.20"></div></div><span class="rubric-pts">20</span></div>
+    <div class="rubric-bar"><span class="rubric-label">Cloud provider comparison depth &amp; accuracy</span><div class="rubric-track"><div class="rubric-fill" data-pct="0.15"></div></div><span class="rubric-pts">15</span></div>
+    <div class="rubric-bar"><span class="rubric-label">Ecosystem diagrams — quality &amp; completeness</span><div class="rubric-track"><div class="rubric-fill" data-pct="0.15"></div></div><span class="rubric-pts">15</span></div>
+    <div class="rubric-bar"><span class="rubric-label">Hadoop install &amp; successful job execution</span><div class="rubric-track"><div class="rubric-fill" data-pct="0.20"></div></div><span class="rubric-pts">20</span></div>
+    <div class="rubric-bar"><span class="rubric-label">Spark EDA — quality of analysis &amp; insight</span><div class="rubric-track"><div class="rubric-fill" data-pct="0.20"></div></div><span class="rubric-pts">20</span></div>
+    <div class="rubric-bar"><span class="rubric-label">Report clarity, structure, references, originality</span><div class="rubric-track"><div class="rubric-fill" data-pct="0.10"></div></div><span class="rubric-pts">10</span></div>
+    <div style="border-top:1px solid var(--border);padding-top:12px;margin-top:8px;display:flex;justify-content:flex-end;gap:16px;font-family:var(--mono);font-size:14px;color:var(--cyan)">
+      <span>TOTAL</span><strong>100 pts</strong>
+    </div>
+  </div>
+</section>
+
+<!-- FUTURE TRENDS -->
+<section id="trends">
+  <h2>Future Trends to Research</h2>
+  <p>Include at least <strong>two</strong> of the following in your conclusion section:</p>
+  <div class="trends-grid fade-in">
+    <div class="trend-card">
+      <div class="trend-icon">⚡</div>
+      <div class="trend-name">Serverless Computing</div>
+      <div class="trend-desc">Functions-as-a-service: AWS Lambda, Azure Functions, GCP Cloud Run — zero server management.</div>
+      <a class="trend-link" href="https://www.cncf.io" target="_blank">→ cncf.io</a>
+    </div>
+    <div class="trend-card">
+      <div class="trend-icon">🌐</div>
+      <div class="trend-name">Edge Computing</div>
+      <div class="trend-desc">Processing at the network edge — convergence with cloud for low-latency IoT (Internet of Things) applications.</div>
+      <a class="trend-link" href="https://www.etsi.org/technologies/multi-access-edge-computing" target="_blank">→ etsi.org/mec</a>
+    </div>
+    <div class="trend-card">
+      <div class="trend-icon">🤖</div>
+      <div class="trend-name">MLOps</div>
+      <div class="trend-desc">ML (Machine Learning) Operations — integrating AI (Artificial Intelligence) pipelines with cloud-native data platforms at scale.</div>
+      <a class="trend-link" href="https://mlops.community" target="_blank">→ mlops.community</a>
+    </div>
+    <div class="trend-card">
+      <div class="trend-icon">🕸</div>
+      <div class="trend-name">Data Mesh</div>
+      <div class="trend-desc">A sociotechnical approach to data ownership — decentralised data platforms managed by domain teams.</div>
+      <a class="trend-link" href="https://martinfowler.com/articles/data-mesh-principles.html" target="_blank">→ martinfowler.com</a>
+    </div>
+    <div class="trend-card">
+      <div class="trend-icon">⚛️</div>
+      <div class="trend-name">Quantum Cloud Computing</div>
+      <div class="trend-desc">Access quantum processors in the cloud: IBM Quantum, AWS Braket (quantum computing service), Azure Quantum.</div>
+      <a class="trend-link" href="https://quantum.ibm.com" target="_blank">→ quantum.ibm.com</a>
+    </div>
+    <div class="trend-card">
+      <div class="trend-icon">💰</div>
+      <div class="trend-name">Multi-Cloud &amp; FinOps</div>
+      <div class="trend-desc">Financial Operations (FinOps) for cloud — optimising cost and value across multiple providers simultaneously.</div>
+      <a class="trend-link" href="https://www.finops.org" target="_blank">→ finops.org</a>
+    </div>
+  </div>
+</section>
+
+<!-- QUICK REF -->
+<section id="quickref">
+  <div class="quick-ref fade-in">
+    <div class="quick-ref-title">📎 Key Resources</div>
+    <div class="qr-grid">
+      <a class="qr-item" href="https://aws.amazon.com/free/" target="_blank"><span class="qr-item-label">AWS Free Tier</span><span class="qr-item-url">aws.amazon.com/free</span></a>
+      <a class="qr-item" href="https://azure.microsoft.com/en-us/free/" target="_blank"><span class="qr-item-label">Azure Free Account</span><span class="qr-item-url">azure.microsoft.com/free</span></a>
+      <a class="qr-item" href="https://cloud.google.com/free/" target="_blank"><span class="qr-item-label">GCP Free Trial</span><span class="qr-item-url">cloud.google.com/free</span></a>
+      <a class="qr-item" href="https://hadoop.apache.org" target="_blank"><span class="qr-item-label">Apache Hadoop</span><span class="qr-item-url">hadoop.apache.org</span></a>
+      <a class="qr-item" href="https://spark.apache.org" target="_blank"><span class="qr-item-label">Apache Spark</span><span class="qr-item-url">spark.apache.org</span></a>
+      <a class="qr-item" href="https://csrc.nist.gov/publications/detail/sp/800-145/final" target="_blank"><span class="qr-item-label">NIST Cloud Definition</span><span class="qr-item-url">csrc.nist.gov SP 800-145</span></a>
+      <a class="qr-item" href="https://gdpr.eu" target="_blank"><span class="qr-item-label">GDPR Official Text</span><span class="qr-item-url">gdpr.eu</span></a>
+      <a class="qr-item" href="https://community.cloud.databricks.com" target="_blank"><span class="qr-item-label">Databricks Community</span><span class="qr-item-url">community.cloud.databricks.com</span></a>
+      <a class="qr-item" href="https://colab.research.google.com" target="_blank"><span class="qr-item-label">Google Colab</span><span class="qr-item-url">colab.research.google.com</span></a>
+      <a class="qr-item" href="https://app.diagrams.net/" target="_blank"><span class="qr-item-label">diagrams.net (draw.io)</span><span class="qr-item-url">app.diagrams.net</span></a>
+      <a class="qr-item" href="https://kafka.apache.org" target="_blank"><span class="qr-item-label">Apache Kafka</span><span class="qr-item-url">kafka.apache.org</span></a>
+      <a class="qr-item" href="https://data.europa.eu" target="_blank"><span class="qr-item-label">European Data Portal</span><span class="qr-item-url">data.europa.eu</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- CHECKLIST -->
+<section id="checklist">
+  <h2>Interactive Progress Checklist</h2>
+  <p>Click each item to mark it done. Your progress is saved in this session.</p>
+  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:24px;" class="fade-in">
+    <h3 style="margin-top:0;font-size:14px;color:var(--text-dim);">Week 03 — Sessions 1–4</h3>
+    <ul class="checklist" id="checklistItems">
+      <li><div class="chk" onclick="toggleCheck(this)"></div><span class="chk-label">Session 1: Built cloud provider comparison table (AWS vs Azure vs GCP)</span></li>
+      <li><div class="chk" onclick="toggleCheck(this)"></div><span class="chk-label">Session 1: Signed up for at least one free-tier cloud account</span></li>
+      <li><div class="chk" onclick="toggleCheck(this)"></div><span class="chk-label">Session 1: Explored console — dashboard, billing, IAM, compute, storage</span></li>
+      <li><div class="chk" onclick="toggleCheck(this)"></div><span class="chk-label">Session 1: Written half-page report section on cloud provider comparison</span></li>
+      <li><div class="chk" onclick="toggleCheck(this)"></div><span class="chk-label">Session 2: Installed or accessed CLI for chosen provider</span></li>
+      <li><div class="chk" onclick="toggleCheck(this)"></div><span class="chk-label">Session 2: Deployed first cloud storage resource via CLI</span></li>
+      <li><div class="chk" onclick="toggleCheck(this)"></div><span class="chk-label">Session 2: Cleaned up all resources after session</span></li>
+      <li><div class="chk" onclick="toggleCheck(this)"></div><span class="chk-label">Session 3: Launched and SSH'd into a VM</span></li>
+      <li><div class="chk" onclick="toggleCheck(this)"></div><span class="chk-label">Session 3: Attached and mounted extra block storage</span></li>
+      <li><div class="chk" onclick="toggleCheck(this)"></div><span class="chk-label">Session 3: Terminated VM and deleted volumes</span></li>
+      <li><div class="chk" onclick="toggleCheck(this)"></div><span class="chk-label">Session 4: Drew Hadoop ecosystem diagram (all 9 components)</span></li>
+      <li><div class="chk" onclick="toggleCheck(this)"></div><span class="chk-label">Session 4: Defined RDD, DataFrame, Transformation/Action, DAG</span></li>
+    </ul>
+    <h3 style="margin-top:20px;font-size:14px;color:var(--text-dim);">Week 04 — Sessions 5–6</h3>
+    <ul class="checklist">
+      <li><div class="chk" onclick="toggleCheck(this)"></div><span class="chk-label">Session 5: Installed Java 11, created hadoop user, set up passwordless SSH</span></li>
+      <li><div class="chk" onclick="toggleCheck(this)"></div><span class="chk-label">Session 5: Downloaded Hadoop 3.3.x and set environment variables</span></li>
+      <li><div class="chk" onclick="toggleCheck(this)"></div><span class="chk-label">Session 5: Configured all four XML files correctly</span></li>
+      <li><div class="chk" onclick="toggleCheck(this)"></div><span class="chk-label">Session 5: Formatted NameNode and started all daemons (jps shows 5 processes)</span></li>
+      <li><div class="chk" onclick="toggleCheck(this)"></div><span class="chk-label">Session 5: Ran WordCount job and captured output screenshot</span></li>
+      <li><div class="chk" onclick="toggleCheck(this)"></div><span class="chk-label">Session 6: Installed Spark 3.5.x and PySpark</span></li>
+      <li><div class="chk" onclick="toggleCheck(this)"></div><span class="chk-label">Session 6: Created DataFrame, ran .show(), .filter(), .sql() actions</span></li>
+      <li><div class="chk" onclick="toggleCheck(this)"></div><span class="chk-label">Session 6: Downloaded and analysed a real public dataset</span></li>
+      <li><div class="chk" onclick="toggleCheck(this)"></div><span class="chk-label">Written all 7 report sections (max 7 pages A4)</span></li>
+      <li><div class="chk" onclick="toggleCheck(this)"></div><span class="chk-label">Report includes 2+ future trend discussions in conclusion</span></li>
+      <li><div class="chk" onclick="toggleCheck(this)"></div><span class="chk-label">All sources cited with URLs and dates</span></li>
+    </ul>
+  </div>
+</section>
+
+</div><!-- /container -->
+</main>
+
+<!-- FOOTER — EXACT COMPANY LOGO CONTENT -->
+<footer class="bg-stone-900 text-stone-400 py-6 mt-8" style="background:#0d0f11;color:#78716c;padding:24px 0;margin-top:32px;border-top:1px solid #1f2937;">
+  <div class="container mx-auto text-center text-sm" style="max-width:1060px;margin:0 auto;padding:0 28px;">
+    <p style="display:flex; justify-content:center; align-items:center; gap:8px; margin:0; font-size:13px; font-family:'DM Sans',sans-serif;">
+      <img src="cyber_soho.png"
+           alt="Cyber Soho"
+           style="height:32px;">
+      <span>Educational Hub &copy; 2026 | From the Industry to the Classroom — Building the IT’s Future, Today and Together !
+				<br>ALL Rights Reserverd</br></span>
+    </p>
+  </div>
+</footer>
+
+<script>
+// ── PROGRESS BAR ─────────────────────────────────────
+window.addEventListener('scroll', () => {
+  const el = document.documentElement;
+  const pct = el.scrollTop / (el.scrollHeight - el.clientHeight) * 100;
+  document.getElementById('progressBar').style.width = pct + '%';
+});
+
+// ── ACTIVE NAV ────────────────────────────────────────
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('.nav-link');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      navLinks.forEach(l => l.classList.remove('active'));
+      const active = document.querySelector(`.nav-link[href="#${e.target.id}"]`);
+      if (active) active.classList.add('active');
+    }
+  });
+}, { rootMargin: '-30% 0px -60% 0px' });
+sections.forEach(s => observer.observe(s));
+
+// ── SESSION ACCORDION ─────────────────────────────────
+function toggleSession(id) {
+  const el = document.getElementById(id);
+  const wasOpen = el.classList.contains('open');
+  // Close all
+  document.querySelectorAll('.session.open').forEach(s => s.classList.remove('open'));
+  if (!wasOpen) el.classList.add('open');
+}
+
+// ── COPY CODE ─────────────────────────────────────────
+function copyCode(btn) {
+  const pre = btn.closest('.code-wrap').querySelector('pre');
+  navigator.clipboard.writeText(pre.innerText).then(() => {
+    btn.textContent = 'copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+// ── CHECKLIST ─────────────────────────────────────────
+function toggleCheck(chk) {
+  chk.classList.toggle('done');
+  const label = chk.nextElementSibling;
+  if (label) label.classList.toggle('done');
+}
+
+// ── RUBRIC ANIMATION ──────────────────────────────────
+const rubricObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      document.querySelectorAll('.rubric-fill').forEach(bar => {
+        const pct = parseFloat(bar.dataset.pct);
+        bar.style.transform = `scaleX(${pct})`;
+        bar.classList.add('animate');
+      });
+    }
+  });
+}, { threshold: 0.3 });
+const rubricSection = document.getElementById('rubricSection');
+if (rubricSection) rubricObs.observe(rubricSection);
+
+// ── FADE IN OBSERVER ──────────────────────────────────
+const fadeObs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.fade-in').forEach(el => fadeObs.observe(el));
+
+// ── OPEN FIRST SESSION BY DEFAULT ─────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('s1').classList.add('open');
+});
+</script>
+</body>
+</html>

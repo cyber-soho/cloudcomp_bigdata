@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud Computing and Big Data Analytics: Cloud Providers Comparison</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chosen Palette: Warm Neutrals & Deep Slate (Backgrounds: #faf9f6, Accents: #0f172a, Highlights: #3b82f6, Data colors: customized slate/blue/amber/teal) -->
+    <!-- Application Structure Plan: The SPA is structured into three main interactive views: 1) Global Market Overview (to establish context and scale), 2) Provider Deep Dive (a tabbed interface allowing focused exploration of the Big 4 plus niche providers without overwhelming the user), and 3) Decision Engine (an interactive tool translating theoretical knowledge into practical selection criteria). This dashboard approach transforms a linear lecture into an explorable tool, prioritizing task-oriented understanding. -->
+    <!-- Visualization & Content Choices: 
+        1. Market Share -> Inform -> Chart.js Doughnut -> Hover tooltips -> Clearly shows the dominance of the top 3 and the large "Others" slice.
+        2. AWS Costs -> Inform/Analyze -> Chart.js Bar Chart -> Hover -> Shows the overwhelming proportion of compute costs visually.
+        3. Azure/AWS Map -> Compare -> Interactive HTML List with Text Filter -> Typing filters results -> Replaces complex diagrams with a fast, accessible look-up tool.
+        4. GCP Pipeline -> Organize/Inform -> CSS/HTML Grid Flow -> Hover highlights -> Shows data flow without SVG, using pure HTML geometry.
+        5. Alibaba Sovereignty -> Organize -> HTML Table -> Responsive scroll -> Clearly maps regions to legal requirements.
+        6. Decision Engine -> Analyze/Interact -> HTML Range Sliders + JS Math -> Dynamic scoring update -> Engages user in the actual selection process based on Lesson 5. 
+        All choices avoid SVG/Mermaid and use standard DOM/Canvas techniques. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body { background-color: #faf9f6; color: #1e293b; font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+        .chart-container { position: relative; width: 100%; max-width: 600px; margin-left: auto; margin-right: auto; height: 350px; max-height: 400px; }
+        @media (max-width: 640px) { .chart-container { height: 250px; } }
+        .nav-btn.active { background-color: #0f172a; color: white; border-color: #0f172a; }
+        .tab-btn.active { border-bottom: 2px solid #3b82f6; color: #3b82f6; font-weight: 600; }
+        .flow-box { transition: all 0.3s ease; }
+        .flow-box:hover { transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border-color: #3b82f6; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <header class="bg-slate-900 text-white py-8 px-6 shadow-md">
+        <div class="max-w-6xl mx-auto">
+            <h1 class="text-3xl md:text-4xl font-bold mb-2">Cloud Providers Comparison</h1>
+            <p class="text-slate-300 text-lg">Digital Science Graduate Level — Future Trends (Q3 2025)</p>
+            <p class="text-sm text-slate-400 mt-2">Prepared by Cyber.SoHo • Version 1.0</p>
+        </div>
+    </header>
+
+    <div class="max-w-6xl mx-auto w-full px-6 py-4 border-b border-slate-200 mb-6 flex flex-wrap gap-2" id="main-nav">
+        <button data-view="market" class="nav-btn active px-4 py-2 rounded-lg border border-slate-300 font-medium transition-colors hover:bg-slate-100">Market Overview</button>
+        <button data-view="providers" class="nav-btn px-4 py-2 rounded-lg border border-slate-300 font-medium transition-colors hover:bg-slate-100">Provider Deep Dive</button>
+        <button data-view="decision" class="nav-btn px-4 py-2 rounded-lg border border-slate-300 font-medium transition-colors hover:bg-slate-100">Decision Engine</button>
+    </div>
+
+    <main class="max-w-6xl mx-auto w-full px-6 flex-grow pb-12">
+
+        <section id="view-market" class="view-section block">
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold mb-3 text-slate-800">The Global Cloud Landscape</h2>
+                <p class="text-slate-600 leading-relaxed text-lg">
+                    This section provides a macro-level view of the cloud computing infrastructure market as of Q3 2025. The data below illustrates the current state of play in an industry that exceeds $400 billion annually. Understanding these market dynamics is crucial before selecting a provider, as market share often correlates with ecosystem maturity, talent availability, and enterprise trust.
+                </p>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 md:p-8 flex flex-col lg:flex-row items-center gap-8">
+                <div class="w-full lg:w-1/2">
+                    <h3 class="text-xl font-semibold mb-2">Q3 2025 Market Share</h3>
+                    <p class="text-sm text-slate-500 mb-6">Explore the chart to see the exact percentage breakdown among the top hyperscalers and the remaining market.</p>
+                    <div class="chart-container">
+                        <canvas id="marketChart"></canvas>
+                    </div>
+                </div>
+                <div class="w-full lg:w-1/2 space-y-6">
+                    <div class="p-5 bg-slate-50 rounded-lg border border-slate-100">
+                        <div class="text-3xl font-bold text-slate-800 mb-1">$107 Billion</div>
+                        <div class="text-sm font-medium text-slate-500 uppercase tracking-wide">Total Market Value (Q3 2025 alone)</div>
+                        <p class="mt-2 text-slate-600 text-sm">The total cloud infrastructure market continues to expand rapidly. The sheer scale indicates that cloud adoption is no longer a trend, but the default operating model for modern enterprises.</p>
+                    </div>
+                    <div class="p-5 bg-blue-50 rounded-lg border border-blue-100">
+                        <div class="text-3xl font-bold text-blue-900 mb-1">66%</div>
+                        <div class="text-sm font-medium text-blue-700 uppercase tracking-wide">Big Four Consolidation</div>
+                        <p class="mt-2 text-blue-800 text-sm">AWS, Azure, GCP, and Alibaba control two-thirds of the entire global market. Choosing outside this group means optimizing for highly specific niche requirements (e.g., extreme low cost, strict sovereign compliance).</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="view-providers" class="view-section hidden">
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold mb-3 text-slate-800">Provider Deep Dive</h2>
+                <p class="text-slate-600 leading-relaxed text-lg">
+                    Dive into the distinct characteristics, strategic advantages, and unique capabilities of the major cloud providers. Each provider has a unique "personality" and technical focus. Use the tabs below to explore their specific strengths, pricing models, and how they cater to different organizational needs, from AI innovation to data sovereignty.
+                </p>
+            </div>
+
+            <div class="flex border-b border-slate-200 mb-6 overflow-x-auto" id="provider-tabs">
+                <button data-tab="aws" class="tab-btn active px-4 py-3 text-slate-500 font-medium whitespace-nowrap transition-colors hover:text-slate-800">AWS (Amazon)</button>
+                <button data-tab="azure" class="tab-btn px-4 py-3 text-slate-500 font-medium whitespace-nowrap transition-colors hover:text-slate-800">Microsoft Azure</button>
+                <button data-tab="gcp" class="tab-btn px-4 py-3 text-slate-500 font-medium whitespace-nowrap transition-colors hover:text-slate-800">Google Cloud (GCP)</button>
+                <button data-tab="alibaba" class="tab-btn px-4 py-3 text-slate-500 font-medium whitespace-nowrap transition-colors hover:text-slate-800">Alibaba Cloud</button>
+                <button data-tab="others" class="tab-btn px-4 py-3 text-slate-500 font-medium whitespace-nowrap transition-colors hover:text-slate-800">The Neoclouds & Others</button>
+            </div>
+
+            <div id="tab-aws" class="provider-pane block">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-3xl font-bold text-slate-800 mb-2">AWS</h3>
+                        <p class="text-sm font-semibold text-amber-600 uppercase tracking-wider mb-4">The Pioneer That Refuses to Slow Down</p>
+                        <p class="text-slate-600 mb-4">Launched in 2006, AWS commands ~29% of the market. Its leadership is built on enterprise trust, a massive head start, and an ecosystem of over 250 services. AWS excels at vertical integration, including custom silicon like Trainium and Inferentia chips for cost-effective Machine Learning.</p>
+                        <ul class="space-y-2 mb-6">
+                            <li class="flex items-start"><span class="mr-2 text-amber-500">▶</span> <span class="text-slate-700"><strong>Key ML/AI:</strong> Amazon SageMaker, Amazon Bedrock</span></li>
+                            <li class="flex items-start"><span class="mr-2 text-amber-500">▶</span> <span class="text-slate-700"><strong>Core Tech:</strong> EC2, S3 (11 nines durability), Lambda</span></li>
+                            <li class="flex items-start"><span class="mr-2 text-amber-500">▶</span> <span class="text-slate-700"><strong>Future Trend:</strong> Vertical silicon integration & 100% renewable energy targets.</span></li>
+                        </ul>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                        <h4 class="font-bold text-lg mb-2">Data Science Pipeline Cost Breakdown</h4>
+                        <p class="text-sm text-slate-500 mb-4">A typical monthly bill for a churn prediction model. Notice how GPU compute dominates the pay-as-you-go model. Hover over bars for details.</p>
+                        <div class="chart-container">
+                            <canvas id="awsCostChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-azure" class="provider-pane hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-3xl font-bold text-slate-800 mb-2">Microsoft Azure</h3>
+                        <p class="text-sm font-semibold text-blue-600 uppercase tracking-wider mb-4">The Enterprise Juggernaut & OpenAI Ace</p>
+                        <p class="text-slate-600 mb-4">Commanding ~20% of the market, Azure is the natural choice for enterprises already using Active Directory, Microsoft 365, or Power BI. Its exclusive partnership with OpenAI means GPT-4o and DALL-E 3 can be deployed securely behind corporate firewalls via Azure AI Studio.</p>
+                        <ul class="space-y-2 mb-6">
+                            <li class="flex items-start"><span class="mr-2 text-blue-500">▶</span> <span class="text-slate-700"><strong>Key AI:</strong> Azure OpenAI Service, Copilot ecosystem</span></li>
+                            <li class="flex items-start"><span class="mr-2 text-blue-500">▶</span> <span class="text-slate-700"><strong>Hybrid Leadership:</strong> Azure Arc and Azure Stack</span></li>
+                            <li class="flex items-start"><span class="mr-2 text-blue-500">▶</span> <span class="text-slate-700"><strong>Future Trend:</strong> Embedding AI assistance (Copilot) into every software layer.</span></li>
+                        </ul>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                        <h4 class="font-bold text-lg mb-2">Azure vs AWS Translation Engine</h4>
+                        <p class="text-sm text-slate-500 mb-4">Cross-cloud fluency is vital. Type a service name (e.g., 'Storage', 'Lambda', 'EC2') to find its equivalent.</p>
+                        <input type="text" id="azure-search" placeholder="Search services..." class="w-full px-4 py-2 border border-slate-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <div class="max-h-64 overflow-y-auto border border-slate-100 rounded-lg bg-slate-50 p-2 space-y-2" id="azure-list">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-gcp" class="provider-pane hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-3xl font-bold text-slate-800 mb-2">Google Cloud (GCP)</h3>
+                        <p class="text-sm font-semibold text-red-500 uppercase tracking-wider mb-4">The Data and AI Powerhouse</p>
+                        <p class="text-slate-600 mb-4">With ~13% market share, GCP is the favorite among data scientists for analytics. BigQuery revolutionized serverless data warehousing by charging only for data scanned ($6.25/TB). It is also the birthplace of TensorFlow and Kubernetes.</p>
+                        <ul class="space-y-2 mb-6">
+                            <li class="flex items-start"><span class="mr-2 text-red-500">▶</span> <span class="text-slate-700"><strong>Key Analytics:</strong> BigQuery, Dataflow, Looker</span></li>
+                            <li class="flex items-start"><span class="mr-2 text-red-500">▶</span> <span class="text-slate-700"><strong>AI & Hardware:</strong> Vertex AI, Gemini models, TPUs</span></li>
+                            <li class="flex items-start"><span class="mr-2 text-red-500">▶</span> <span class="text-slate-700"><strong>Network Edge:</strong> Premium-tier networking on Google's private fiber.</span></li>
+                        </ul>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                        <h4 class="font-bold text-lg mb-2">Serverless Analytics Pipeline Architecture</h4>
+                        <p class="text-sm text-slate-500 mb-4">A standard GCP data flow. Interact with the blocks to see how data moves without managing a single server.</p>
+                        <div class="flex flex-col space-y-3 mt-6">
+                            <div class="flow-box p-4 bg-slate-50 border-2 border-slate-200 rounded-lg text-center cursor-default">
+                                <span class="font-bold text-slate-700 block">1. Ingest (Pub/Sub & Dataflow)</span>
+                                <span class="text-xs text-slate-500">Streams raw events instantly</span>
+                            </div>
+                            <div class="text-center text-slate-400 font-bold text-xl">↓</div>
+                            <div class="flow-box p-4 bg-slate-50 border-2 border-slate-200 rounded-lg text-center cursor-default">
+                                <span class="font-bold text-slate-700 block">2. Store (Cloud Storage)</span>
+                                <span class="text-xs text-slate-500">Cheap, durable object storage</span>
+                            </div>
+                            <div class="text-center text-slate-400 font-bold text-xl">↓</div>
+                            <div class="flow-box p-4 bg-blue-50 border-2 border-blue-300 rounded-lg text-center cursor-default shadow-sm">
+                                <span class="font-bold text-blue-800 block">3. Query (BigQuery)</span>
+                                <span class="text-xs text-blue-600">SQL execution at petabyte scale ($6.25/TB)</span>
+                            </div>
+                            <div class="text-center text-slate-400 font-bold text-xl">↓</div>
+                            <div class="flow-box p-4 bg-slate-50 border-2 border-slate-200 rounded-lg text-center cursor-default">
+                                <span class="font-bold text-slate-700 block">4. Visualise (Looker)</span>
+                                <span class="text-xs text-slate-500">Business Intelligence Dashboards</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-alibaba" class="provider-pane hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-3xl font-bold text-slate-800 mb-2">Alibaba Cloud</h3>
+                        <p class="text-sm font-semibold text-orange-500 uppercase tracking-wider mb-4">The Asian Giant</p>
+                        <p class="text-slate-600 mb-4">Holding ~4% globally but dominating APAC (>35% in China). Stress-tested by the massive Singles' Day event (583,000 orders/sec). Alibaba is essential for businesses engaging with Chinese consumers due to strict local data laws.</p>
+                        <ul class="space-y-2 mb-6">
+                            <li class="flex items-start"><span class="mr-2 text-orange-500">▶</span> <span class="text-slate-700"><strong>Key AI:</strong> Qwen LLMs (Open-source), Tongyi AI platform</span></li>
+                            <li class="flex items-start"><span class="mr-2 text-orange-500">▶</span> <span class="text-slate-700"><strong>Cost Adv:</strong> Often 20-40% cheaper than AWS in APAC</span></li>
+                            <li class="flex items-start"><span class="mr-2 text-orange-500">▶</span> <span class="text-slate-700"><strong>Compliance:</strong> Native compliance with China's CSL, PIPL, and DSL.</span></li>
+                        </ul>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                        <h4 class="font-bold text-lg mb-2">Global Data Sovereignty Matrix</h4>
+                        <p class="text-sm text-slate-500 mb-4">Cloud selection is often dictated by law, not just technology. Review residency rules below.</p>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse text-sm">
+                                <thead>
+                                    <tr class="bg-slate-100 text-slate-700">
+                                        <th class="p-3 font-semibold border-b border-slate-200">Region</th>
+                                        <th class="p-3 font-semibold border-b border-slate-200">Dominant Provider</th>
+                                        <th class="p-3 font-semibold border-b border-slate-200">Key Regulation</th>
+                                        <th class="p-3 font-semibold border-b border-slate-200">Residency</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="hover:bg-slate-50">
+                                        <td class="p-3 border-b border-slate-100 font-medium">China</td>
+                                        <td class="p-3 border-b border-slate-100 text-orange-600 font-medium">Alibaba Cloud</td>
+                                        <td class="p-3 border-b border-slate-100">CSL / PIPL</td>
+                                        <td class="p-3 border-b border-slate-100"><span class="px-2 py-1 bg-red-100 text-red-800 rounded text-xs font-bold">MANDATORY</span></td>
+                                    </tr>
+                                    <tr class="hover:bg-slate-50">
+                                        <td class="p-3 border-b border-slate-100 font-medium">EU</td>
+                                        <td class="p-3 border-b border-slate-100">AWS / Azure / OVH</td>
+                                        <td class="p-3 border-b border-slate-100">GDPR</td>
+                                        <td class="p-3 border-b border-slate-100"><span class="px-2 py-1 bg-amber-100 text-amber-800 rounded text-xs font-bold">STRICT</span></td>
+                                    </tr>
+                                    <tr class="hover:bg-slate-50">
+                                        <td class="p-3 border-b border-slate-100 font-medium">Russia</td>
+                                        <td class="p-3 border-b border-slate-100">Yandex Cloud</td>
+                                        <td class="p-3 border-b border-slate-100">FZ-242</td>
+                                        <td class="p-3 border-b border-slate-100"><span class="px-2 py-1 bg-red-100 text-red-800 rounded text-xs font-bold">MANDATORY</span></td>
+                                    </tr>
+                                    <tr class="hover:bg-slate-50">
+                                        <td class="p-3 border-b border-slate-100 font-medium">USA</td>
+                                        <td class="p-3 border-b border-slate-100">AWS</td>
+                                        <td class="p-3 border-b border-slate-100">CCPA / HIPAA</td>
+                                        <td class="p-3 border-b border-slate-100"><span class="px-2 py-1 bg-slate-200 text-slate-800 rounded text-xs font-bold">BY SECTOR</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-others" class="provider-pane hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-3xl font-bold text-slate-800 mb-2">The Expanding Universe</h3>
+                        <p class="text-sm font-semibold text-teal-600 uppercase tracking-wider mb-4">Legacy Giants & The Neoclouds</p>
+                        <p class="text-slate-600 mb-4">AWS, Azure, and GCP don't solve every problem. Approximately 34% of the market ($36B/quarter) belongs to specialized providers solving highly specific use cases, from extreme simplicity to raw, cheap GPU power.</p>
+                        <ul class="space-y-4 mb-6">
+                            <li>
+                                <strong class="text-slate-800">Oracle Cloud (OCI):</strong> ~3% share. Undercuts AWS pricing by 30-50%. Famous for the self-tuning Autonomous Database and large NVIDIA H100 clusters.
+                            </li>
+                            <li>
+                                <strong class="text-slate-800">DigitalOcean:</strong> The anti-hyperscaler. Focuses purely on simplicity and developer experience. Ideal for startups wanting VMs starting at $4/mo without DevOps armies.
+                            </li>
+                            <li>
+                                <strong class="text-slate-800">OVHcloud:</strong> Europe's largest. Thrives on strict EU data sovereignty (immune to the US CLOUD Act) and zero data egress fees.
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="bg-teal-50 p-6 rounded-xl border border-teal-200 shadow-sm flex flex-col justify-center">
+                        <h4 class="font-bold text-xl text-teal-900 mb-2">Trend Alert: The Neoclouds</h4>
+                        <p class="text-teal-800 mb-4 text-sm">General-purpose clouds overcharge for AI training infrastructure. Enter the "Neoclouds"—purpose-built for AI workloads.</p>
+                        <div class="bg-white rounded p-4 border border-teal-100">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-bold">CoreWeave</span>
+                                <span class="bg-teal-100 text-teal-800 text-xs px-2 py-1 rounded">GPU-as-a-Service</span>
+                            </div>
+                            <p class="text-xs text-slate-600">Reportedly up to 80% cheaper than hyperscalers for equivalent GPU compute. Targeting massive LLM training workloads.</p>
+                        </div>
+                        <div class="bg-white rounded p-4 border border-teal-100 mt-3">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-bold">Lambda Labs / Nebius</span>
+                                <span class="bg-teal-100 text-teal-800 text-xs px-2 py-1 rounded">AI Specific</span>
+                            </div>
+                            <p class="text-xs text-slate-600">Disrupting the market by providing bare-metal performance for AI without the overhead of 250+ enterprise services.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="view-decision" class="view-section hidden">
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold mb-3 text-slate-800">Cloud Decision Engine</h2>
+                <p class="text-slate-600 leading-relaxed text-lg">
+                    Cloud architecture begins with requirements analysis, not brand loyalty. There is no universally "best" provider. Adjust the sliders below to reflect your specific project priorities (1 = Low Importance, 10 = Critical). The engine will calculate the best architectural fit among the alternative providers based on quantitative scoring.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <h3 class="font-bold text-lg mb-4 border-b border-slate-100 pb-2">Set Your Priorities</h3>
+                    
+                    <div class="mb-5">
+                        <label class="flex justify-between text-sm font-semibold text-slate-700 mb-1">
+                            <span>Cost Efficiency</span> <span id="val-cost" class="text-blue-600">5</span>
+                        </label>
+                        <input type="range" id="slide-cost" min="1" max="10" value="5" class="w-full accent-blue-600">
+                        <p class="text-xs text-slate-500 mt-1">Importance of absolute lowest price for compute/storage.</p>
+                    </div>
+                    
+                    <div class="mb-5">
+                        <label class="flex justify-between text-sm font-semibold text-slate-700 mb-1">
+                            <span>AI / GPU Compute</span> <span id="val-ai" class="text-blue-600">5</span>
+                        </label>
+                        <input type="range" id="slide-ai" min="1" max="10" value="5" class="w-full accent-blue-600">
+                        <p class="text-xs text-slate-500 mt-1">Need for massive, cheap H100/A100 clusters for model training.</p>
+                    </div>
+
+                    <div class="mb-5">
+                        <label class="flex justify-between text-sm font-semibold text-slate-700 mb-1">
+                            <span>Data Sovereignty</span> <span id="val-sov" class="text-blue-600">5</span>
+                        </label>
+                        <input type="range" id="slide-sov" min="1" max="10" value="5" class="w-full accent-blue-600">
+                        <p class="text-xs text-slate-500 mt-1">Strict legal requirements to keep data within specific borders (e.g., EU, China).</p>
+                    </div>
+
+                    <div class="mb-5">
+                        <label class="flex justify-between text-sm font-semibold text-slate-700 mb-1">
+                            <span>Simplicity / DevX</span> <span id="val-sim" class="text-blue-600">5</span>
+                        </label>
+                        <input type="range" id="slide-sim" min="1" max="10" value="5" class="w-full accent-blue-600">
+                        <p class="text-xs text-slate-500 mt-1">Need for clean UI, easy deployment, minimal DevOps overhead.</p>
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 p-6 rounded-xl border border-slate-200 flex flex-col">
+                    <h3 class="font-bold text-lg mb-4 text-slate-800">Engine Recommendation</h3>
+                    <div id="recommendation-result" class="flex-grow flex flex-col space-y-3 overflow-y-auto pr-2">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        const navBtns = document.querySelectorAll('.nav-btn');
+        const viewSections = document.querySelectorAll('.view-section');
+        
+        navBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                navBtns.forEach(b => b.classList.remove('active', 'bg-slate-900', 'text-white'));
+                btn.classList.add('active', 'bg-slate-900', 'text-white');
+                const targetView = btn.getAttribute('data-view');
+                viewSections.forEach(sec => {
+                    sec.classList.add('hidden');
+                    sec.classList.remove('block');
+                });
+                document.getElementById(`view-${targetView}`).classList.remove('hidden');
+                document.getElementById(`view-${targetView}`).classList.add('block');
+            });
+        });
+
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const providerPanes = document.querySelectorAll('.provider-pane');
+
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                tabBtns.forEach(b => b.classList.remove('active', 'border-blue-500', 'text-blue-600'));
+                btn.classList.add('active', 'border-blue-500', 'text-blue-600');
+                const targetTab = btn.getAttribute('data-tab');
+                providerPanes.forEach(pane => {
+                    pane.classList.add('hidden');
+                    pane.classList.remove('block');
+                });
+                document.getElementById(`tab-${targetTab}`).classList.remove('hidden');
+                document.getElementById(`tab-${targetTab}`).classList.add('block');
+            });
+        });
+
+        const ctxMarket = document.getElementById('marketChart').getContext('2d');
+        new Chart(ctxMarket, {
+            type: 'doughnut',
+            data: {
+                labels: ['AWS', 'Azure', 'GCP', 'Alibaba', 'Others'],
+                datasets: [{
+                    data: [29, 20, 13, 4, 34],
+                    backgroundColor: ['#f59e0b', '#3b82f6', '#ef4444', '#f97316', '#94a3b8'],
+                    borderWidth: 2,
+                    borderColor: '#ffffff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'right', labels: { font: { family: 'system-ui' } } },
+                    tooltip: { callbacks: { label: function(context) { return context.label + ': ~' + context.raw + '%'; } } }
+                },
+                cutout: '65%'
+            }
+        });
+
+        const ctxAws = document.getElementById('awsCostChart').getContext('2d');
+        new Chart(ctxAws, {
+            type: 'bar',
+            data: {
+                labels: ['GPU Train (EC2)', 'API (EC2)', 'Storage (S3)', 'Archive', 'Serverless'],
+                datasets: [{
+                    label: 'Monthly Cost ($)',
+                    data: [489.60, 7.59, 11.50, 8.00, 1.00],
+                    backgroundColor: ['#f59e0b', '#fbbf24', '#38bdf8', '#7dd3fc', '#10b981'],
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                scales: {
+                    x: { beginAtZero: true, title: { display: true, text: 'USD / Month' } }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+
+        const azureMappingData = [
+            { azure: "Virtual Machines", aws: "EC2", category: "Compute" },
+            { azure: "Blob Storage", aws: "S3", category: "Storage" },
+            { azure: "Azure SQL Database", aws: "RDS", category: "Database" },
+            { azure: "Azure Functions", aws: "Lambda", category: "Serverless" },
+            { azure: "Cosmos DB", aws: "DynamoDB", category: "Database" },
+            { azure: "Azure AI Studio", aws: "Amazon Bedrock", category: "AI/ML" },
+            { azure: "Azure ML", aws: "Amazon SageMaker", category: "AI/ML" },
+            { azure: "Virtual Network", aws: "VPC", category: "Networking" },
+            { azure: "Azure Kubernetes (AKS)", aws: "EKS", category: "Containers" }
+        ];
+
+        const azureListEl = document.getElementById('azure-list');
+        const azureSearch = document.getElementById('azure-search');
+
+        function renderAzureList(filterText = "") {
+            azureListEl.innerHTML = "";
+            const filtered = azureMappingData.filter(item => 
+                item.azure.toLowerCase().includes(filterText.toLowerCase()) || 
+                item.aws.toLowerCase().includes(filterText.toLowerCase()) ||
+                item.category.toLowerCase().includes(filterText.toLowerCase())
+            );
+            
+            if(filtered.length === 0) {
+                azureListEl.innerHTML = `<div class="p-3 text-sm text-slate-500 text-center">No matches found.</div>`;
+                return;
+            }
+
+            filtered.forEach(item => {
+                const div = document.createElement('div');
+                div.className = "p-3 bg-white rounded border border-slate-200 flex justify-between items-center";
+                div.innerHTML = `
+                    <div>
+                        <div class="font-bold text-blue-800 text-sm">${item.azure}</div>
+                        <div class="text-xs text-slate-400 uppercase tracking-wide">${item.category}</div>
+                    </div>
+                    <div class="text-slate-400 text-lg">⇄</div>
+                    <div class="text-right">
+                        <div class="font-bold text-amber-600 text-sm">${item.aws}</div>
+                    </div>
+                `;
+                azureListEl.appendChild(div);
+            });
+        }
+        renderAzureList();
+        azureSearch.addEventListener('input', (e) => renderAzureList(e.target.value));
+
+        const decisionData = [
+            { name: "Oracle Cloud", cost: 8, ai: 5, sov: 6, sim: 4, color: "border-red-500 bg-red-50" },
+            { name: "IBM Cloud", cost: 4, ai: 6, sov: 8, sim: 3, color: "border-blue-700 bg-blue-50" },
+            { name: "DigitalOcean", cost: 9, ai: 2, sov: 3, sim: 10, color: "border-blue-400 bg-blue-50" },
+            { name: "OVHcloud", cost: 8, ai: 4, sov: 10, sim: 6, color: "border-indigo-500 bg-indigo-50" },
+            { name: "CoreWeave", cost: 6, ai: 10, sov: 2, sim: 5, color: "border-emerald-500 bg-emerald-50" }
+        ];
+
+        const sliders = ['cost', 'ai', 'sov', 'sim'];
+        
+        function updateDecisionEngine() {
+            const weights = {
+                cost: parseInt(document.getElementById('slide-cost').value),
+                ai: parseInt(document.getElementById('slide-ai').value),
+                sov: parseInt(document.getElementById('slide-sov').value),
+                sim: parseInt(document.getElementById('slide-sim').value)
+            };
+
+            sliders.forEach(id => {
+                document.getElementById(`val-${id}`).innerText = weights[id];
+            });
+
+            let scored = decisionData.map(provider => {
+                let score = (provider.cost * weights.cost) + 
+                            (provider.ai * weights.ai) + 
+                            (provider.sov * weights.sov) + 
+                            (provider.sim * weights.sim);
+                return { ...provider, score: score };
+            });
+
+            scored.sort((a, b) => b.score - a.score);
+            let maxScore = scored[0].score;
+
+            const resContainer = document.getElementById('recommendation-result');
+            resContainer.innerHTML = '';
+
+            scored.forEach((prov, index) => {
+                let pct = Math.round((prov.score / maxScore) * 100);
+                const div = document.createElement('div');
+                div.className = `p-4 rounded-lg border flex flex-col relative overflow-hidden ${prov.color}`;
+                
+                let badge = index === 0 ? `<span class="absolute top-2 right-2 bg-slate-800 text-white text-xs font-bold px-2 py-1 rounded">BEST MATCH</span>` : '';
+                
+                div.innerHTML = `
+                    ${badge}
+                    <div class="font-bold text-slate-800 mb-2">${prov.name}</div>
+                    <div class="w-full bg-white/50 rounded-full h-2.5 mb-1 border border-white/60">
+                        <div class="bg-slate-700 h-2.5 rounded-full" style="width: ${pct}%"></div>
+                    </div>
+                    <div class="text-xs text-slate-600 text-right font-medium">Match Score: ${pct}%</div>
+                `;
+                resContainer.appendChild(div);
+            });
+        }
+
+        sliders.forEach(id => {
+            document.getElementById(`slide-${id}`).addEventListener('input', updateDecisionEngine);
+        });
+        
+        updateDecisionEngine();
+        document.querySelector('.nav-btn[data-view="market"]').click();
+    </script>
+</body>
+</html>
+
+
+
