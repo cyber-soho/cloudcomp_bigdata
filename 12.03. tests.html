@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GCP Study Center</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #334155; }
+        
+        /* Flashcard Flip Animation CSS */
+        .flip-card {
+            perspective: 1000px;
+            height: 200px;
+            cursor: pointer;
+        }
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+        .flip-card.flipped .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+        .flip-card-front, .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+        .flip-card-front {
+            background-color: #ffffff;
+            border: 2px solid #e2e8f0;
+            color: #1e293b;
+            font-weight: 600;
+            font-size: 1.125rem;
+        }
+        .flip-card-back {
+            background-color: #eff6ff;
+            border: 2px solid #bfdbfe;
+            color: #1e3a8a;
+            transform: rotateY(180deg);
+            font-size: 0.95rem;
+        }
+
+        /* Tab active state */
+        .tab-active { border-bottom-color: #2563eb; color: #2563eb; }
+        .tab-inactive { border-bottom-color: transparent; color: #64748b; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center py-10 px-4">
+
+    <div class="max-w-5xl w-full bg-white rounded-2xl shadow-xl overflow-hidden">
+        
+        <div class="bg-slate-900 px-8 py-6 text-white text-center">
+            <h1 class="text-3xl font-bold">GCP Cloud Computing Basics</h1>
+            <p class="text-slate-400 mt-2">Study Center: Flashcards & Quiz</p>
+        </div>
+
+        <nav class="flex border-b border-slate-200 bg-slate-50 px-8">
+            <button id="tab-flashcards" class="tab-btn tab-active py-4 px-6 font-semibold border-b-2 hover:text-blue-600 transition-colors focus:outline-none">
+                📚 Flashcards (25)
+            </button>
+            <button id="tab-quiz" class="tab-btn tab-inactive py-4 px-6 font-semibold border-b-2 hover:text-blue-600 transition-colors focus:outline-none">
+                📝 Practice Quiz (10)
+            </button>
+        </nav>
+
+        <div class="p-8">
+
+            <section id="section-flashcards" class="block">
+                <p class="text-center text-slate-500 mb-8">Click any card to reveal the definition.</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6" id="flashcard-grid">
+                    </div>
+            </section>
+
+            <section id="section-quiz" class="hidden">
+                <p class="text-center text-slate-500 mb-8">Test your knowledge. Select an answer to see the rationale.</p>
+                <div id="quiz-container" class="space-y-8">
+                    </div>
+            </section>
+
+        </div>
+    </div>
+
+    <script>
+        // --- Data ---
+        const flashcardsData = [
+            { front: "Cloud Computing", back: "On-demand delivery of computing resources over the internet, with pay-as-you-go pricing." },
+            { front: "Infrastructure as a Service (IaaS)", back: "A model where you manage the OS and up, while the provider manages hardware and networking (e.g., Compute Engine)." },
+            { front: "Platform as a Service (PaaS)", back: "A model where you manage only the application code, and the provider handles the OS, runtime, and scaling (e.g., App Engine)." },
+            { front: "Software as a Service (SaaS)", back: "A model where the provider manages everything, and you simply use the software (e.g., Gmail, BigQuery)." },
+            { front: "Public Cloud vs. Private Cloud", back: "Public uses shared infrastructure (like AWS or GCP), whereas Private uses dedicated, on-premises infrastructure." },
+            { front: "Hybrid Cloud", back: "A mix of public and private cloud environments, often used by companies maintaining legacy systems." },
+            { front: "Multi-Cloud", back: "Splitting workloads across multiple cloud providers to avoid vendor lock-in." },
+            { front: "GCP's Primary Strengths", back: "Big Data analytics, Kubernetes, and Artificial Intelligence/Machine Learning." },
+            { front: "GCP Zone", back: "A single data centre with independent power, cooling, and networking; the smallest fault-isolation unit." },
+            { front: "GCP Region", back: "A geographical area containing 3 or more Zones within about 100 km to protect against a single data centre failure." },
+            { front: "Compute Engine", back: "GCP's IaaS offering that provides full Virtual Machines with root access." },
+            { front: "Cloud Run", back: "A serverless container service (CaaS) that scales from zero to hundreds of instances in seconds." },
+            { front: "Google Kubernetes Engine (GKE)", back: "GCP's fully managed Kubernetes cluster service, ideal for complex workloads and MLOps pipelines." },
+            { front: "Core Architectural Shift of the Cloud", back: "The separation of compute and storage, allowing resources to scale up or down independently." },
+            { front: "Cloud Storage (GCS)", back: "GCP's object storage service, ideal for large unstructured files like CSVs, model weights, and images." },
+            { front: "Cloud SQL & Cloud Spanner", back: "GCP's relational SQL services designed for structured, transactional data." },
+            { front: "GCS Standard Storage Class", back: "The default storage tier for active, frequently accessed 'hot' data." },
+            { front: "BigQuery", back: "Google's serverless data warehouse and columnar query engine optimized for analytical (OLAP) workloads." },
+            { front: "OLTP vs. OLAP", back: "OLTP handles high-volume transactional reads/writes, while OLAP scans billions of rows for aggregate analytics." },
+            { front: "Advantage of Columnar Storage", back: "It stores columns separately, drastically reducing I/O and query costs by only reading requested data fields." },
+            { front: "BigQuery ML (BQML)", back: "A feature allowing data scientists to train machine learning models directly inside BigQuery using standard SQL." },
+            { front: "IAM Principal", back: "The 'Who' in Identity and Access Management; the user, group, or service account requesting access." },
+            { front: "IAM Role", back: "The 'What' in Identity and Access Management; a collection of permissions defining allowed actions." },
+            { front: "Principle of Least Privilege", back: "The security practice of giving every identity the absolute minimum permissions required to perform its job." },
+            { front: "Workload Identity Federation", back: "The recommended security mechanism to grant access to resources without risking downloaded, leaked JSON keys." }
+        ];
+
+        const quizData = [
+            {
+                q: "A startup needs to deploy a lightweight machine learning API endpoint but has no dedicated operations team to manage OS patches. Which compute service best fits?",
+                options: [
+                    { text: "Compute Engine (IaaS)", correct: false, rationale: "IaaS requires the user to manage the operating system, which contradicts the lack of an operations team." },
+                    { text: "App Engine (PaaS)", correct: true, rationale: "PaaS abstracts away server configuration and OS management, allowing teams to just push code." },
+                    { text: "Dedicated on-premises server", correct: false, rationale: "On-premises requires maximum physical and software management overhead." },
+                    { text: "Cloud SQL", correct: false, rationale: "This is a database service, not a compute platform for APIs." }
+                ]
+            },
+            {
+                q: "A healthcare startup needs data to remain in the EU (GDPR) and requires <50ms latency for Berlin doctors. How should they structure their architecture?",
+                options: [
+                    { text: "Compute in us-central1, storage in europe-west1.", correct: false, rationale: "Separating compute and storage across oceans introduces massive latency." },
+                    { text: "Co-locate both compute and storage within europe-west1.", correct: true, rationale: "Keeping data and compute local satisfies residency laws and provides ultra-low latency." },
+                    { text: "Distribute data globally using Multi-Region.", correct: false, rationale: "Global replication violates the strict data residency requirement for the EU." },
+                    { text: "Keep all data isolated in a single Zone.", correct: false, rationale: "A single Zone creates a single point of failure without regional resilience." }
+                ]
+            },
+            {
+                q: "Which compute service minimizes costs for a prediction service that receives massive spikes but sits idle for days?",
+                options: [
+                    { text: "Compute Engine", correct: false, rationale: "VMs incur billing as long as they are running, meaning you pay for idle time." },
+                    { text: "Google Kubernetes Engine (GKE)", correct: false, rationale: "A Kubernetes cluster requires persistent node pools that accrue costs even when idle." },
+                    { text: "Cloud Run", correct: true, rationale: "Serverless containers charge only while processing requests and scale to zero instantly." },
+                    { text: "App Engine Standard", correct: false, rationale: "While good, Cloud Run is specifically optimized as a CaaS for custom environments with zero idle cost." }
+                ]
+            },
+            {
+                q: "Raw NLP training datasets must be retained for 5 years for compliance, but will likely never be accessed. Which Storage class is best?",
+                options: [
+                    { text: "Standard Storage", correct: false, rationale: "Optimized for hot data with the highest monthly storage cost." },
+                    { text: "Nearline Storage", correct: false, rationale: "Intended for data accessed roughly once a month." },
+                    { text: "Coldline Storage", correct: false, rationale: "Optimized for data accessed quarterly, still unnecessarily expensive here." },
+                    { text: "Archive Storage", correct: true, rationale: "Designed for data accessed less than once a year; provides the lowest storage cost." }
+                ]
+            },
+            {
+                q: "You have a 10 TB BigQuery table with 50 columns. You only need to sum `amount_usd`. How do you structure the SQL query to minimize costs?",
+                options: [
+                    { text: "SELECT * FROM sales_table WHERE region = 'US'", correct: false, rationale: "SELECT * forces the engine to scan every single column, maximizing charges." },
+                    { text: "SELECT amount_usd FROM sales_table", correct: true, rationale: "Explicitly selecting only the required column drastically reduces bytes scanned in a columnar database." },
+                    { text: "SELECT * FROM sales_table LIMIT 100", correct: false, rationale: "LIMIT restricts output but the engine still performs a full table scan in the background." },
+                    { text: "Export the table to Cloud Storage, then use Pandas", correct: false, rationale: "Exporting 10 TB negates the cloud query engine and introduces massive transfer times." }
+                ]
+            },
+            {
+                q: "A junior analyst needs to read BQ data for a report but must NOT be able to modify tables. Which IAM role aligns with Least Privilege?",
+                options: [
+                    { text: "Owner", correct: false, rationale: "Grants full administrative access, vastly exceeding permissions needed." },
+                    { text: "bigquery.dataEditor", correct: false, rationale: "Allows the user to write and delete data, violating the requirement." },
+                    { text: "bigquery.dataViewer", correct: true, rationale: "Grants exactly the read-only permissions needed without destructive privileges." },
+                    { text: "storage.objectViewer", correct: false, rationale: "Grants access to Cloud Storage buckets, not BigQuery datasets." }
+                ]
+            },
+            {
+                q: "Why is BigQuery faster/cheaper than PostgreSQL for calculating the sum of a single column across billions of rows?",
+                options: [
+                    { text: "It provisions dedicated hardware clusters 24/7.", correct: false, rationale: "BigQuery is serverless and allocates compute on demand." },
+                    { text: "It stores columns separately, scanning only necessary data.", correct: true, rationale: "Columnar storage skips reading irrelevant fields, reducing I/O drastically." },
+                    { text: "It loads the entire dataset into RAM before executing.", correct: false, rationale: "Loading petabytes into memory is infeasible; it relies on distributed storage." },
+                    { text: "It uses a NoSQL document structure.", correct: false, rationale: "BigQuery is an analytical SQL data warehouse, not NoSQL." }
+                ]
+            },
+            {
+                q: "An SQL-fluent analyst wants to build a logistic regression model but doesn't know Python. Most efficient way?",
+                options: [
+                    { text: "Compute Engine with visual ML tools", correct: false, rationale: "Requires infrastructure management and data movement." },
+                    { text: "Export data to Vertex AI AutoML", correct: false, rationale: "Involves data export and moves outside the native SQL workflow." },
+                    { text: "Use BigQuery ML (BQML)", correct: true, rationale: "Allows training models using standard SQL directly where the data resides." },
+                    { text: "Deploy containerized Python on Cloud Run", correct: false, rationale: "Requires Python and containerization knowledge the analyst lacks." }
+                ]
+            },
+            {
+                q: "To avoid the financial risk of leaked credentials in a CI/CD pipeline (e.g., GitHub Actions), what is the recommended authentication method?",
+                options: [
+                    { text: "Commit a JSON key securely to a private repo", correct: false, rationale: "Committing long-lived JSON keys is a major vulnerability if leaked." },
+                    { text: "Use Workload Identity Federation", correct: true, rationale: "Allows obtaining short-lived tokens without handling persistent secret keys." },
+                    { text: "Grant Owner role to a Google Group", correct: false, rationale: "Violates Least Privilege and doesn't solve programmatic authentication." },
+                    { text: "Hardcode a personal password", correct: false, rationale: "A severe anti-pattern that ties infrastructure to an individual." }
+                ]
+            },
+            {
+                q: "Which GCP storage primitive is purpose-built for real-time IoT ingesting millions of time-series readings per minute?",
+                options: [
+                    { text: "Cloud SQL", correct: false, rationale: "Relational DBs bottleneck under massive rapid write-throughput." },
+                    { text: "Cloud Storage (GCS)", correct: false, rationale: "An object store for files, not for millions of rapid DB operations." },
+                    { text: "Cloud Bigtable", correct: true, rationale: "Wide-column NoSQL designed for time-series and high-throughput at scale." },
+                    { text: "BigQuery", correct: false, rationale: "Designed for aggregate analytical scanning (OLAP), not low-latency operational reads/writes." }
+                ]
+            }
+        ];
+
+        // --- Render Flashcards ---
+        const flashcardGrid = document.getElementById('flashcard-grid');
+        flashcardsData.forEach((card, index) => {
+            const cardHTML = `
+                <div class="flip-card" onclick="this.classList.toggle('flipped')">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front text-center">${card.front}</div>
+                        <div class="flip-card-back text-center px-4 leading-relaxed">${card.back}</div>
+                    </div>
+                </div>
+            `;
+            flashcardGrid.insertAdjacentHTML('beforeend', cardHTML);
+        });
+
+        // --- Render Quiz ---
+        const quizContainer = document.getElementById('quiz-container');
+        quizData.forEach((item, qIndex) => {
+            
+            // Shuffle options
+            let options = [...item.options].sort(() => Math.random() - 0.5);
+            
+            let optionsHTML = options.map((opt, oIndex) => `
+                <button 
+                    onclick="handleQuizAnswer(this, ${opt.correct}, '${opt.rationale.replace(/'/g, "\\'")}')" 
+                    class="w-full text-left p-4 rounded-lg border border-slate-200 hover:bg-blue-50 hover:border-blue-300 transition-colors focus:outline-none"
+                    data-question="${qIndex}"
+                >
+                    ${opt.text}
+                </button>
+            `).join('');
+
+            const questionHTML = `
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm" id="q-block-${qIndex}">
+                    <h3 class="text-lg font-semibold text-slate-800 mb-4"><span class="text-blue-600 mr-2">Q${qIndex + 1}.</span>${item.q}</h3>
+                    <div class="space-y-3">
+                        ${optionsHTML}
+                    </div>
+                    <div id="rationale-${qIndex}" class="mt-4 p-4 rounded-lg hidden text-sm font-medium"></div>
+                </div>
+            `;
+            quizContainer.insertAdjacentHTML('beforeend', questionHTML);
+        });
+
+        // --- Logic: Quiz Interactions ---
+        function handleQuizAnswer(btn, isCorrect, rationale) {
+            const qIndex = btn.getAttribute('data-question');
+            const qBlock = document.getElementById(`q-block-${qIndex}`);
+            const rationaleBox = document.getElementById(`rationale-${qIndex}`);
+            const allBtns = qBlock.querySelectorAll('button');
+
+            // Disable all buttons for this question after answering
+            allBtns.forEach(b => {
+                b.disabled = true;
+                b.classList.remove('hover:bg-blue-50', 'hover:border-blue-300', 'cursor-pointer');
+                b.classList.add('opacity-50', 'cursor-not-allowed');
+            });
+
+            // Highlight chosen button
+            btn.classList.remove('opacity-50');
+            if (isCorrect) {
+                btn.classList.add('bg-green-100', 'border-green-500', 'text-green-800');
+                rationaleBox.classList.add('bg-green-50', 'text-green-800', 'border', 'border-green-200');
+            } else {
+                btn.classList.add('bg-red-100', 'border-red-500', 'text-red-800');
+                rationaleBox.classList.add('bg-red-50', 'text-red-800', 'border', 'border-red-200');
+            }
+
+            // Show rationale
+            rationaleBox.innerHTML = `<strong>${isCorrect ? 'Correct!' : 'Incorrect.'}</strong> ${rationale}`;
+            rationaleBox.classList.remove('hidden');
+        }
+
+        // --- Logic: Tab Switching ---
+        const tabFlashcardsBtn = document.getElementById('tab-flashcards');
+        const tabQuizBtn = document.getElementById('tab-quiz');
+        const sectionFlashcards = document.getElementById('section-flashcards');
+        const sectionQuiz = document.getElementById('section-quiz');
+
+        tabFlashcardsBtn.addEventListener('click', () => {
+            // Update buttons
+            tabFlashcardsBtn.classList.replace('tab-inactive', 'tab-active');
+            tabQuizBtn.classList.replace('tab-active', 'tab-inactive');
+            // Update sections
+            sectionFlashcards.classList.remove('hidden');
+            sectionQuiz.classList.add('hidden');
+        });
+
+        tabQuizBtn.addEventListener('click', () => {
+            // Update buttons
+            tabQuizBtn.classList.replace('tab-inactive', 'tab-active');
+            tabFlashcardsBtn.classList.replace('tab-active', 'tab-inactive');
+            // Update sections
+            sectionQuiz.classList.remove('hidden');
+            sectionFlashcards.classList.add('hidden');
+        });
+
+    </script>
+</body>
+</html>
+
+
+

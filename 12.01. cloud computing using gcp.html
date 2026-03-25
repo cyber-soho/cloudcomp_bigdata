@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GCP for Data Science Navigator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Chosen Palette: Warm Neutrals with Google Accents (Stone bg, Slate text, Blue/Amber/Emerald/Red subtle highlights) -->
+    <!-- Application Structure Plan: The SPA uses a top-level tabbed navigation dashboard to segment the extensive syllabus into four digestible modules: 'Overview & Market', 'Compute & Storage', 'BigQuery & Analytics', and 'Security & Global'. This structure prevents information overload and allows users to explore topics non-linearly. Interactive elements like toggleable cards, dynamic charts, and interactive lists replace static tables from the report, fostering active learning. -->
+    <!-- Visualization & Content Choices: 
+         - Cloud Market Share -> Goal: Compare -> Donut Chart (Chart.js) -> Hover interaction -> Shows GCP's position relative to AWS/Azure without SVG.
+         - Compute Cost -> Goal: Inform/Change -> Bar Chart (Chart.js) -> Highlights the drastic cost difference of cloud provisioning vs static hosting.
+         - Service Models (IaaS/PaaS/SaaS) -> Goal: Inform -> Interactive Grid -> Click/Hover to reveal management responsibilities.
+         - Storage Tiers -> Goal: Compare -> Interactive List/Cards -> Vanilla JS updates pricing and use-case details on click. 
+         - Architecture/Regions -> Goal: Organize -> HTML/Tailwind Nested Boxes -> Illustrates hierarchical concepts visually. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f5f5f4; 
+            color: #1e293b;
+        }
+        
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+
+        .tab-btn.active {
+            border-bottom: 2px solid #2563eb;
+            color: #2563eb;
+            font-weight: 600;
+        }
+        
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="antialiased flex flex-col min-h-screen">
+
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="text-3xl">🌩️</span>
+                    <div>
+                        <h1 class="text-xl font-bold text-slate-800 tracking-tight">Cloud Computing via GCP</h1>
+                        <p class="text-xs text-slate-500 uppercase tracking-wider font-semibold">Digital Science Hub • Day 12</p>
+                    </div>
+                </div>
+            </div>
+            
+            <nav class="mt-6 flex space-x-6 overflow-x-auto pb-1" id="main-nav">
+                <button class="tab-btn active pb-2 text-sm font-medium text-slate-600 hover:text-slate-900 whitespace-nowrap transition-colors" data-target="tab-overview">1. Overview & Market</button>
+                <button class="tab-btn pb-2 text-sm font-medium text-slate-600 hover:text-slate-900 whitespace-nowrap transition-colors" data-target="tab-infrastructure">2. Compute & Storage</button>
+                <button class="tab-btn pb-2 text-sm font-medium text-slate-600 hover:text-slate-900 whitespace-nowrap transition-colors" data-target="tab-analytics">3. BigQuery & Analytics</button>
+                <button class="tab-btn pb-2 text-sm font-medium text-slate-600 hover:text-slate-900 whitespace-nowrap transition-colors" data-target="tab-security">4. Security & Global</button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+
+        <section id="tab-overview" class="tab-content active">
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold text-slate-800 mb-3">Why Cloud Computing?</h2>
+                <p class="text-slate-600 leading-relaxed max-w-4xl">
+                    This section explores the fundamental paradigm shift from traditional on-premise hardware to on-demand cloud services. You will discover the massive scale of modern cloud providers, understand the shared responsibility models (IaaS, PaaS, SaaS), and analyze Google Cloud Platform's unique position in the market, particularly its DNA rooted in data and AI.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-100 border-l-4 border-l-red-500">
+                    <div class="text-3xl mb-2">🍿</div>
+                    <h3 class="font-bold text-slate-800 text-lg">260M+ Users</h3>
+                    <p class="text-sm text-slate-500 mt-1">Netflix streams to millions simultaneously in 4K with zero local servers.</p>
+                </div>
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-100 border-l-4 border-l-blue-500">
+                    <div class="text-3xl mb-2">⏱️</div>
+                    <h3 class="font-bold text-slate-800 text-lg">3 Minutes</h3>
+                    <p class="text-sm text-slate-500 mt-1">Time to spin up 208 vCPUs, 5.7TB RAM, and 8 NVIDIA A100 GPUs.</p>
+                </div>
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-100 border-l-4 border-l-emerald-500">
+                    <div class="text-3xl mb-2">💸</div>
+                    <h3 class="font-bold text-slate-800 text-lg">Pay per Use</h3>
+                    <p class="text-sm text-slate-500 mt-1">Pay only for the hours your training job needs, then shut it down.</p>
+                </div>
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-100 border-l-4 border-l-amber-500">
+                    <div class="text-3xl mb-2">💻</div>
+                    <h3 class="font-bold text-slate-800 text-lg">Democratized</h3>
+                    <p class="text-sm text-slate-500 mt-1">4 CLI commands equal supercomputer access. No grant hardware needed.</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                    <h3 class="text-xl font-bold text-slate-800 mb-2">Cloud Market Landscape</h3>
+                    <p class="text-sm text-slate-500 mb-6">Compare the "Big Three" providers. While GCP is 3rd in revenue, it leads in Data Science, Kubernetes, and AI/ML capabilities.</p>
+                    <div class="chart-container">
+                        <canvas id="marketShareChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex flex-col">
+                    <h3 class="text-xl font-bold text-slate-800 mb-2">Service Models</h3>
+                    <p class="text-sm text-slate-500 mb-6">Click on a model to see the division of management responsibilities.</p>
+                    
+                    <div class="flex space-x-2 mb-4">
+                        <button class="service-btn px-4 py-2 bg-blue-50 text-blue-700 rounded-md font-medium text-sm transition-colors hover:bg-blue-100" data-model="iaas">IaaS</button>
+                        <button class="service-btn px-4 py-2 bg-slate-50 text-slate-700 rounded-md font-medium text-sm transition-colors hover:bg-slate-100" data-model="paas">PaaS</button>
+                        <button class="service-btn px-4 py-2 bg-slate-50 text-slate-700 rounded-md font-medium text-sm transition-colors hover:bg-slate-100" data-model="saas">SaaS</button>
+                    </div>
+
+                    <div id="service-content" class="bg-slate-50 p-5 rounded-lg border border-slate-200 flex-grow">
+                        <h4 class="font-bold text-slate-800 mb-2 text-lg">Infrastructure as a Service (IaaS)</h4>
+                        <p class="text-sm text-slate-600 mb-4">Example: Compute Engine VM</p>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <h5 class="text-xs uppercase font-bold text-blue-600 tracking-wider mb-2">You Manage</h5>
+                                <ul class="text-sm text-slate-700 space-y-1 list-disc pl-4">
+                                    <li>Applications</li>
+                                    <li>Data</li>
+                                    <li>Runtime</li>
+                                    <li>Middleware</li>
+                                    <li>Operating System</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h5 class="text-xs uppercase font-bold text-slate-500 tracking-wider mb-2">Provider Manages</h5>
+                                <ul class="text-sm text-slate-500 space-y-1 list-disc pl-4">
+                                    <li>Virtualization</li>
+                                    <li>Servers</li>
+                                    <li>Storage</li>
+                                    <li>Networking</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="tab-infrastructure" class="tab-content">
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold text-slate-800 mb-3">Compute & Storage Foundations</h2>
+                <p class="text-slate-600 leading-relaxed max-w-4xl">
+                    A core architectural shift in the cloud is the separation of compute and storage. This section allows you to explore the different compute paradigms—from raw virtual machines to serverless containers—and demonstrates the cost impact of dynamic provisioning. You will also interact with GCP's storage primitives, discovering how access frequency dictates pricing strategy.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+                <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                    <h3 class="text-xl font-bold text-slate-800 mb-2">The Power of Ephemeral Compute</h3>
+                    <p class="text-sm text-slate-500 mb-6">Comparing the cost of an n2-standard-4 VM running 24/7 for a month versus only the 4 hours needed for a specific data science job.</p>
+                    <div class="chart-container">
+                        <canvas id="costComparisonChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex flex-col">
+                    <h3 class="text-xl font-bold text-slate-800 mb-2">Compute Paradigms</h3>
+                    <p class="text-sm text-slate-500 mb-4">Pick the right tool for your workload.</p>
+                    
+                    <div class="space-y-3">
+                        <div class="p-3 border border-slate-200 rounded-lg hover:border-blue-300 transition-colors cursor-default group">
+                            <h4 class="font-bold text-slate-800 text-sm group-hover:text-blue-600">Compute Engine (IaaS)</h4>
+                            <p class="text-xs text-slate-500 mt-1">Full VM root access. Best for custom CUDA kernels or PySpark clusters.</p>
+                        </div>
+                        <div class="p-3 border border-slate-200 rounded-lg hover:border-blue-300 transition-colors cursor-default group">
+                            <h4 class="font-bold text-slate-800 text-sm group-hover:text-blue-600">App Engine (PaaS)</h4>
+                            <p class="text-xs text-slate-500 mt-1">Push code, Google scales. Best for lightweight ML API endpoints.</p>
+                        </div>
+                        <div class="p-3 border border-slate-200 rounded-lg hover:border-blue-300 transition-colors cursor-default group">
+                            <h4 class="font-bold text-slate-800 text-sm group-hover:text-blue-600">Cloud Run (CaaS)</h4>
+                            <p class="text-xs text-slate-500 mt-1">Serverless containers. Scales to zero. Best for bursty ML traffic.</p>
+                        </div>
+                        <div class="p-3 border border-slate-200 rounded-lg hover:border-blue-300 transition-colors cursor-default group">
+                            <h4 class="font-bold text-slate-800 text-sm group-hover:text-blue-600">GKE (Kubernetes)</h4>
+                            <p class="text-xs text-slate-500 mt-1">Managed cluster. Best for complex MLOps pipelines (Kubeflow).</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                <h3 class="text-xl font-bold text-slate-800 mb-2">Cloud Storage (GCS) Classes</h3>
+                <p class="text-sm text-slate-500 mb-6">Cloud Storage is the default for Data Science. Select a storage class to see its pricing and optimal use case.</p>
+                
+                <div class="flex flex-col md:flex-row gap-6">
+                    <div class="w-full md:w-1/3 flex flex-col space-y-2">
+                        <button class="storage-btn text-left px-4 py-3 bg-blue-50 text-blue-700 rounded-lg font-medium border border-blue-200 transition-all" data-class="standard">Standard</button>
+                        <button class="storage-btn text-left px-4 py-3 bg-slate-50 text-slate-600 rounded-lg font-medium border border-slate-200 transition-all hover:bg-slate-100" data-class="nearline">Nearline</button>
+                        <button class="storage-btn text-left px-4 py-3 bg-slate-50 text-slate-600 rounded-lg font-medium border border-slate-200 transition-all hover:bg-slate-100" data-class="coldline">Coldline</button>
+                        <button class="storage-btn text-left px-4 py-3 bg-slate-50 text-slate-600 rounded-lg font-medium border border-slate-200 transition-all hover:bg-slate-100" data-class="archive">Archive</button>
+                    </div>
+                    
+                    <div class="w-full md:w-2/3 bg-slate-50 p-6 rounded-xl border border-slate-200 flex flex-col justify-center">
+                        <div id="storage-details">
+                            <h4 class="text-2xl font-bold text-slate-800 mb-1">Standard Storage</h4>
+                            <div class="text-3xl font-light text-blue-600 mb-4">$0.020 <span class="text-sm text-slate-500 font-normal">/ GB-Month</span></div>
+                            <div class="mb-4">
+                                <span class="inline-block px-2 py-1 bg-white border border-slate-200 rounded text-xs font-bold text-slate-600 uppercase tracking-wide">Access: Daily (Hot Data)</span>
+                            </div>
+                            <p class="text-slate-600">The default choice for active data science workloads. Use this for training data, model weights, and frequently accessed CSV/image files directly integrated with BigQuery or Vertex AI.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="tab-analytics" class="tab-content">
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold text-slate-800 mb-3">BigQuery: The Analytics Engine</h2>
+                <p class="text-slate-600 leading-relaxed max-w-4xl">
+                    BigQuery is Google's serverless data warehouse and a cornerstone for data scientists. This module unpacks why BigQuery is an OLAP query engine, not a traditional relational database. You will explore the profound performance and cost differences between row-based and columnar storage, and learn how to run Machine Learning models directly within SQL.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                <div class="bg-slate-800 p-8 rounded-xl shadow-lg text-white">
+                    <h3 class="text-2xl font-bold mb-4">BigQuery is NOT a Database</h3>
+                    <p class="text-slate-300 mb-6">It is a serverless query engine bolted onto a distributed file system, optimized for OLAP (Analytical) workloads, not OLTP (Transactional).</p>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-slate-700/50 p-4 rounded-lg">
+                            <div class="text-slate-400 text-xs uppercase font-bold tracking-wider mb-2">Traditional (Spark/Hadoop)</div>
+                            <ul class="space-y-2 text-sm">
+                                <li class="flex items-center gap-2"><span class="text-red-400">❌</span> Provision cluster (10-15m)</li>
+                                <li class="flex items-center gap-2"><span class="text-red-400">❌</span> Configure memory</li>
+                                <li class="flex items-center gap-2"><span class="text-red-400">❌</span> Monitor node failures</li>
+                            </ul>
+                        </div>
+                        <div class="bg-blue-900/40 p-4 rounded-lg border border-blue-700/50">
+                            <div class="text-blue-300 text-xs uppercase font-bold tracking-wider mb-2">BigQuery (Serverless)</div>
+                            <ul class="space-y-2 text-sm">
+                                <li class="flex items-center gap-2"><span class="text-emerald-400">✅</span> Execute SQL instantly</li>
+                                <li class="flex items-center gap-2"><span class="text-emerald-400">✅</span> Auto-allocates compute</li>
+                                <li class="flex items-center gap-2"><span class="text-emerald-400">✅</span> Transparent infra</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                    <h3 class="text-xl font-bold text-slate-800 mb-2">BigQuery ML (BQML)</h3>
+                    <p class="text-sm text-slate-500 mb-6">Train models directly in SQL without moving data.</p>
+                    
+                    <div class="bg-slate-50 p-4 rounded-lg font-mono text-sm overflow-x-auto text-slate-700 border border-slate-200 mb-4">
+                        <span class="text-blue-600 font-bold">CREATE OR REPLACE MODEL</span> `project.dataset.my_model`<br>
+                        <span class="text-blue-600 font-bold">OPTIONS</span>(model_type='random_forest_classifier') <span class="text-blue-600 font-bold">AS</span><br>
+                        <span class="text-blue-600 font-bold">SELECT</span> feature_1, feature_2, target_label<br>
+                        <span class="text-blue-600 font-bold">FROM</span> `project.dataset.training_data`;
+                    </div>
+                    
+                    <p class="text-sm text-slate-600">Supports Logistic Regression, K-Means, Random Forest, XGBoost, and ARIMA. The model lives inside BigQuery, accessible via <code class="bg-slate-100 px-1 py-0.5 rounded text-red-500">ML.PREDICT()</code>.</p>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                <div class="flex justify-between items-end mb-6">
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-800 mb-2">Architecture: Row vs Columnar</h3>
+                        <p class="text-sm text-slate-500 max-w-2xl">BigQuery charges $5 per TB scanned. Columnar storage is ~7x cheaper/faster for analytics because it only reads the columns requested.</p>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                        <h4 class="font-bold text-slate-700 text-center mb-2">Row-Based (PostgreSQL/MySQL)</h4>
+                        <div class="flex flex-col gap-1 bg-red-50 p-4 rounded-lg border border-red-100">
+                            <div class="w-full flex">
+                                <div class="bg-red-200 text-xs p-2 w-1/4 text-center border-r border-white">ID:1</div>
+                                <div class="bg-red-300 text-xs p-2 w-1/4 text-center border-r border-white font-bold">Amt:$50</div>
+                                <div class="bg-red-200 text-xs p-2 w-1/4 text-center border-r border-white">Cat:A</div>
+                                <div class="bg-red-200 text-xs p-2 w-1/4 text-center">Date:1/1</div>
+                            </div>
+                            <div class="w-full flex">
+                                <div class="bg-red-200 text-xs p-2 w-1/4 text-center border-r border-white">ID:2</div>
+                                <div class="bg-red-300 text-xs p-2 w-1/4 text-center border-r border-white font-bold">Amt:$20</div>
+                                <div class="bg-red-200 text-xs p-2 w-1/4 text-center border-r border-white">Cat:B</div>
+                                <div class="bg-red-200 text-xs p-2 w-1/4 text-center">Date:1/2</div>
+                            </div>
+                            <p class="text-xs text-red-700 mt-2 text-center">Querying `Amount` loads the entire row into memory. High I/O.</p>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-slate-700 text-center mb-2">Columnar (BigQuery)</h4>
+                        <div class="flex gap-1 bg-emerald-50 p-4 rounded-lg border border-emerald-100 h-full">
+                            <div class="w-1/4 flex flex-col gap-1">
+                                <div class="bg-slate-200 text-xs p-2 text-center h-full flex items-center justify-center">ID:1, 2</div>
+                            </div>
+                            <div class="w-1/4 flex flex-col gap-1 border-2 border-emerald-500 rounded-md shadow-sm transform scale-105 bg-white">
+                                <div class="bg-emerald-200 text-xs p-2 text-center h-full flex items-center justify-center font-bold">Amt:$50, $20</div>
+                            </div>
+                            <div class="w-1/4 flex flex-col gap-1">
+                                <div class="bg-slate-200 text-xs p-2 text-center h-full flex items-center justify-center">Cat:A, B</div>
+                            </div>
+                            <div class="w-1/4 flex flex-col gap-1">
+                                <div class="bg-slate-200 text-xs p-2 text-center h-full flex items-center justify-center">Date:1/1, 1/2</div>
+                            </div>
+                        </div>
+                        <p class="text-xs text-emerald-700 mt-2 text-center">Querying `Amount` only reads the Amount block. Minimal I/O. Never use SELECT *.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="tab-security" class="tab-content">
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold text-slate-800 mb-3">Security & Infrastructure</h2>
+                <p class="text-slate-600 leading-relaxed max-w-4xl">
+                    Data science in the cloud requires strict governance. This section illustrates how GCP organizes its physical infrastructure (Zones/Regions) to manage latency, cost, and GDPR compliance. Furthermore, it visualizes Identity and Access Management (IAM), emphasizing the Principle of Least Privilege to protect vast datasets from unauthorized access or accidental leaks.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                    <h3 class="text-xl font-bold text-slate-800 mb-2">Global Hierarchy</h3>
+                    <p class="text-sm text-slate-500 mb-6">Location selection dictates data residency, latency (<50ms), and inter-region egress costs.</p>
+                    
+                    <div class="bg-blue-50 p-4 rounded-lg border-2 border-blue-200">
+                        <div class="text-xs font-bold text-blue-800 uppercase mb-2">Multi-Region (e.g., EU)</div>
+                        <p class="text-xs text-blue-600 mb-3">Maximum availability + disaster recovery</p>
+                        
+                        <div class="bg-white p-3 rounded border border-blue-100 mb-2">
+                            <div class="text-xs font-bold text-slate-700 uppercase mb-1">Region (e.g., europe-west1)</div>
+                            <p class="text-xs text-slate-500 mb-2">Protects against single-DC failure</p>
+                            
+                            <div class="flex gap-2">
+                                <div class="flex-1 bg-slate-100 p-2 rounded text-center border border-slate-200">
+                                    <div class="text-xs font-bold text-slate-600">Zone A</div>
+                                    <div class="text-[10px] text-slate-400">Single DC</div>
+                                </div>
+                                <div class="flex-1 bg-slate-100 p-2 rounded text-center border border-slate-200">
+                                    <div class="text-xs font-bold text-slate-600">Zone B</div>
+                                    <div class="text-[10px] text-slate-400">Single DC</div>
+                                </div>
+                                <div class="flex-1 bg-slate-100 p-2 rounded text-center border border-slate-200">
+                                    <div class="text-xs font-bold text-slate-600">Zone C</div>
+                                    <div class="text-[10px] text-slate-400">Single DC</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                    <h3 class="text-xl font-bold text-slate-800 mb-2">IAM: The Three Pillars</h3>
+                    <p class="text-sm text-slate-500 mb-6">Always apply the Principle of Least Privilege. Use Workload Identity Federation instead of downloading JSON keys.</p>
+
+                    <div class="space-y-4">
+                        <div class="flex items-start gap-4">
+                            <div class="bg-slate-800 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg flex-shrink-0">1</div>
+                            <div>
+                                <h4 class="font-bold text-slate-800">Principal (Who)</h4>
+                                <p class="text-sm text-slate-600">Who is requesting access? <em>e.g., Service Account, ML Engineer</em></p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <div class="bg-blue-600 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg flex-shrink-0">2</div>
+                            <div>
+                                <h4 class="font-bold text-slate-800">Role (What)</h4>
+                                <p class="text-sm text-slate-600">What can they do? <em>e.g., roles/bigquery.dataEditor</em></p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <div class="bg-emerald-600 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg flex-shrink-0">3</div>
+                            <div>
+                                <h4 class="font-bold text-slate-800">Resource (On What)</h4>
+                                <p class="text-sm text-slate-600">What are they accessing? <em>e.g., Specific BQ Dataset</em></p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                        <h5 class="text-sm font-bold text-red-800 mb-1">⚠️ Danger Zone</h5>
+                        <p class="text-xs text-red-600">If a student downloads a JSON key and pushes to GitHub, crypto-miners can rack up $2,000 in charges within 45 minutes. Never commit credentials.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-slate-800 text-slate-400 py-6 text-center text-sm mt-auto">
+        <p>&copy; 2026 Cyber.SoHo Educational Hub — Building IT's Future, Today and Together!</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            const tabs = document.querySelectorAll('.tab-btn');
+            const contents = document.querySelectorAll('.tab-content');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(t => {
+                        t.classList.remove('active');
+                        t.classList.add('text-slate-600');
+                        t.classList.remove('text-blue-600');
+                        t.style.borderBottom = 'none';
+                    });
+                    
+                    contents.forEach(c => c.classList.remove('active'));
+
+                    tab.classList.add('active');
+                    tab.style.borderBottom = '2px solid #2563eb';
+                    tab.classList.remove('text-slate-600');
+                    tab.classList.add('text-blue-600');
+                    document.getElementById(tab.dataset.target).classList.add('active');
+                });
+            });
+
+            const ctxMarket = document.getElementById('marketShareChart').getContext('2d');
+            new Chart(ctxMarket, {
+                type: 'doughnut',
+                data: {
+                    labels: ['AWS', 'Azure', 'GCP', 'Others'],
+                    datasets: [{
+                        data: [33, 23, 11, 33],
+                        backgroundColor: ['#f59e0b', '#3b82f6', '#10b981', '#cbd5e1'],
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return ' ' + context.label + ': ' + context.parsed + '%';
+                                }
+                            }
+                        }
+                    },
+                    cutout: '70%'
+                }
+            });
+
+            const ctxCost = document.getElementById('costComparisonChart').getContext('2d');
+            new Chart(ctxCost, {
+                type: 'bar',
+                data: {
+                    labels: ['Running 24/7 (1 Month)', 'Running 4 Hours (Job specific)'],
+                    datasets: [{
+                        label: 'Cost (USD)',
+                        data: [136.00, 0.76],
+                        backgroundColor: ['#ef4444', '#10b981'],
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: '#f1f5f9' },
+                            ticks: {
+                                callback: function(value) { return '$' + value; }
+                            }
+                        },
+                        x: {
+                            grid: { display: false }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return ' Cost: $' + context.parsed.y;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            const serviceData = {
+                iaas: {
+                    title: "Infrastructure as a Service (IaaS)",
+                    example: "Example: Compute Engine VM",
+                    youManage: ["Applications", "Data", "Runtime", "Middleware", "Operating System"],
+                    provManage: ["Virtualization", "Servers", "Storage", "Networking"]
+                },
+                paas: {
+                    title: "Platform as a Service (PaaS)",
+                    example: "Example: Cloud Run, App Engine",
+                    youManage: ["Applications", "Data"],
+                    provManage: ["Runtime", "Middleware", "Operating System", "Virtualization", "Servers", "Storage", "Networking"]
+                },
+                saas: {
+                    title: "Software as a Service (SaaS)",
+                    example: "Example: Gmail, BigQuery",
+                    youManage: ["Nothing (Just Configuration)"],
+                    provManage: ["Applications", "Data", "Runtime", "Middleware", "Operating System", "Virtualization", "Servers", "Storage", "Networking"]
+                }
+            };
+
+            const serviceBtns = document.querySelectorAll('.service-btn');
+            const serviceContent = document.getElementById('service-content');
+
+            serviceBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    serviceBtns.forEach(b => {
+                        b.classList.remove('bg-blue-50', 'text-blue-700');
+                        b.classList.add('bg-slate-50', 'text-slate-700');
+                    });
+                    
+                    e.target.classList.remove('bg-slate-50', 'text-slate-700');
+                    e.target.classList.add('bg-blue-50', 'text-blue-700');
+
+                    const data = serviceData[e.target.dataset.model];
+                    
+                    const youLi = data.youManage.map(item => `<li>${item}</li>`).join('');
+                    const provLi = data.provManage.map(item => `<li>${item}</li>`).join('');
+
+                    serviceContent.innerHTML = `
+                        <h4 class="font-bold text-slate-800 mb-2 text-lg">${data.title}</h4>
+                        <p class="text-sm text-slate-600 mb-4">${data.example}</p>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <h5 class="text-xs uppercase font-bold text-blue-600 tracking-wider mb-2">You Manage</h5>
+                                <ul class="text-sm text-slate-700 space-y-1 list-disc pl-4">${youLi}</ul>
+                            </div>
+                            <div>
+                                <h5 class="text-xs uppercase font-bold text-slate-500 tracking-wider mb-2">Provider Manages</h5>
+                                <ul class="text-sm text-slate-500 space-y-1 list-disc pl-4">${provLi}</ul>
+                            </div>
+                        </div>
+                    `;
+                });
+            });
+
+            const storageData = {
+                standard: {
+                    title: "Standard Storage",
+                    price: "$0.020",
+                    access: "Daily (Hot Data)",
+                    desc: "The default choice for active data science workloads. Use this for training data, model weights, and frequently accessed CSV/image files directly integrated with BigQuery or Vertex AI."
+                },
+                nearline: {
+                    title: "Nearline Storage",
+                    price: "$0.010",
+                    access: "Monthly (Backups)",
+                    desc: "Ideal for data you expect to access less than once a month. Great for storing recent backups of datasets or intermediate data processing results that might need review."
+                },
+                coldline: {
+                    title: "Coldline Storage",
+                    price: "$0.004",
+                    access: "Quarterly (Archives)",
+                    desc: "Designed for data accessed less than once a quarter. Suitable for older project data that is not actively used but shouldn't be deleted yet."
+                },
+                archive: {
+                    title: "Archive Storage",
+                    price: "$0.0012",
+                    access: "Yearly (Compliance)",
+                    desc: "The lowest cost tier, meant for data accessed less than once a year. Use for long-term regulatory compliance storage or final, immutable archive of old experiments."
+                }
+            };
+
+            const storageBtns = document.querySelectorAll('.storage-btn');
+            const storageDetails = document.getElementById('storage-details');
+
+            storageBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    storageBtns.forEach(b => {
+                        b.classList.remove('bg-blue-50', 'text-blue-700', 'border-blue-200');
+                        b.classList.add('bg-slate-50', 'text-slate-600', 'border-slate-200');
+                    });
+                    
+                    e.target.classList.remove('bg-slate-50', 'text-slate-600', 'border-slate-200');
+                    e.target.classList.add('bg-blue-50', 'text-blue-700', 'border-blue-200');
+
+                    const data = storageData[e.target.dataset.class];
+                    
+                    storageDetails.style.opacity = 0;
+                    setTimeout(() => {
+                        storageDetails.innerHTML = `
+                            <h4 class="text-2xl font-bold text-slate-800 mb-1">${data.title}</h4>
+                            <div class="text-3xl font-light text-blue-600 mb-4">${data.price} <span class="text-sm text-slate-500 font-normal">/ GB-Month</span></div>
+                            <div class="mb-4">
+                                <span class="inline-block px-2 py-1 bg-white border border-slate-200 rounded text-xs font-bold text-slate-600 uppercase tracking-wide">Access: ${data.access}</span>
+                            </div>
+                            <p class="text-slate-600">${data.desc}</p>
+                        `;
+                        storageDetails.style.transition = 'opacity 0.2s';
+                        storageDetails.style.opacity = 1;
+                    }, 150);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+
+
+
