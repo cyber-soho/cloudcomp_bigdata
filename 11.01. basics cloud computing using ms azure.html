@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Azure Fundamentals for Data Science</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Tailwind Configuration & Custom Styles -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        stone: {
+                            50: '#fafaf9',
+                            100: '#f5f5f4',
+                            200: '#e7e5e4',
+                            300: '#d6d3d1',
+                            800: '#292524',
+                            900: '#1c1917',
+                        },
+                        sky: {
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                        },
+                        amber: {
+                            500: '#f59e0b',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Base Styles & Typography */
+        body {
+            background-color: #fafaf9; /* stone-50 */
+            color: #292524; /* stone-800 */
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* Chart Container Requirements */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+
+        /* Custom scrollbar for a cleaner look */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f5f5f4; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #d6d3d1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a8a29e; 
+        }
+
+        /* Hide logic classes */
+        .hidden-content { display: none; }
+        
+        /* Smooth transitions */
+        .transition-all { transition-property: all; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 300ms; }
+    </style>
+
+    <!-- Placeholder Comments Required by Prompt -->
+    <!-- Chosen Palette: Warm Neutrals & Sky Blue (stone-50 background, stone-800 text, sky-700 primary accents, amber-500 highlights) to create a calm, professional, and readable environment suited for technical learning. -->
+    
+    <!-- Application Structure Plan: The SPA is structured as an interactive learning dashboard. It uses a top-down scrollable flow divided into thematic, logical learning blocks based on the slide deck: 1. Core Concept (The Analogy), 2. Market Context, 3. Architecture & Responsibility, 4. Core Services Explorer, 5. The ML Workflow, and 6. Practicalities (Cost & Certification). This structure is chosen over a slide-by-slide mirror because it groups related concepts together (e.g., separating "what it is" from "how to use it"), allowing users to explore deeply via tabs and interactive state changes rather than passive linear reading. -->
+    
+    <!-- Visualization & Content Choices: 
+         - The Analogy -> Goal: Inform/Change -> Method: Interactive JS Toggle modifying text/emojis -> Justification: Tangible way to grasp CapEx vs OpEx without charts. -> Method: HTML/JS.
+         - Market Share -> Goal: Compare -> Method: Chart.js Doughnut Chart -> Justification: Clearly shows Azure's #2 position visually. -> Method: Chart.js Canvas.
+         - Responsibility Model -> Goal: Compare/Inform -> Method: Interactive Grid/Matrix with buttons -> Justification: Matrix highlights the shift in burden dynamically based on the IaaS/PaaS/SaaS model chosen. -> Method: HTML/JS Grid.
+         - Core Services -> Goal: Organize -> Method: Tabbed Interface -> Justification: Prevents text overload; categorizes 600+ services into digestible DS-focused chunks. -> Method: HTML/JS Tabs.
+         - ML Workflow -> Goal: Organize/Change -> Method: Interactive Stepper (HTML CSS) -> Justification: Shows linear progression visually while keeping details hidden until clicked. -> Method: HTML/CSS/JS.
+         - Storage Costs -> Goal: Compare -> Method: Chart.js Bar Chart -> Justification: Visualizes the inverse relationship between storage and access costs across tiers. -> Method: Chart.js Canvas.
+         - NO SVG/Mermaid confirmed. 
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="antialiased selection:bg-sky-200 selection:text-sky-900">
+
+    <!-- Navigation Header -->
+    <header class="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-stone-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl">☁️</span>
+                    <span class="font-bold text-xl tracking-tight text-sky-800">Cloud<span class="text-stone-800">SoHo</span></span>
+                </div>
+                <nav class="hidden md:flex space-x-8 text-sm font-medium text-stone-600">
+                    <a href="#concept" class="hover:text-sky-600 transition-colors">The Concept</a>
+                    <a href="#landscape" class="hover:text-sky-600 transition-colors">Landscape</a>
+                    <a href="#architecture" class="hover:text-sky-600 transition-colors">Architecture</a>
+                    <a href="#services" class="hover:text-sky-600 transition-colors">Core Services</a>
+                    <a href="#workflow" class="hover:text-sky-600 transition-colors">ML Workflow</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-16">
+
+        <!-- Hero Section -->
+        <section class="text-center py-12 md:py-20 rounded-3xl bg-gradient-to-br from-stone-100 to-stone-200 border border-stone-200 shadow-sm">
+            <h1 class="text-4xl md:text-6xl font-extrabold text-stone-900 tracking-tight mb-4">
+                Basics of <span class="text-sky-600">Cloud Computing</span>
+            </h1>
+            <p class="text-lg md:text-xl text-stone-600 max-w-3xl mx-auto mb-8">
+                An interactive guide to Microsoft Azure, designed specifically for Data Scientists and Big Data Analytics. Understand the infrastructure that powers modern AI and ML.
+            </p>
+            <div class="flex justify-center gap-4">
+                <a href="#concept" class="bg-sky-600 hover:bg-sky-700 text-white font-semibold py-3 px-6 rounded-full transition-all shadow-md hover:shadow-lg">Start Exploring ↓</a>
+            </div>
+        </section>
+
+        <!-- Section 1: The Core Concept -->
+        <section id="concept" class="scroll-mt-24">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-stone-800 flex items-center gap-2"><span>🧁</span> The Cloud Computing Analogy</h2>
+                <p class="mt-4 text-stone-600 max-w-4xl text-lg">
+                    Before diving into technical architecture, we must understand the fundamental economic shift of the cloud. This section uses a simple bakery analogy to illustrate why organizations move from owning on-premises hardware to renting cloud resources, highlighting the core benefit: paying only for what you consume.
+                </p>
+            </div>
+
+            <div class="bg-white rounded-2xl p-6 md:p-10 shadow-sm border border-stone-200">
+                <div class="flex flex-col md:flex-row gap-8 items-center">
+                    <div class="w-full md:w-1/2 space-y-6">
+                        <h3 class="text-xl font-semibold text-stone-800">Think of a bakery...</h3>
+                        <p id="analogy-text" class="text-stone-600 text-lg transition-all min-h-[80px]">
+                            On a <strong>Regular Day</strong>, you sell 50 cupcakes. A single, small oven works perfectly fine.
+                        </p>
+                        
+                        <div class="bg-stone-50 p-4 rounded-xl border border-stone-200">
+                            <h4 class="font-medium text-stone-800 mb-2">The IT Dilemma</h4>
+                            <p id="dilemma-text" class="text-stone-600 text-sm">
+                                If you buy 10 giant ovens for rare busy days (On-premises IT), they sit idle 364 days a year. A massive waste of money.
+                            </p>
+                        </div>
+
+                        <div class="flex gap-4">
+                            <button id="btn-regular" class="flex-1 py-2 px-4 rounded-lg font-medium text-sky-800 bg-sky-100 border border-sky-200 transition-all hover:bg-sky-200" onclick="updateAnalogy('regular')">Regular Day</button>
+                            <button id="btn-valentines" class="flex-1 py-2 px-4 rounded-lg font-medium text-stone-600 bg-stone-100 border border-stone-200 transition-all hover:bg-stone-200" onclick="updateAnalogy('valentines')">Valentine's Day</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Visual Representation -->
+                    <div class="w-full md:w-1/2 bg-stone-100 rounded-xl p-8 flex flex-col items-center justify-center min-h-[300px]">
+                        <div class="text-center mb-4 text-sm font-semibold text-stone-500 uppercase tracking-wider" id="analogy-label">Current Capacity</div>
+                        <div id="oven-container" class="flex flex-wrap justify-center gap-4 text-5xl transition-all">
+                            <!-- Populated by JS -->
+                            📦
+                        </div>
+                        <div class="mt-6 text-center">
+                            <span class="inline-block bg-sky-100 text-sky-800 text-xs px-3 py-1 rounded-full font-semibold border border-sky-200">Key Takeaway</span>
+                            <p class="mt-2 text-sm text-stone-600 max-w-xs">Cloud computing means renting IT resources on demand instead of owning them.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Landscape & Infrastructure -->
+        <section id="landscape" class="scroll-mt-24">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-stone-800 flex items-center gap-2"><span>🌍</span> The Azure Landscape</h2>
+                <p class="mt-4 text-stone-600 max-w-4xl text-lg">
+                    Microsoft Azure is not just a server rental service; it's a massive, integrated global ecosystem. This section visualizes Azure's position in the broader cloud market and breaks down its physical global infrastructure, demonstrating why it's a top choice for enterprise data science.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Chart Container -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-stone-200 flex flex-col">
+                    <h3 class="text-xl font-semibold text-stone-800 mb-2">Global Cloud Market Share (2025)</h3>
+                    <p class="text-sm text-stone-500 mb-6">Azure sits firmly as the 2nd largest provider globally.</p>
+                    <div class="chart-container flex-grow flex items-center justify-center">
+                        <canvas id="marketShareChart"></canvas>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-stone-100">
+                        <h4 class="font-medium text-stone-800 text-sm mb-2">Why Data Scientists Choose Azure:</h4>
+                        <ul class="text-sm text-stone-600 space-y-2">
+                            <li><span class="text-sky-600">■</span> <strong>Ecosystem:</strong> Seamless Power BI, M365, SQL Server integration.</li>
+                            <li><span class="text-sky-600">■</span> <strong>Managed ML:</strong> Auto-scaling GPU clusters and model registries.</li>
+                            <li><span class="text-amber-500">■</span> <strong>OpenAI Partnership:</strong> Exclusive enterprise access to GPT models.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Infrastructure Stats -->
+                <div class="bg-sky-800 text-white rounded-2xl p-6 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-xl font-semibold mb-6">Global Infrastructure Architecture</h3>
+                        <div class="space-y-6">
+                            <div class="flex gap-4">
+                                <div class="text-4xl">🌎</div>
+                                <div>
+                                    <h4 class="text-lg font-bold">60+ Regions</h4>
+                                    <p class="text-sky-200 text-sm">Sets of data centres in a geographic area (e.g., Canada Central). Ensure data residency compliance (GDPR).</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-4">
+                                <div class="text-4xl">🏢</div>
+                                <div>
+                                    <h4 class="text-lg font-bold">Availability Zones</h4>
+                                    <p class="text-sky-200 text-sm">Physically separate locations within a region with independent power, cooling, and networking.</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-4">
+                                <div class="text-4xl">📁</div>
+                                <div>
+                                    <h4 class="text-lg font-bold">Resource Groups</h4>
+                                    <p class="text-sky-200 text-sm">Logical containers for related resources. Deploy, monitor, and delete as a single unit.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-8 bg-sky-900/50 p-4 rounded-xl border border-sky-700">
+                        <p class="text-sm font-medium">Azure operates 600+ services across compute, storage, AI/ML, databases, and networking through this unified control plane.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Shared Responsibility -->
+        <section id="architecture" class="scroll-mt-24">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-stone-800 flex items-center gap-2"><span>🛡️</span> Service & Responsibility Models</h2>
+                <p class="mt-4 text-stone-600 max-w-4xl text-lg">
+                    Moving to the cloud means shifting operational burdens. This interactive matrix explains the core cloud service models (IaaS, PaaS, SaaS) and clearly defines the "Shared Responsibility Model" — detailing exactly what Microsoft manages versus what you must secure and maintain.
+                </p>
+            </div>
+
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-stone-200">
+                
+                <!-- Model Selectors -->
+                <div class="flex flex-wrap gap-2 mb-8 justify-center bg-stone-50 p-2 rounded-xl inline-flex w-full md:w-auto mx-auto border border-stone-200">
+                    <button onclick="setRespModel('onprem')" id="btn-onprem" class="resp-btn flex-1 md:flex-none px-4 py-2 rounded-lg text-sm font-medium transition-colors bg-white shadow text-sky-700">On-Premises</button>
+                    <button onclick="setRespModel('iaas')" id="btn-iaas" class="resp-btn flex-1 md:flex-none px-4 py-2 rounded-lg text-sm font-medium text-stone-500 hover:text-stone-800 transition-colors">IaaS</button>
+                    <button onclick="setRespModel('paas')" id="btn-paas" class="resp-btn flex-1 md:flex-none px-4 py-2 rounded-lg text-sm font-medium text-stone-500 hover:text-stone-800 transition-colors">PaaS</button>
+                    <button onclick="setRespModel('saas')" id="btn-saas" class="resp-btn flex-1 md:flex-none px-4 py-2 rounded-lg text-sm font-medium text-stone-500 hover:text-stone-800 transition-colors">SaaS</button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <!-- Description Area -->
+                    <div class="md:col-span-1 border-r border-stone-100 pr-4">
+                        <h3 id="resp-title" class="text-2xl font-bold text-stone-800 mb-2">On-Premises</h3>
+                        <p id="resp-desc" class="text-stone-600 mb-4">You own and manage everything. High capital expenditure and operational overhead.</p>
+                        <div class="bg-amber-50 text-amber-900 text-sm p-3 rounded-lg border border-amber-200">
+                            <strong>Example:</strong> <span id="resp-example">Traditional corporate data centre</span>
+                        </div>
+                    </div>
+
+                    <!-- Visual Matrix -->
+                    <div class="md:col-span-2 space-y-3">
+                        <div class="flex justify-between text-xs font-semibold text-stone-400 uppercase tracking-wider px-4">
+                            <span>IT Layer</span>
+                            <span>Managed By</span>
+                        </div>
+                        
+                        <!-- Layers -->
+                        <div class="resp-row flex items-center justify-between p-3 rounded-lg bg-stone-100 border border-stone-200 transition-colors" data-layer="data">
+                            <span class="font-medium text-stone-800">Data & Access</span>
+                            <span class="manager-label text-sm font-bold text-sky-700 bg-sky-100 px-3 py-1 rounded-full">You</span>
+                        </div>
+                        <div class="resp-row flex items-center justify-between p-3 rounded-lg bg-stone-100 border border-stone-200 transition-colors" data-layer="apps">
+                            <span class="font-medium text-stone-800">Applications</span>
+                            <span class="manager-label text-sm font-bold text-sky-700 bg-sky-100 px-3 py-1 rounded-full">You</span>
+                        </div>
+                        <div class="resp-row flex items-center justify-between p-3 rounded-lg bg-stone-100 border border-stone-200 transition-colors" data-layer="os">
+                            <span class="font-medium text-stone-800">Operating System</span>
+                            <span class="manager-label text-sm font-bold text-sky-700 bg-sky-100 px-3 py-1 rounded-full">You</span>
+                        </div>
+                        <div class="resp-row flex items-center justify-between p-3 rounded-lg bg-stone-100 border border-stone-200 transition-colors" data-layer="network">
+                            <span class="font-medium text-stone-800">Network Controls</span>
+                            <span class="manager-label text-sm font-bold text-sky-700 bg-sky-100 px-3 py-1 rounded-full">You</span>
+                        </div>
+                        <div class="resp-row flex items-center justify-between p-3 rounded-lg bg-stone-100 border border-stone-200 transition-colors" data-layer="physical">
+                            <span class="font-medium text-stone-800">Physical Hardware</span>
+                            <span class="manager-label text-sm font-bold text-sky-700 bg-sky-100 px-3 py-1 rounded-full">You</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-6 text-center">
+                    <span class="text-sm font-medium text-stone-500 bg-stone-100 px-4 py-2 rounded-full border border-stone-200">
+                        🚨 <strong class="text-stone-800">Critical Takeaway:</strong> Your data and who can access it is ALWAYS your responsibility.
+                    </span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Core Services Explorer -->
+        <section id="services" class="scroll-mt-24">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-stone-800 flex items-center gap-2"><span>🧩</span> Core Azure Services for Data Science</h2>
+                <p class="mt-4 text-stone-600 max-w-4xl text-lg">
+                    With over 600 services, finding the right tool can be overwhelming. This interactive explorer categorizes the most essential Azure services into Compute, Storage, AI/ML, and Databases, explaining exactly when and why a data scientist should use them.
+                </p>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-stone-200 overflow-hidden">
+                <!-- Tab Headers -->
+                <div class="flex border-b border-stone-200 overflow-x-auto">
+                    <button class="service-tab active flex-1 py-4 px-6 text-sm font-semibold text-sky-700 border-b-2 border-sky-600 whitespace-nowrap bg-sky-50 transition-colors" onclick="openTab(event, 'tab-compute')">💻 Compute</button>
+                    <button class="service-tab flex-1 py-4 px-6 text-sm font-semibold text-stone-500 border-b-2 border-transparent hover:bg-stone-50 hover:text-stone-700 whitespace-nowrap transition-colors" onclick="openTab(event, 'tab-storage')">🗄️ Storage</button>
+                    <button class="service-tab flex-1 py-4 px-6 text-sm font-semibold text-stone-500 border-b-2 border-transparent hover:bg-stone-50 hover:text-stone-700 whitespace-nowrap transition-colors" onclick="openTab(event, 'tab-ai')">🧠 AI & Analytics</button>
+                    <button class="service-tab flex-1 py-4 px-6 text-sm font-semibold text-stone-500 border-b-2 border-transparent hover:bg-stone-50 hover:text-stone-700 whitespace-nowrap transition-colors" onclick="openTab(event, 'tab-db')">🗃️ Databases</button>
+                </div>
+
+                <!-- Tab Contents -->
+                <div class="p-6 md:p-8">
+                    <!-- Compute Tab -->
+                    <div id="tab-compute" class="tab-content block">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="border border-stone-200 p-4 rounded-xl hover:shadow-md transition-shadow">
+                                <div class="text-xs font-bold text-sky-600 uppercase tracking-wider mb-1">IaaS</div>
+                                <h4 class="text-lg font-bold text-stone-800 mb-2">Azure Virtual Machines</h4>
+                                <p class="text-sm text-stone-600">Full control. Custom environments with any OS or library. Best for legacy apps or highly specific setups.</p>
+                            </div>
+                            <div class="border border-stone-200 p-4 rounded-xl hover:shadow-md transition-shadow">
+                                <div class="text-xs font-bold text-sky-600 uppercase tracking-wider mb-1">Managed ML</div>
+                                <h4 class="text-lg font-bold text-stone-800 mb-2">ML Compute</h4>
+                                <p class="text-sm text-stone-600">Auto-scaling GPU clusters that automatically terminate when idle. Minimizes operational overhead.</p>
+                            </div>
+                            <div class="border border-stone-200 p-4 rounded-xl hover:shadow-md transition-shadow">
+                                <div class="text-xs font-bold text-sky-600 uppercase tracking-wider mb-1">Orchestrated PaaS</div>
+                                <h4 class="text-lg font-bold text-stone-800 mb-2">Kubernetes Service (AKS)</h4>
+                                <p class="text-sm text-stone-600">Production model serving at massive scale. Highly resilient container orchestration.</p>
+                            </div>
+                            <div class="border border-stone-200 p-4 rounded-xl hover:shadow-md transition-shadow">
+                                <div class="text-xs font-bold text-sky-600 uppercase tracking-wider mb-1">Serverless (FaaS)</div>
+                                <h4 class="text-lg font-bold text-stone-800 mb-2">Azure Functions</h4>
+                                <p class="text-sm text-stone-600">Event-triggered code execution. Perfect for lightweight data preprocessing pipelines.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Storage Tab -->
+                    <div id="tab-storage" class="tab-content hidden">
+                        <div class="flex flex-col lg:flex-row gap-8">
+                            <div class="w-full lg:w-1/2 space-y-4">
+                                <h3 class="text-lg font-bold text-stone-800 mb-4">Primary Storage Types</h3>
+                                <ul class="space-y-3">
+                                    <li class="bg-stone-50 p-3 rounded-lg border border-stone-100">
+                                        <strong class="text-stone-800">Blob Storage:</strong> For unstructured data (CSVs, images, model artifacts).
+                                    </li>
+                                    <li class="bg-stone-50 p-3 rounded-lg border border-stone-100">
+                                        <strong class="text-stone-800">Data Lake Storage Gen2:</strong> Hierarchical namespace built for big data analytics.
+                                    </li>
+                                    <li class="bg-stone-50 p-3 rounded-lg border border-stone-100">
+                                        <strong class="text-stone-800">File Storage:</strong> SMB file shares for integrating with legacy tools.
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="w-full lg:w-1/2">
+                                <h3 class="text-lg font-bold text-stone-800 mb-2">Cost Optimization: Storage Tiers</h3>
+                                <p class="text-sm text-stone-600 mb-4">Trade-off between storage cost and access cost/time.</p>
+                                <div class="chart-container">
+                                    <canvas id="storageTierChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AI Tab -->
+                    <div id="tab-ai" class="tab-content hidden">
+                        <p class="text-stone-600 mb-6">Azure covers the entire workflow from ingestion to deployment. Here are the powerhouse services:</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <div class="bg-sky-50 border border-sky-100 p-5 rounded-xl">
+                                <div class="text-2xl mb-2">🔬</div>
+                                <h4 class="font-bold text-stone-800">Azure Machine Learning</h4>
+                                <p class="text-sm text-stone-600 mt-2">The core. End-to-end ML lifecycle (AutoML, experiment tracking, API deployment).</p>
+                            </div>
+                            <div class="bg-sky-50 border border-sky-100 p-5 rounded-xl">
+                                <div class="text-2xl mb-2">🤖</div>
+                                <h4 class="font-bold text-stone-800">Azure OpenAI Service</h4>
+                                <p class="text-sm text-stone-600 mt-2">Enterprise access to GPT-4, DALL-E, Whisper with corporate security guarantees.</p>
+                            </div>
+                            <div class="bg-sky-50 border border-sky-100 p-5 rounded-xl">
+                                <div class="text-2xl mb-2">🧠</div>
+                                <h4 class="font-bold text-stone-800">Cognitive Services</h4>
+                                <p class="text-sm text-stone-600 mt-2">Pre-built AI models available via API (vision, speech, language parsing).</p>
+                            </div>
+                            <div class="bg-stone-50 border border-stone-200 p-5 rounded-xl">
+                                <div class="text-2xl mb-2">⚡</div>
+                                <h4 class="font-bold text-stone-800">Synapse Analytics</h4>
+                                <p class="text-sm text-stone-600 mt-2">Unified data warehousing + big data (SQL + Spark engines in one place).</p>
+                            </div>
+                            <div class="bg-stone-50 border border-stone-200 p-5 rounded-xl">
+                                <div class="text-2xl mb-2">🧱</div>
+                                <h4 class="font-bold text-stone-800">Azure Databricks</h4>
+                                <p class="text-sm text-stone-600 mt-2">Collaborative Spark platform optimized for ETL pipelines and ML training.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- DB Tab -->
+                    <div id="tab-db" class="tab-content hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-sm text-stone-600">
+                                <thead class="text-xs text-stone-500 uppercase bg-stone-50">
+                                    <tr>
+                                        <th class="px-6 py-4 rounded-tl-lg">Database</th>
+                                        <th class="px-6 py-4">Type</th>
+                                        <th class="px-6 py-4 rounded-tr-lg">Best For (Data Science Use Case)</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-stone-200">
+                                    <tr class="bg-white hover:bg-stone-50">
+                                        <td class="px-6 py-4 font-bold text-stone-800">Azure SQL Database</td>
+                                        <td class="px-6 py-4">Relational (SQL Server)</td>
+                                        <td class="px-6 py-4">Structured analytics data, experiment metadata tracking.</td>
+                                    </tr>
+                                    <tr class="bg-white hover:bg-stone-50">
+                                        <td class="px-6 py-4 font-bold text-stone-800">Cosmos DB</td>
+                                        <td class="px-6 py-4">NoSQL (Multi-model)</td>
+                                        <td class="px-6 py-4">Real-time feature stores, global apps requiring sub-10ms lookups.</td>
+                                    </tr>
+                                    <tr class="bg-white hover:bg-stone-50">
+                                        <td class="px-6 py-4 font-bold text-stone-800">DB for PostgreSQL</td>
+                                        <td class="px-6 py-4">Relational (Open-source)</td>
+                                        <td class="px-6 py-4">Teams already using Postgres migrating to the cloud.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: The ML Workflow -->
+        <section id="workflow" class="scroll-mt-24">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-stone-800 flex items-center gap-2"><span>🔄</span> The Typical ML Workflow</h2>
+                <p class="mt-4 text-stone-600 max-w-4xl text-lg">
+                    How do these services combine into a real-world project? This interactive pipeline breaks down the standard six-step workflow for deploying machine learning models on Azure, revealing the specific tools used at each stage.
+                </p>
+            </div>
+
+            <div class="bg-stone-900 text-stone-100 rounded-2xl p-8 shadow-lg">
+                <!-- Stepper UI -->
+                <div class="flex flex-col md:flex-row justify-between items-center mb-10 gap-2 relative">
+                    <!-- Line connecting steps (hidden on mobile) -->
+                    <div class="hidden md:block absolute top-1/2 left-0 right-0 h-1 bg-stone-700 -z-0 -translate-y-1/2 rounded-full"></div>
+                    
+                    <!-- Steps -->
+                    <button onclick="setWorkflowStep(1)" id="step-btn-1" class="workflow-btn w-full md:w-auto relative z-10 flex flex-col items-center bg-sky-600 border-2 border-stone-900 rounded-xl p-3 transition-transform hover:scale-105">
+                        <span class="text-2xl mb-1">📥</span>
+                        <span class="font-bold text-sm">1. Ingest</span>
+                    </button>
+                    <div class="md:hidden text-stone-600">⬇</div>
+                    
+                    <button onclick="setWorkflowStep(2)" id="step-btn-2" class="workflow-btn w-full md:w-auto relative z-10 flex flex-col items-center bg-stone-800 border-2 border-stone-700 rounded-xl p-3 transition-transform hover:scale-105 hover:border-sky-500">
+                        <span class="text-2xl mb-1">🧹</span>
+                        <span class="font-bold text-sm">2. Prepare</span>
+                    </button>
+                    <div class="md:hidden text-stone-600">⬇</div>
+
+                    <button onclick="setWorkflowStep(3)" id="step-btn-3" class="workflow-btn w-full md:w-auto relative z-10 flex flex-col items-center bg-stone-800 border-2 border-stone-700 rounded-xl p-3 transition-transform hover:scale-105 hover:border-sky-500">
+                        <span class="text-2xl mb-1">🏋️</span>
+                        <span class="font-bold text-sm">3. Train</span>
+                    </button>
+                    <div class="md:hidden text-stone-600">⬇</div>
+
+                    <button onclick="setWorkflowStep(4)" id="step-btn-4" class="workflow-btn w-full md:w-auto relative z-10 flex flex-col items-center bg-stone-800 border-2 border-stone-700 rounded-xl p-3 transition-transform hover:scale-105 hover:border-sky-500">
+                        <span class="text-2xl mb-1">📊</span>
+                        <span class="font-bold text-sm">4. Evaluate</span>
+                    </button>
+                    <div class="md:hidden text-stone-600">⬇</div>
+
+                    <button onclick="setWorkflowStep(5)" id="step-btn-5" class="workflow-btn w-full md:w-auto relative z-10 flex flex-col items-center bg-stone-800 border-2 border-stone-700 rounded-xl p-3 transition-transform hover:scale-105 hover:border-sky-500">
+                        <span class="text-2xl mb-1">🚀</span>
+                        <span class="font-bold text-sm">5. Deploy</span>
+                    </button>
+                    <div class="md:hidden text-stone-600">⬇</div>
+
+                    <button onclick="setWorkflowStep(6)" id="step-btn-6" class="workflow-btn w-full md:w-auto relative z-10 flex flex-col items-center bg-stone-800 border-2 border-stone-700 rounded-xl p-3 transition-transform hover:scale-105 hover:border-sky-500">
+                        <span class="text-2xl mb-1">👀</span>
+                        <span class="font-bold text-sm">6. Monitor</span>
+                    </button>
+                </div>
+
+                <!-- Detail Panel -->
+                <div class="bg-stone-800 border border-stone-700 rounded-xl p-6 min-h-[160px] flex items-center">
+                    <div class="w-full">
+                        <h3 id="wf-title" class="text-2xl font-bold text-sky-400 mb-2">1. Ingest Data</h3>
+                        <p id="wf-desc" class="text-stone-300 text-lg">Upload raw structured or unstructured data into Azure.</p>
+                        <div class="mt-4 inline-flex items-center gap-2 bg-stone-900 px-4 py-2 rounded-lg border border-stone-700">
+                            <span class="text-xs text-stone-500 uppercase tracking-widest font-bold">Tools:</span>
+                            <span id="wf-tools" class="font-mono text-sm text-sky-200">Blob Storage, Data Lake Gen2</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 6: Practicalities (Cost & Certs) -->
+        <section class="pb-20">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                
+                <!-- Cost & Management -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-stone-200">
+                    <h2 class="text-2xl font-bold text-stone-800 mb-4 flex items-center gap-2"><span>💰</span> Cost Management</h2>
+                    <p class="text-sm text-stone-600 mb-6">Azure uses a <strong>Pay-As-You-Go (PAYG)</strong> model billed by the minute. Cost awareness is mandatory.</p>
+                    
+                    <ul class="space-y-4 mb-6">
+                        <li class="flex items-start gap-3">
+                            <span class="bg-green-100 text-green-700 p-1 rounded">✔️</span>
+                            <div>
+                                <strong class="text-stone-800 block">Reserved Instances (1-3 yr)</strong>
+                                <span class="text-sm text-stone-600">Up to 72% savings. Requires commitment.</span>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="bg-green-100 text-green-700 p-1 rounded">✔️</span>
+                            <div>
+                                <strong class="text-stone-800 block">Spot VMs</strong>
+                                <span class="text-sm text-stone-600">Up to 90% savings. Compute can be evicted anytime (good for resilient batch jobs).</span>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <div class="bg-stone-50 p-4 rounded-xl border border-stone-200">
+                        <h4 class="font-bold text-stone-800 text-sm mb-2">Getting Started: The Free Tier</h4>
+                        <ul class="text-sm text-stone-600 list-disc list-inside">
+                            <li><strong>$200 USD credit</strong> for 30 days</li>
+                            <li>12 months of popular free services</li>
+                            <li>65+ always-free services</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Certifications -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-stone-200">
+                    <h2 class="text-2xl font-bold text-stone-800 mb-4 flex items-center gap-2"><span>🎓</span> Certification Path</h2>
+                    <p class="text-sm text-stone-600 mb-6">Cloud-certified professionals command higher salaries. Here is the path for Data Scientists.</p>
+                    
+                    <div class="flex flex-col gap-4 relative">
+                        <!-- Connecting Line -->
+                        <div class="absolute left-[28px] top-6 bottom-6 w-1 bg-sky-200 -z-0"></div>
+
+                        <!-- Fundamentals -->
+                        <div class="flex items-center gap-4 relative z-10">
+                            <div class="w-14 h-14 rounded-full bg-stone-100 border-4 border-white shadow flex items-center justify-center font-bold text-stone-500 text-sm">AZ-900</div>
+                            <div class="bg-stone-50 p-3 rounded-lg flex-1 border border-stone-200">
+                                <h4 class="font-bold text-stone-800">Fundamentals</h4>
+                                <p class="text-xs text-stone-500">Cloud concepts, core Azure services.</p>
+                            </div>
+                        </div>
+
+                        <!-- Associate 1 -->
+                        <div class="flex items-center gap-4 relative z-10">
+                            <div class="w-14 h-14 rounded-full bg-sky-600 border-4 border-white shadow flex items-center justify-center font-bold text-white text-sm">DP-100</div>
+                            <div class="bg-sky-50 p-3 rounded-lg flex-1 border border-sky-100 shadow-sm">
+                                <h4 class="font-bold text-sky-800">Data Science Associate <span class="text-xs bg-sky-200 px-2 py-0.5 rounded text-sky-800 ml-2">Target</span></h4>
+                                <ul class="text-xs text-sky-700 mt-1 list-disc list-inside">
+                                    <li>ML workspaces & experiments</li>
+                                    <li>Automated ML & responsible AI</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Associate 2 -->
+                        <div class="flex items-center gap-4 relative z-10">
+                            <div class="w-14 h-14 rounded-full bg-stone-100 border-4 border-white shadow flex items-center justify-center font-bold text-stone-500 text-sm">AI-102</div>
+                            <div class="bg-stone-50 p-3 rounded-lg flex-1 border border-stone-200">
+                                <h4 class="font-bold text-stone-800">AI Engineering</h4>
+                                <p class="text-xs text-stone-500">Building Cognitive Services apps.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-stone-900 text-stone-400 py-8 text-center text-sm">
+        <div class="max-w-7xl mx-auto px-4">
+            <p>Prepared by Cyber.SoHo | March 2026 | From the Industry to the Classroom</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // -----------------------------------------------------
+        // 1. Chart.js Initialization
+        // -----------------------------------------------------
+        document.addEventListener('DOMContentLoaded', function() {
+            // Chart 1: Market Share (Doughnut)
+            const ctxMarket = document.getElementById('marketShareChart').getContext('2d');
+            new Chart(ctxMarket, {
+                type: 'doughnut',
+                data: {
+                    labels: ['AWS', 'Azure', 'GCP', 'Others'],
+                    datasets: [{
+                        data: [31, 24, 11, 34],
+                        backgroundColor: [
+                            '#d6d3d1', // stone-300
+                            '#0284c7', // sky-600 (Highlight Azure)
+                            '#e7e5e4', // stone-200
+                            '#f5f5f4'  // stone-100
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '65%',
+                    plugins: {
+                        legend: { position: 'right', labels: { boxWidth: 12, font: { family: 'Inter' } } },
+                        tooltip: { 
+                            callbacks: { label: (context) => ` ${context.label}: ~${context.raw}%` },
+                            backgroundColor: '#292524', titleFont: { family: 'Inter' }, bodyFont: { family: 'Inter' }
+                        }
+                    }
+                }
+            });
+
+            // Chart 2: Storage Tiers Cost (Bar)
+            const ctxStorage = document.getElementById('storageTierChart').getContext('2d');
+            new Chart(ctxStorage, {
+                type: 'bar',
+                data: {
+                    labels: ['Hot', 'Cool', 'Cold', 'Archive'],
+                    datasets: [
+                        {
+                            label: 'Storage Cost',
+                            data: [100, 60, 40, 10], // Relative scale based on deck logic
+                            backgroundColor: '#0ea5e9', // sky-500
+                        },
+                        {
+                            label: 'Access Cost/Time',
+                            data: [10, 40, 70, 100], // Inverse relationship
+                            backgroundColor: '#f59e0b', // amber-500
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { grid: { display: false }, ticks: { font: { family: 'Inter' } } },
+                        y: { display: false, grid: { display: false } } // Hide y-axis for purely relative visual
+                    },
+                    plugins: {
+                        legend: { position: 'top', labels: { boxWidth: 12, font: { family: 'Inter' } } },
+                        tooltip: {
+                            backgroundColor: '#292524', titleFont: { family: 'Inter' }, bodyFont: { family: 'Inter' },
+                            callbacks: { label: (context) => ` ${context.dataset.label}: ${context.raw === 100 ? 'Highest' : context.raw === 10 ? 'Lowest' : 'Moderate'}` }
+                        }
+                    }
+                }
+            });
+
+            // Initialize default states
+            updateAnalogy('regular');
+            setRespModel('onprem');
+        });
+
+        // -----------------------------------------------------
+        // 2. The Cloud Analogy Logic
+        // -----------------------------------------------------
+        function updateAnalogy(type) {
+            const btnReg = document.getElementById('btn-regular');
+            const btnVal = document.getElementById('btn-valentines');
+            const textEl = document.getElementById('analogy-text');
+            const dilemmaEl = document.getElementById('dilemma-text');
+            const ovenContainer = document.getElementById('oven-container');
+
+            if(type === 'regular') {
+                btnReg.className = "flex-1 py-2 px-4 rounded-lg font-medium text-sky-800 bg-sky-100 border border-sky-200 transition-all";
+                btnVal.className = "flex-1 py-2 px-4 rounded-lg font-medium text-stone-600 bg-white border border-stone-200 transition-all hover:bg-stone-50";
+                
+                textEl.innerHTML = "On a <strong>Regular Day</strong>, you sell 50 cupcakes. A single, small oven works perfectly fine.";
+                dilemmaEl.innerHTML = "If you bought 10 giant ovens just for rare busy days (On-premises IT), they would sit idle 364 days a year. A massive waste of money.";
+                ovenContainer.innerHTML = "📦"; // 1 oven
+            } else {
+                btnVal.className = "flex-1 py-2 px-4 rounded-lg font-medium text-sky-800 bg-sky-100 border border-sky-200 transition-all";
+                btnReg.className = "flex-1 py-2 px-4 rounded-lg font-medium text-stone-600 bg-white border border-stone-200 transition-all hover:bg-stone-50";
+                
+                textEl.innerHTML = "On <strong>Valentine's Day</strong>, you suddenly need to bake 5,000 cupcakes. Your capacity must scale massively.";
+                dilemmaEl.innerHTML = "With Cloud Computing, you simply <em>rent</em> extra oven space only when you need it, and stop paying when the rush is over.";
+                
+                // 10 ovens
+                ovenContainer.innerHTML = Array(10).fill("📦").join(" ");
+            }
+        }
+
+        // -----------------------------------------------------
+        // 3. Shared Responsibility Matrix Logic
+        // -----------------------------------------------------
+        const respData = {
+            'onprem': { title: 'On-Premises', example: 'Traditional corporate data centre', desc: 'You own and manage everything. High capital expenditure.', splits: { data: 'You', apps: 'You', os: 'You', network: 'You', physical: 'You' } },
+            'iaas': { title: 'IaaS (Infrastructure)', example: 'Azure Virtual Machines', desc: 'Microsoft manages the physical hardware. You manage the OS and up.', splits: { data: 'You', apps: 'You', os: 'You', network: 'You', physical: 'Microsoft' } },
+            'paas': { title: 'PaaS (Platform)', example: 'Azure App Service, ML Compute', desc: 'Microsoft manages the OS and runtime. You focus solely on your apps and data.', splits: { data: 'You', apps: 'You', os: 'Microsoft', network: 'Microsoft', physical: 'Microsoft' } },
+            'saas': { title: 'SaaS (Software)', example: 'Microsoft 365, Outlook', desc: 'Microsoft manages the entire application stack. You only manage your data.', splits: { data: 'You', apps: 'Microsoft', os: 'Microsoft', network: 'Microsoft', physical: 'Microsoft' } }
+        };
+
+        function setRespModel(model) {
+            // Update Buttons
+            document.querySelectorAll('.resp-btn').forEach(btn => {
+                btn.className = "resp-btn flex-1 md:flex-none px-4 py-2 rounded-lg text-sm font-medium text-stone-500 hover:text-stone-800 transition-colors";
+            });
+            const activeBtn = document.getElementById(`btn-${model}`);
+            activeBtn.className = "resp-btn flex-1 md:flex-none px-4 py-2 rounded-lg text-sm font-medium transition-colors bg-white shadow text-sky-700";
+
+            // Update Text
+            const data = respData[model];
+            document.getElementById('resp-title').innerText = data.title;
+            document.getElementById('resp-desc').innerText = data.desc;
+            document.getElementById('resp-example').innerText = data.example;
+
+            // Update Matrix Rows
+            document.querySelectorAll('.resp-row').forEach(row => {
+                const layer = row.getAttribute('data-layer');
+                const manager = data.splits[layer];
+                const labelSpan = row.querySelector('.manager-label');
+                
+                labelSpan.innerText = manager;
+                if(manager === 'Microsoft') {
+                    row.classList.remove('bg-stone-100', 'border-stone-200');
+                    row.classList.add('bg-sky-50', 'border-sky-200');
+                    labelSpan.className = "manager-label text-sm font-bold text-sky-800 bg-sky-200 px-3 py-1 rounded-full";
+                } else {
+                    row.classList.remove('bg-sky-50', 'border-sky-200');
+                    row.classList.add('bg-stone-100', 'border-stone-200');
+                    labelSpan.className = "manager-label text-sm font-bold text-stone-600 bg-stone-200 px-3 py-1 rounded-full";
+                }
+            });
+        }
+
+        // -----------------------------------------------------
+        // 4. Tab Navigation Logic
+        // -----------------------------------------------------
+        function openTab(evt, tabId) {
+            // Hide all contents
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.add('hidden');
+                tab.classList.remove('block');
+            });
+            // Deactivate all buttons
+            document.querySelectorAll('.service-tab').forEach(btn => {
+                btn.className = btn.className.replace('text-sky-700 border-sky-600 bg-sky-50', 'text-stone-500 border-transparent hover:bg-stone-50 hover:text-stone-700');
+                btn.classList.remove('active');
+            });
+            // Show current tab
+            document.getElementById(tabId).classList.remove('hidden');
+            document.getElementById(tabId).classList.add('block');
+            // Activate current button
+            evt.currentTarget.className = evt.currentTarget.className.replace('text-stone-500 border-transparent hover:bg-stone-50 hover:text-stone-700', 'text-sky-700 border-sky-600 bg-sky-50 active');
+        }
+
+        // -----------------------------------------------------
+        // 5. ML Workflow Logic
+        // -----------------------------------------------------
+        const workflowData = {
+            1: { title: "1. Ingest Data", desc: "Upload raw structured or unstructured data into Azure.", tools: "Blob Storage, Data Lake Gen2" },
+            2: { title: "2. Prepare & Transform", desc: "Clean, filter, and transform the data so it is ready for machine learning algorithms.", tools: "Synapse Analytics, Databricks" },
+            3: { title: "3. Train Model", desc: "Build and train machine learning models using scalable compute resources.", tools: "Azure ML, GPU Compute Clusters" },
+            4: { title: "4. Evaluate", desc: "Track experiments, compare metrics, and select the best performing model version.", tools: "Azure ML Experiments, MLflow" },
+            5: { title: "5. Deploy", desc: "Serve the model as a scalable REST API so applications can consume predictions.", tools: "Managed Endpoints, AKS (Kubernetes)" },
+            6: { title: "6. Monitor", desc: "Track data drift, model performance decay, and infrastructure costs over time.", tools: "Azure Monitor, App Insights" }
+        };
+
+        function setWorkflowStep(stepNum) {
+            // Reset all buttons
+            for(let i=1; i<=6; i++) {
+                const btn = document.getElementById(`step-btn-${i}`);
+                btn.className = "workflow-btn w-full md:w-auto relative z-10 flex flex-col items-center bg-stone-800 border-2 border-stone-700 rounded-xl p-3 transition-transform hover:scale-105 hover:border-sky-500";
+            }
+            
+            // Highlight active button
+            const activeBtn = document.getElementById(`step-btn-${stepNum}`);
+            activeBtn.className = "workflow-btn w-full md:w-auto relative z-10 flex flex-col items-center bg-sky-600 border-2 border-sky-400 rounded-xl p-3 transition-transform scale-110 shadow-lg shadow-sky-900/50";
+            
+            // Update Text
+            const data = workflowData[stepNum];
+            const panelTitle = document.getElementById('wf-title');
+            const panelDesc = document.getElementById('wf-desc');
+            const panelTools = document.getElementById('wf-tools');
+
+            // Quick fade out/in effect
+            panelTitle.style.opacity = 0; panelDesc.style.opacity = 0; panelTools.parentElement.style.opacity = 0;
+            
+            setTimeout(() => {
+                panelTitle.innerText = data.title;
+                panelDesc.innerText = data.desc;
+                panelTools.innerText = data.tools;
+                panelTitle.style.opacity = 1; panelDesc.style.opacity = 1; panelTools.parentElement.style.opacity = 1;
+            }, 150);
+        }
+    </script>
+</body>
+</html>
+
+
+

@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Azure Fundamentals Study Guide</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #0078D4; /* Microsoft Azure Blue */
+        }
+        
+        /* Tabs Styling */
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #0078D4;
+            margin-bottom: 20px;
+        }
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #555;
+            transition: 0.3s;
+        }
+        .tab-btn:hover {
+            background-color: #f0f8ff;
+        }
+        .tab-btn.active {
+            background-color: #0078D4;
+            color: white;
+            border-radius: 5px 5px 0 0;
+        }
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Flashcards Styling */
+        .flashcard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .card {
+            background-color: transparent;
+            width: 100%;
+            height: 200px;
+            perspective: 1000px;
+            cursor: pointer;
+        }
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            box-shadow: 0 4px 8px 0 rgba(0,0,0,0.1);
+            border-radius: 10px;
+        }
+        .card.flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden; /* Safari */
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+        }
+        .card-front {
+            background-color: #f8f9fa;
+            color: #0078D4;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        .card-back {
+            background-color: #e6f2ff;
+            color: #333;
+            transform: rotateY(180deg);
+            font-size: 0.95em;
+        }
+
+        /* Quiz Styling */
+        .question-block {
+            background: #fff;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border-left: 5px solid #0078D4;
+        }
+        .question-text {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+        .options-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .option-item {
+            background: #f1f3f4;
+            margin: 8px 0;
+            padding: 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.2s;
+            border: 1px solid transparent;
+        }
+        .option-item:hover {
+            background: #e8eaed;
+        }
+        .option-item.correct {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+        .option-item.incorrect {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+        .option-item.disabled {
+            pointer-events: none;
+        }
+        .feedback-box {
+            display: none;
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+            font-size: 0.95em;
+        }
+        .hint-btn {
+            background: #ffc107;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.8em;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Azure Fundamentals for Data Science</h1>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="openTab(event, 'flashcards')">Flashcards</button>
+        <button class="tab-btn" onclick="openTab(event, 'quiz')">Practice Quiz</button>
+    </div>
+
+    <div id="flashcards" class="tab-content active">
+        <p><em>Click on any card to flip it and reveal the answer.</em></p>
+        <div class="flashcard-grid" id="flashcard-container">
+            </div>
+    </div>
+
+    <div id="quiz" class="tab-content">
+        <p><em>Test your knowledge! Select an answer to see the rationale.</em></p>
+        <div id="quiz-container">
+            </div>
+    </div>
+
+    <script>
+        // Tab switching logic
+        function openTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].classList.remove("active");
+            }
+            tablinks = document.getElementsByClassName("tab-btn");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].classList.remove("active");
+            }
+            document.getElementById(tabName).classList.add("active");
+            evt.currentTarget.classList.add("active");
+        }
+
+        // Data arrays
+        const flashcardsData = [
+            { front: "Core definition of cloud computing", back: "Renting IT resources on demand instead of owning them, allowing you to pay only for what you consume." },
+            { front: "Azure's global ranking among cloud providers", back: "The 2nd largest cloud provider globally, operating 60+ regions worldwide." },
+            { front: "Three primary reasons Azure is used for Data Science", back: "Microsoft ecosystem integration, managed ML platforms, and an exclusive OpenAI partnership." },
+            { front: "IaaS (Infrastructure as a Service)", back: "A cloud model where the provider manages hardware and networking, while you manage the OS, apps, and data (e.g., Azure VMs)." },
+            { front: "PaaS (Platform as a Service)", back: "A cloud model where the provider manages the OS and runtime, allowing you to focus entirely on apps and data (e.g., Azure ML)." },
+            { front: "SaaS (Software as a Service)", back: "A cloud model where the provider manages everything except your data (e.g., Microsoft 365)." },
+            { front: "The one layer that is ALWAYS your responsibility in the cloud", back: "Data and access security." },
+            { front: "Azure Regions", back: "Sets of data centres located in a specific geographic area (e.g., Canada Central)." },
+            { front: "Azure Availability Zones", back: "Physically separate locations within an Azure region that have independent power, cooling, and networking." },
+            { front: "Azure Resource Groups", back: "Logical containers for related resources that can be deployed, monitored, and deleted as a single unit." },
+            { front: "Azure VM data science use case", back: "Providing full control for custom environments with any operating system or library." },
+            { front: "Azure Machine Learning (ML) Compute", back: "Auto-scaling GPU clusters that automatically terminate when idle, minimizing operational overhead." },
+            { front: "Azure Blob Storage", back: "A storage service designed for unstructured data like CSV files, images, and logs." },
+            { front: "Azure Data Lake Storage Gen2", back: "A storage service featuring a hierarchical namespace specifically built for big data analytics." },
+            { front: "Most expensive but fastest storage access tier", back: "The Hot tier." },
+            { front: "Cheapest storage tier with the longest retrieval time", back: "The Archive tier, which can take hours to retrieve data." },
+            { front: "Azure Cognitive Services", back: "Pre-built AI models available via API for vision, speech, and language tasks." },
+            { front: "Azure Synapse Analytics", back: "A unified platform combining data warehousing and big data analytics using SQL and Spark engines." },
+            { front: "Azure Cosmos DB", back: "A NoSQL multi-model database best suited for real-time feature stores requiring sub-10ms lookups." },
+            { front: "Azure Resource Manager (ARM)", back: "The unifying concept and management layer that all Azure interfaces route through for consistent results." },
+            { front: "Spot VMs", back: "Compute resources offering up to 90% savings, with the trade-off that they can be evicted by Azure at any time." },
+            { front: "Azure Free Account benefits", back: "$200 USD credit for 30 days, 12 months of popular free services, and 65+ always-free services." },
+            { front: "AZ-900 Certification", back: "The foundational certification covering core cloud concepts and essential Azure services." },
+            { front: "DP-100 Certification", back: "The Associate-level certification focused specifically on Data Science on Azure." },
+            { front: "Six typical steps in an Azure ML project workflow", back: "Ingest, Prepare, Train, Evaluate, Deploy, and Monitor." }
+        ];
+
+        const quizData = [
+            {
+                q: "A retail business expects a 500% increase in website traffic for a three-day holiday sale. Which approach best demonstrates the economic advantage of cloud computing in this scenario?",
+                options: [
+                    { text: "Renting additional temporary server capacity just for the three days", correct: true, rationale: "The pay-as-you-go model allows businesses to scale resources up for short-term demand spikes and terminate them when no longer needed, avoiding sunk costs." },
+                    { text: "Purchasing high-capacity servers to ensure the site never goes down", correct: false, rationale: "Buying physical hardware for a rare, short-term spike results in machines sitting idle for the rest of the year." },
+                    { text: "Moving all their existing physical servers to a Microsoft data center", correct: false, rationale: "Simply relocating owned hardware does not fundamentally change the economic model to consumption-based." },
+                    { text: "Pre-paying for a 3-year Reserved Instance to handle the traffic spike", correct: false, rationale: "Long-term commitments are highly inefficient for a sudden three-day spike." }
+                ],
+                hint: "Think about the bakery analogy and how it handles a sudden rush of customers."
+            },
+            {
+                q: "A healthcare team adopts Microsoft 365, a SaaS solution, to share patient files. According to the Shared Responsibility Model, who is primarily responsible for ensuring only authorized doctors can view these specific files?",
+                options: [
+                    { text: "The healthcare team", correct: true, rationale: "Regardless of the deployment type, managing access rights and securing actual data always remains the burden of the customer." },
+                    { text: "Microsoft", correct: false, rationale: "The cloud provider does not manage internal corporate permissions or user access control for customer documents." },
+                    { text: "The local data center provider", correct: false, rationale: "Physical security has no bearing on logical file permissions within a software application." },
+                    { text: "A third-party network security vendor", correct: false, rationale: "The fundamental duty of assigning file-level access rights rests solely with the organization owning the data." }
+                ],
+                hint: "Consider the one layer of the cloud architecture that never shifts to the cloud provider."
+            },
+            {
+                q: "A European data science team needs to train a model using highly sensitive user data. Legal compliance mandates that this data must never physically leave the European Union. How should they structure their Azure deployment?",
+                options: [
+                    { text: "Deploy all resources into a specific European Region like West Europe", correct: true, rationale: "Geographic locations in the cloud dictate where physical data centers reside, ensuring data residency laws like GDPR are strictly met." },
+                    { text: "Distribute the data across multiple global Availability Zones for redundancy", correct: false, rationale: "Spreading resources globally violates the legal requirement to keep data geographically contained within the EU." },
+                    { text: "Use an Azure Resource Group to encrypt the data before it leaves the continent", correct: false, rationale: "Logical containers do not dictate geographic data boundaries." },
+                    { text: "Store the data in an Archive tier so it cannot be accessed internationally", correct: false, rationale: "Storage access frequency tiers manage costs, not the physical location of the data." }
+                ],
+                hint: "Think about the top level of Azure's global infrastructure architecture and physical geography."
+            },
+            {
+                q: "You need to run a 12-hour PyTorch training script requiring heavy GPU usage. To avoid runaway costs, you want the system to automatically spin down the hardware as soon as the training completes. Which compute service is best?",
+                options: [
+                    { text: "ML Compute", correct: true, rationale: "This managed machine learning service is specifically designed to provision clusters for training jobs and automatically terminate them when idle." },
+                    { text: "Azure Virtual Machines", correct: false, rationale: "Raw infrastructure requires manual intervention or custom scripting to trigger a shutdown, risking accidental continuous billing." },
+                    { text: "Azure Functions", correct: false, rationale: "Serverless code execution is ideal for lightweight tasks, not multi-hour deep learning jobs requiring heavy GPUs." },
+                    { text: "Azure Kubernetes Service (AKS)", correct: false, rationale: "Container platforms excel at serving models in production, rather than acting as ephemeral environments for single training runs." }
+                ],
+                hint: "Look for a service model that sits in the 'Managed ML' category."
+            },
+            {
+                q: "A financial institution must retain 50 terabytes of transaction logs for compliance purposes. These logs are accessed maybe once every few years. Which storage tier provides the most cost-effective solution?",
+                options: [
+                    { text: "Archive tier", correct: true, rationale: "Data that is almost never accessed can be stored at the absolute lowest cost per gigabyte, trading off immediate availability." },
+                    { text: "Hot tier", correct: false, rationale: "Optimized for frequent access, this option carries the highest storage cost." },
+                    { text: "Cool tier", correct: false, rationale: "Designed for infrequent access (like 30-day backups), not for long-term compliance data that is almost never touched." },
+                    { text: "Cold tier", correct: false, rationale: "This serves as an intermediate step, still incurring higher storage fees than the absolute cheapest option." }
+                ],
+                hint: "Consider the inverse relationship between the cost of keeping data and the cost/time to retrieve it."
+            },
+            {
+                q: "Your data engineering team needs a single, unified environment that combines enterprise data warehousing capabilities using SQL with big data processing using Apache Spark. Which service addresses this need?",
+                options: [
+                    { text: "Synapse Analytics", correct: true, rationale: "This service bridges the gap between traditional relational data warehousing and big data analytics by offering both SQL and Spark engines in a unified workspace." },
+                    { text: "Azure Databricks", correct: false, rationale: "While highly effective for Spark, it is not primarily positioned as a unified relational data warehouse replacement." },
+                    { text: "Cognitive Services", correct: false, rationale: "Pre-built AI APIs are used to add vision or language capabilities, not for running massive SQL queries." },
+                    { text: "Cosmos DB", correct: false, rationale: "A NoSQL database is excellent for real-time application backends, not as a unified data warehousing engine." }
+                ],
+                hint: "Look for the tool in the AI, ML & Analytics category that explicitly mentions bringing SQL and Spark together."
+            },
+            {
+                q: "You are building a real-time recommendation engine for a global e-commerce site. The application requires a feature store capable of returning user profiles with sub-10 millisecond latency globally. Which database fits best?",
+                options: [
+                    { text: "Cosmos DB", correct: true, rationale: "This globally distributed NoSQL database is engineered specifically for applications requiring extremely low latency (sub-10ms) across multiple regions." },
+                    { text: "Azure SQL Database", correct: false, rationale: "Traditional relational databases struggle to match the ultra-low latency of distributed NoSQL systems at a global scale." },
+                    { text: "Database for PostgreSQL", correct: false, rationale: "Great for standard web application backends, but not optimized for global sub-10ms feature stores." },
+                    { text: "Data Lake Storage Gen2", correct: false, rationale: "Hierarchical storage is meant for batch analytics, not for serving individual records to a live application in milliseconds." }
+                ],
+                hint: "Identify the database type that abandons strict relational tables in favor of speed."
+            },
+            {
+                q: "Your team runs large-scale batch processing jobs that can be safely interrupted and resumed later without data loss. You have a very tight budget. Which pricing strategy should you leverage?",
+                options: [
+                    { text: "Spot VMs", correct: true, rationale: "Purchasing unused Azure compute capacity yields massive discounts (up to 90%), perfect for workloads that can handle sudden eviction." },
+                    { text: "Reserved Instances", correct: false, rationale: "Committing to a 1-to-3 year term requires an upfront commitment and doesn't offer the extreme savings associated with interruptible capacity." },
+                    { text: "Pay-As-You-Go Hot Tier", correct: false, rationale: "The standard billing model provides no discounts for flexibility, and 'Hot Tier' refers to storage, not VMs." },
+                    { text: "Auto-scaling to zero", correct: false, rationale: "While turning systems off saves money, it doesn't reduce the underlying per-minute compute rate when jobs run." }
+                ],
+                hint: "Think about allowing the cloud provider to reclaim your resources in exchange for the deepest possible discount."
+            },
+            {
+                q: "A machine learning model predicting loan defaults has been in production for six months. The team suspects the incoming applicant data has changed, causing performance decay. Which phase of the workflow requires focus?",
+                options: [
+                    { text: "Monitor", correct: true, rationale: "Tracking data drift, model degradation, and real-world performance over time is the ongoing step required after a model is actively serving predictions." },
+                    { text: "Evaluate", correct: false, rationale: "This involves comparing metrics of different model versions in a controlled environment before release." },
+                    { text: "Prepare", correct: false, rationale: "Cleaning and transforming data happens before the model is trained, not while observing live production anomalies." },
+                    { text: "Deploy", correct: false, rationale: "The act of serving the model via an API has already been completed; the issue relates to post-launch behavior." }
+                ],
+                hint: "Consider the chronological order of a project. What happens after a system goes live?"
+            },
+            {
+                q: "After a baseline cloud concepts course, a data scientist wants a certification specifically verifying their ability to use Azure ML workspaces and run automated ML. Which certification should they pursue?",
+                options: [
+                    { text: "DP-100", correct: true, rationale: "This associate-level certification is tailored directly to data scientists, focusing heavily on model deployment and automated machine learning." },
+                    { text: "AZ-900", correct: false, rationale: "This covers broad cloud concepts and general services, serving as a prerequisite rather than a deep dive into data science tools." },
+                    { text: "AI-102", correct: false, rationale: "This engineering certification focuses on integrating pre-built Cognitive Services into applications." },
+                    { text: "AZ-305", correct: false, rationale: "This expert-level certification is meant for Solutions Architects designing broad infrastructure, not executing data science workflows." }
+                ],
+                hint: "Look for the specific code mapped to the 'Data Science Associate' role."
+            }
+        ];
+
+        // Render Flashcards
+        const flashcardContainer = document.getElementById('flashcard-container');
+        flashcardsData.forEach((card) => {
+            const cardEl = document.createElement('div');
+            cardEl.className = 'card';
+            cardEl.onclick = function() { this.classList.toggle('flipped'); };
+            cardEl.innerHTML = `
+                <div class="card-inner">
+                    <div class="card-front">${card.front}</div>
+                    <div class="card-back">${card.back}</div>
+                </div>
+            `;
+            flashcardContainer.appendChild(cardEl);
+        });
+
+        // Render Quiz
+        const quizContainer = document.getElementById('quiz-container');
+        quizData.forEach((item, index) => {
+            const qBlock = document.createElement('div');
+            qBlock.className = 'question-block';
+            
+            // Question and Hint
+            const qTitle = document.createElement('div');
+            qTitle.className = 'question-text';
+            qTitle.innerText = `${index + 1}. ${item.q}`;
+            
+            const hintBtn = document.createElement('button');
+            hintBtn.className = 'hint-btn';
+            hintBtn.innerText = 'Show Hint';
+            const hintText = document.createElement('div');
+            hintText.style.display = 'none';
+            hintText.style.fontSize = '0.9em';
+            hintText.style.fontStyle = 'italic';
+            hintText.style.marginBottom = '10px';
+            hintText.innerText = `Hint: ${item.hint}`;
+            
+            hintBtn.onclick = () => {
+                hintText.style.display = 'block';
+                hintBtn.style.display = 'none';
+            };
+
+            const optionsList = document.createElement('ul');
+            optionsList.className = 'options-list';
+            
+            const feedbackBox = document.createElement('div');
+            feedbackBox.className = 'feedback-box';
+
+            item.options.forEach((opt) => {
+                const optEl = document.createElement('li');
+                optEl.className = 'option-item';
+                optEl.innerText = opt.text;
+                
+                optEl.onclick = function() {
+                    // Disable all options
+                    const siblings = optionsList.children;
+                    for(let i=0; i<siblings.length; i++){
+                        siblings[i].classList.add('disabled');
+                    }
+                    
+                    if (opt.correct) {
+                        this.classList.add('correct');
+                        feedbackBox.innerHTML = `<strong>Correct!</strong> ${opt.rationale}`;
+                    } else {
+                        this.classList.add('incorrect');
+                        feedbackBox.innerHTML = `<strong>Incorrect.</strong> ${opt.rationale}`;
+                        // Highlight the correct one
+                        for(let i=0; i<item.options.length; i++) {
+                            if(item.options[i].correct) {
+                                siblings[i].classList.add('correct');
+                            }
+                        }
+                    }
+                    feedbackBox.style.display = 'block';
+                };
+                optionsList.appendChild(optEl);
+            });
+
+            qBlock.appendChild(qTitle);
+            qBlock.appendChild(hintBtn);
+            qBlock.appendChild(hintText);
+            qBlock.appendChild(optionsList);
+            qBlock.appendChild(feedbackBox);
+            quizContainer.appendChild(qBlock);
+        });
+    </script>
+</body>
+</html>
+
+
