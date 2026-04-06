@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud Storage & VMs - Study Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Flip Card CSS */
+        .perspective-1000 { perspective: 1000px; }
+        .transform-style-3d { transform-style: preserve-3d; }
+        .backface-hidden { backface-visibility: hidden; }
+        .rotate-y-180 { transform: rotateY(180deg); }
+        .flip-card-inner { transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1); }
+        .flipped .flip-card-inner { transform: rotateY(180deg); }
+        
+        /* Smooth transitions for tabs */
+        .tab-content { transition: opacity 0.3s ease-in-out; }
+    </style>
+</head>
+<body class="bg-stone-50 text-stone-800 font-sans min-h-screen">
+
+    <header class="bg-white shadow-sm border-b border-stone-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-indigo-600 flex items-center gap-2">
+                <span>☁️</span> Cloud Storage & VMs Mastery
+            </h1>
+        </div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex space-x-8 border-t border-stone-100">
+            <button id="tab-btn-flashcards" onclick="switchTab('flashcards')" class="py-4 px-2 border-b-2 font-medium text-sm transition-colors border-indigo-600 text-indigo-600">
+                Flashcards (25)
+            </button>
+            <button id="tab-btn-quiz" onclick="switchTab('quiz')" class="py-4 px-2 border-b-2 border-transparent font-medium text-sm text-stone-500 hover:text-stone-700 hover:border-stone-300 transition-colors">
+                Practice Quiz (10)
+            </button>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <section id="tab-flashcards" class="tab-content block opacity-100">
+            <div class="mb-6">
+                <h2 class="text-3xl font-extrabold text-stone-900">Interactive Flashcards</h2>
+                <p class="text-stone-600 mt-2">Click on any card to reveal the answer. Review these concepts to master the Day 13 curriculum.</p>
+                <div class="mt-4 flex gap-4">
+                    <button onclick="flipAll()" class="px-4 py-2 bg-white border border-stone-300 rounded-md text-sm font-medium text-stone-700 hover:bg-stone-50">Flip All</button>
+                    <button onclick="shuffleFlashcards()" class="px-4 py-2 bg-indigo-50 border border-indigo-200 rounded-md text-sm font-medium text-indigo-700 hover:bg-indigo-100">Shuffle Cards</button>
+                </div>
+            </div>
+            
+            <div id="flashcards-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                </div>
+        </section>
+
+        <section id="tab-quiz" class="tab-content hidden opacity-0">
+            <div class="mb-6">
+                <h2 class="text-3xl font-extrabold text-stone-900">Knowledge Check Quiz</h2>
+                <p class="text-stone-600 mt-2">Test your practical understanding of Cloud Storage, Hypervisors, and Disaster Recovery.</p>
+            </div>
+            
+            <div id="quiz-container" class="max-w-4xl space-y-8 pb-12">
+                </div>
+        </section>
+
+    </main>
+
+    <script>
+        // Data Payloads
+        const flashcardsData = [
+            { front: "Block Storage Structure", back: "Data is split into fixed-size chunks (blocks), each with a numeric address, and has minimal metadata." },
+            { front: "Best use cases for Block Storage", back: "Databases, operating system boot volumes, and low-latency applications." },
+            { front: "IOPS", back: "Input/Output Operations Per Second; a key metric that measures read/write speed for block storage." },
+            { front: "Object Storage Structure", back: "Data stored as self-describing objects (data, metadata, and a unique ID) within a flat namespace." },
+            { front: "WORM Pattern", back: "Write Once, Read Many; a pattern typical in object storage, perfect for analytics and ML pipelines." },
+            { front: "Primary use cases for Object Storage", back: "Data lakes, machine learning training datasets, backups, and long-term archiving." },
+            { front: "File Storage Structure", back: "A traditional hierarchical directory tree (folders and files) served over a network via protocols like NFS or SMB." },
+            { front: "Best use case for File Storage", back: "Shared datasets, such as distributed machine learning training where multiple VMs need simultaneous access." },
+            { front: "Storage tier with the lowest relative cost", back: "Glacier / Archive tier, which is designed for data accessed yearly or less frequently." },
+            { front: "Storage type with near-infinite scalability", back: "Object Storage." },
+            { front: "Virtual Machine (VM)", back: "A software-defined computer that emulates physical hardware and runs its own isolated operating system." },
+            { front: "Hypervisor", back: "A software layer that sits between physical hardware and VMs, allocating resources to each instance." },
+            { front: "Type 1 Hypervisor", back: "A bare-metal hypervisor that runs directly on physical hardware, commonly used in cloud data centres (e.g., KVM, ESXi)." },
+            { front: "Type 2 Hypervisor", back: "A hosted hypervisor that runs on top of a host operating system, typically used for dev/test labs (e.g., VirtualBox)." },
+            { front: "Multi-Tenancy", back: "A cloud business model where a single physical server hosts multiple isolated VMs for different customers." },
+            { front: "VM Terminate State", back: "The VM is permanently destroyed, all associated resources are released, and billing ends completely." },
+            { front: "VM Stop State", back: "The VM is paused and compute billing stops, but its persistent storage remains intact and incurs costs." },
+            { front: "Vertical Scaling (Scale Up)", back: "Increasing the resources (like CPU or RAM) of a single VM, typically used for monolithic applications." },
+            { front: "Horizontal Scaling (Scale Out)", back: "Adding more VMs behind a load balancer, typically used for distributed applications." },
+            { front: "Block Storage connection workflow", back: "1. Attach volume; 2. Format filesystem; 3. Mount to a directory; 4. Persist in /etc/fstab." },
+            { front: "Root vs. Data Volumes Best Practice", back: "Separating the Operating System (root) from application data (data volume) to prevent data loss during upgrades or rebuilds." },
+            { front: "Storage Snapshot", back: "A point-in-time copy of a block storage volume, stored behind the scenes in object storage." },
+            { front: "Cost benefit of Incremental Snapshots", back: "After the initial full copy, only changed blocks are saved, significantly reducing storage sizes and costs." },
+            { front: "RPO (Recovery Point Objective)", back: "The maximum acceptable amount of data loss in a disaster scenario." },
+            { front: "RTO (Recovery Time Objective)", back: "The maximum acceptable amount of downtime to restore systems from a backup." }
+        ];
+
+        const quizData = [
+            {
+                q: "A data science team needs to store 500 TB of raw telemetry data for future machine learning training. The data will be accessed infrequently but needs to be highly durable and cost-effective at a massive scale. Which storage paradigm is best suited for this?",
+                hint: "Consider the storage type that uses a flat namespace and is described as the 'backbone' of data lakes.",
+                options: [
+                    { text: "Object Storage", correct: true, rationale: "Object storage is the cheapest at scale and offers near-infinite scalability, making it the standard choice for data lakes and large-scale backups." },
+                    { text: "Block Storage", correct: false, rationale: "While highly performant, block storage is too expensive and has limited scalability for archiving 500 TB of raw, infrequently accessed data." },
+                    { text: "File Storage", correct: false, rationale: "File storage provides a hierarchical structure for shared network access, which is unnecessary and cost-prohibitive for raw telemetry archiving." },
+                    { text: "Type 1 Hypervisor Storage", correct: false, rationale: "A hypervisor is a software layer for managing virtual machines, not a paradigm for storing massive datasets." }
+                ]
+            },
+            {
+                q: "You are deploying a mission-critical PostgreSQL database on an AWS EC2 instance. The database requires extremely high performance, specifically up to 200,000 IOPS, to handle massive transaction volumes. Which EBS volume type is most appropriate?",
+                hint: "Look for the block storage tier designed specifically for the highest possible performance and mission-critical databases.",
+                options: [
+                    { text: "io2 Block Express", correct: true, rationale: "This volume type supports up to 256,000 IOPS and is purpose-built for mission-critical databases requiring massive throughput." },
+                    { text: "gp3 (General Purpose SSD)", correct: false, rationale: "While excellent for most workloads, gp3 peaks at 16,000 IOPS, which falls far short of the 200,000 IOPS requirement." },
+                    { text: "st1 (Throughput HDD)", correct: false, rationale: "This is a hard disk drive optimized for streaming and big data, maxing out at only 500 IOPS." },
+                    { text: "sc1 (Cold HDD)", correct: false, rationale: "This is designed for infrequent access and archival workloads, offering only up to 250 IOPS." }
+                ]
+            },
+            {
+                q: "To avoid a $2,200 monthly bill, a developer pauses their GPU instance over the weekend. Compute billing stops, but the persistent storage remains intact and incurs minor costs. What state in the VM lifecycle is this instance currently in?",
+                hint: "In this state, the machine is not actively running, but it has not been completely destroyed either.",
+                options: [
+                    { text: "STOPPED", correct: true, rationale: "In the STOPPED state, the VM is paused, compute billing halts, but the attached storage volumes persist and continue to incur charges." },
+                    { text: "TERMINATED", correct: false, rationale: "If the VM were TERMINATED, it would be permanently destroyed and all associated resources and billing would be released completely." },
+                    { text: "PENDING", correct: false, rationale: "The PENDING state occurs when a VM is currently being provisioned and is preparing to boot up." },
+                    { text: "RUNNING", correct: false, rationale: "If the VM were RUNNING, the expensive compute billing for the GPU instance would still be accumulating." }
+                ]
+            },
+            {
+                q: "A cloud provider installs software directly onto physical data centre hardware to carve up resources (CPU, RAM) and isolate multiple tenant VMs from one another. What is this software layer called?",
+                hint: "This software sits beneath the virtual machines and comes in a 'bare-metal' variety for enterprise data centres.",
+                options: [
+                    { text: "Type 1 (Bare-metal) Hypervisor", correct: true, rationale: "A Type 1 hypervisor runs directly on the physical hardware to manage and allocate resources to VMs in cloud data centres." },
+                    { text: "Type 2 (Hosted) Hypervisor", correct: false, rationale: "A Type 2 hypervisor runs on top of a pre-existing host operating system (like Windows or macOS), which is typical for dev/test labs, not cloud data centres." },
+                    { text: "Network-Attached Storage (NAS)", correct: false, rationale: "NAS is a file-level storage architecture that provides shared data access, not a software layer that manages virtual machine compute resources." },
+                    { text: "Virtual Private Cloud (VPC)", correct: false, rationale: "A VPC is a logically isolated virtual network, not the software layer responsible for emulating hardware and managing VMs." }
+                ]
+            },
+            {
+                q: "You configure an automated daily snapshot for a 500 GB block storage volume. After the first full copy is taken on Day 1, behind the scenes, where are these point-in-time incremental copies actually stored?",
+                hint: "Think about the storage paradigm known for being the cheapest at scale and acting as the backbone for backups.",
+                options: [
+                    { text: "Object Storage", correct: true, rationale: "Cloud providers seamlessly store block volume snapshots in their highly durable, low-cost object storage services (like Amazon S3)." },
+                    { text: "File Storage", correct: false, rationale: "File storage is designed for shared, hierarchical file access, not for housing the raw incremental blocks of a snapshot backup." },
+                    { text: "On the same Block Volume", correct: false, rationale: "Storing a backup on the exact same drive being backed up would defeat the purpose of disaster recovery if the volume fails." },
+                    { text: "Inside the VM's RAM", correct: false, rationale: "RAM is volatile memory; it loses all data when the VM is shut down and is not used for persistent, long-term backups." }
+                ]
+            },
+            {
+                q: "A company's disaster recovery policy mandates that in the event of a total server failure, systems must be restored from a snapshot and fully operational within 15 minutes. What specific disaster recovery metric does this 15-minute target represent?",
+                hint: "This metric focuses on the maximum acceptable amount of downtime, rather than the amount of data lost.",
+                options: [
+                    { text: "Recovery Time Objective (RTO)", correct: true, rationale: "RTO defines the maximum acceptable downtime required to restore systems and resume normal operations after a failure." },
+                    { text: "Recovery Point Objective (RPO)", correct: false, rationale: "RPO defines the maximum acceptable amount of data loss (e.g., losing the last 1 hour of data), not the time it takes to get back online." },
+                    { text: "Throughput", correct: false, rationale: "Throughput is a performance metric measuring data transfer rates (MB/s), not a disaster recovery target." },
+                    { text: "Input/Output Operations Per Second (IOPS)", correct: false, rationale: "IOPS measures storage read/write speeds, which impacts performance but does not dictate the business objective for system recovery time." }
+                ]
+            },
+            {
+                q: "You are configuring a distributed machine learning training job where three separate GPU worker VMs must simultaneously read from the exact same dataset of partitioned images. Which storage solution should you attach?",
+                hint: "You need a solution that allows dozens or even thousands of VMs to mount the same filesystem at the same time.",
+                options: [
+                    { text: "File Storage (NAS)", correct: true, rationale: "File storage supports multi-attach via protocols like NFS/SMB, allowing multiple compute nodes to simultaneously access the same dataset." },
+                    { text: "Block Storage", correct: false, rationale: "Block storage is typically single-attach, meaning it can only be mounted to one virtual machine at a time." },
+                    { text: "Ephemeral Host Storage", correct: false, rationale: "Ephemeral storage is tied to the physical host of a specific VM and cannot be easily shared simultaneously across multiple distinct worker nodes." },
+                    { text: "Cold HDD Object Tiers", correct: false, rationale: "While object storage can hold the data, the Cold HDD tier has high latency and requires API calls rather than a shared, easily mounted filesystem directory." }
+                ]
+            },
+            {
+                q: "When provisioning a new VM for a database server, what is the recommended best practice for integrating storage to prevent data loss during an operating system upgrade?",
+                hint: "Consider how you would isolate the files that make the computer run from the files that the application uses.",
+                options: [
+                    { text: "Use a root volume for the OS and a separate data volume for the database files.", correct: true, rationale: "Separating the OS and data volumes allows you to terminate, rebuild, or upgrade the OS root volume without losing the persistent application data." },
+                    { text: "Put both the OS and database files on a single massive root volume.", correct: false, rationale: "Storing everything on one volume risks catastrophic data loss if the operating system crashes, gets corrupted, or needs to be rebuilt." },
+                    { text: "Store the OS on an object storage bucket and the DB on file storage.", correct: false, rationale: "Virtual machines cannot boot an operating system directly from an object storage API; the OS requires block-level storage." },
+                    { text: "Mount the OS on file storage and share it with other VMs.", correct: false, rationale: "Sharing an operating system volume across multiple distinct VMs introduces severe security, stability, and corruption risks." }
+                ]
+            },
+            {
+                q: "A data engineer uploads a 2 GB log file to Amazon S3 (Object Storage). Later, they discover a typo on line 45. Based on the WORM pattern inherent to object storage, how must they correct this typo?",
+                hint: "Remember that object storage treats data as immutable—you cannot edit data 'in place'.",
+                options: [
+                    { text: "Re-upload the entire 2 GB object with the correction.", correct: true, rationale: "Object storage is immutable; you cannot edit specific bytes in place, so the entire modified object must replace the old one." },
+                    { text: "Edit the specific bytes via the block address.", correct: false, rationale: "Editing specific chunks via a block address is a feature of Block Storage, not the flat, API-driven architecture of Object Storage." },
+                    { text: "Mount the bucket via NFS and use a text editor.", correct: false, rationale: "Object storage is accessed via HTTP/HTTPS APIs, not traditionally mounted as a network drive via NFS protocols for live editing." },
+                    { text: "Send a patch API request to modify just line 45.", correct: false, rationale: "Standard cloud object storage does not support patching specific lines of a file; the file must be completely overwritten." }
+                ]
+            },
+            {
+                q: "A monolithic legacy application is running out of memory. To resolve this, the engineering team stops the VM, changes the instance type to one with double the RAM, and restarts it. What kind of scaling strategy is this?",
+                hint: "This strategy involves making a single machine 'bigger' rather than adding 'more' machines.",
+                options: [
+                    { text: "Vertical Scaling (Scale Up)", correct: true, rationale: "Vertical scaling involves increasing the physical resources (CPU, RAM) of an existing single virtual machine." },
+                    { text: "Horizontal Scaling (Scale Out)", correct: false, rationale: "Horizontal scaling involves adding more identical virtual machines behind a load balancer, rather than resizing a single machine." },
+                    { text: "Elastic File Scaling", correct: false, rationale: "This refers to how a file storage system (like EFS) grows automatically, not how a compute instance is resized." },
+                    { text: "Cross-Region Replication", correct: false, rationale: "This is a disaster recovery strategy involving copying backups to a different geographical location, not a compute scaling strategy." }
+                ]
+            }
+        ];
+
+        // --- Render Functions ---
+
+        function renderFlashcards(data) {
+            const container = document.getElementById('flashcards-grid');
+            container.innerHTML = '';
+            
+            data.forEach((card, index) => {
+                const cardHtml = `
+                    <div class="h-64 w-full cursor-pointer perspective-1000" onclick="this.classList.toggle('flipped')">
+                        <div class="relative w-full h-full transform-style-3d flip-card-inner rounded-xl shadow-md border border-stone-200">
+                            <div class="absolute w-full h-full backface-hidden bg-white text-stone-800 rounded-xl p-6 flex flex-col justify-center items-center text-center">
+                                <span class="text-xs font-bold text-stone-400 uppercase tracking-wider mb-2 block w-full text-left">Card ${index + 1}</span>
+                                <h3 class="text-xl font-bold leading-tight">${card.front}</h3>
+                                <p class="text-stone-400 text-sm mt-4">Click to reveal</p>
+                            </div>
+                            <div class="absolute w-full h-full backface-hidden rotate-y-180 bg-indigo-600 text-white rounded-xl p-6 flex flex-col justify-center items-center text-center">
+                                <p class="text-lg font-medium leading-relaxed">${card.back}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', cardHtml);
+            });
+        }
+
+        function shuffleFlashcards() {
+            const shuffled = [...flashcardsData].sort(() => Math.random() - 0.5);
+            renderFlashcards(shuffled);
+        }
+
+        function flipAll() {
+            const cards = document.querySelectorAll('.perspective-1000');
+            const allFlipped = Array.from(cards).every(card => card.classList.contains('flipped'));
+            cards.forEach(card => {
+                if(allFlipped) {
+                    card.classList.remove('flipped');
+                } else {
+                    card.classList.add('flipped');
+                }
+            });
+        }
+
+        function renderQuiz() {
+            const container = document.getElementById('quiz-container');
+            container.innerHTML = '';
+
+            quizData.forEach((q, qIndex) => {
+                // Shuffle options
+                const shuffledOptions = [...q.options].sort(() => Math.random() - 0.5);
+
+                let optionsHtml = shuffledOptions.map((opt, oIndex) => `
+                    <button 
+                        class="w-full text-left p-4 rounded-lg border border-stone-200 hover:border-indigo-400 hover:bg-indigo-50 transition-colors group relative"
+                        onclick="handleQuizAnswer(this, ${qIndex}, ${opt.correct}, '${opt.rationale.replace(/'/g, "\\'")}')"
+                    >
+                        <span class="font-medium text-stone-800">${opt.text}</span>
+                    </button>
+                `).join('');
+
+                const quizItem = `
+                    <div class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-stone-200">
+                        <h3 class="text-lg font-bold text-stone-900 mb-2"><span class="text-indigo-600">Q${qIndex + 1}.</span> ${q.q}</h3>
+                        <p class="text-sm text-stone-500 mb-6 italic">Hint: ${q.hint}</p>
+                        <div class="space-y-3" id="options-${qIndex}">
+                            ${optionsHtml}
+                        </div>
+                        <div id="rationale-${qIndex}" class="mt-6 p-4 rounded-lg hidden"></div>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', quizItem);
+            });
+        }
+
+        // --- Interaction Logic ---
+
+        window.handleQuizAnswer = function(btn, qIndex, isCorrect, rationale) {
+            const parent = document.getElementById(`options-${qIndex}`);
+            const rationaleDiv = document.getElementById(`rationale-${qIndex}`);
+            
+            // Disable all buttons in this question
+            const buttons = parent.querySelectorAll('button');
+            buttons.forEach(b => {
+                b.disabled = true;
+                b.classList.remove('hover:border-indigo-400', 'hover:bg-indigo-50', 'cursor-pointer');
+                b.classList.add('cursor-default', 'opacity-60');
+            });
+
+            // Highlight chosen button
+            btn.classList.remove('opacity-60', 'border-stone-200');
+            if(isCorrect) {
+                btn.classList.add('bg-green-50', 'border-green-500', 'opacity-100');
+                rationaleDiv.className = 'mt-4 p-4 rounded-lg bg-green-50 border border-green-200 text-green-900 text-sm block';
+                rationaleDiv.innerHTML = `<strong>Correct!</strong> ${rationale}`;
+            } else {
+                btn.classList.add('bg-red-50', 'border-red-500', 'opacity-100');
+                rationaleDiv.className = 'mt-4 p-4 rounded-lg bg-red-50 border border-red-200 text-red-900 text-sm block';
+                rationaleDiv.innerHTML = `<strong>Not quite.</strong> ${rationale}`;
+                
+                // Show which one was actually correct
+                buttons.forEach((b, idx) => {
+                   // We need to find the correct button text from the original data
+                   const btnText = b.querySelector('span').innerText;
+                   const correctOpt = quizData[qIndex].options.find(o => o.correct);
+                   if (btnText === correctOpt.text) {
+                       b.classList.remove('opacity-60');
+                       b.classList.add('border-green-500', 'border-2');
+                   }
+                });
+            }
+        };
+
+        window.switchTab = function(tabName) {
+            // Update buttons
+            document.getElementById('tab-btn-flashcards').className = tabName === 'flashcards' 
+                ? "py-4 px-2 border-b-2 font-medium text-sm transition-colors border-indigo-600 text-indigo-600"
+                : "py-4 px-2 border-b-2 border-transparent font-medium text-sm text-stone-500 hover:text-stone-700 hover:border-stone-300 transition-colors";
+            
+            document.getElementById('tab-btn-quiz').className = tabName === 'quiz' 
+                ? "py-4 px-2 border-b-2 font-medium text-sm transition-colors border-indigo-600 text-indigo-600"
+                : "py-4 px-2 border-b-2 border-transparent font-medium text-sm text-stone-500 hover:text-stone-700 hover:border-stone-300 transition-colors";
+
+            // Update content visibility with smooth toggle
+            const fContent = document.getElementById('tab-flashcards');
+            const qContent = document.getElementById('tab-quiz');
+
+            if(tabName === 'flashcards') {
+                qContent.classList.add('opacity-0');
+                setTimeout(() => {
+                    qContent.classList.add('hidden');
+                    qContent.classList.remove('block');
+                    fContent.classList.remove('hidden');
+                    fContent.classList.add('block');
+                    setTimeout(() => fContent.classList.remove('opacity-0'), 50);
+                }, 300);
+            } else {
+                fContent.classList.add('opacity-0');
+                setTimeout(() => {
+                    fContent.classList.add('hidden');
+                    fContent.classList.remove('block');
+                    qContent.classList.remove('hidden');
+                    qContent.classList.add('block');
+                    setTimeout(() => qContent.classList.remove('opacity-0'), 50);
+                }, 300);
+            }
+        };
+
+        // Init
+        document.addEventListener('DOMContentLoaded', () => {
+            renderFlashcards(flashcardsData);
+            renderQuiz();
+        });
+    </script>
+</body>
+</html>
+
+
+

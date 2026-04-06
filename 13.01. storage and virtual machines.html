@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud Storage & VMs - Digital Science</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Chosen Palette: Warm Neutrals & Indigo (Stone 50 bg, White cards, Stone 800 text, Indigo 600 accents) -->
+    <!-- Application Structure Plan: The SPA is designed as an interactive learning dashboard. It transitions the linear lesson plan into three thematic hubs: 'Storage Ecosystem', 'Compute & VMs', and 'Operations & Resilience'. A top/sticky navigation allows quick jumping. Interactive tabs prevent information overload in the storage comparison. Visualizations (charts) are used to clarify IOPS scales, resource allocation, and the dramatic cost savings of incremental snapshots, making abstract numbers tangible. -->
+    <!-- Visualization & Content Choices: 
+         1. Goal: Compare Storage Types -> Viz: Interactive Tabs -> Interaction: Click to switch content -> Library: Vanilla JS + HTML/Tailwind. (Replaces static comparison matrix).
+         2. Goal: Compare IOPS -> Viz: Logarithmic Bar Chart -> Interaction: Hover tooltips -> Library: Chart.js (Canvas). (Visualizes the massive difference between gp3 and io2).
+         3. Goal: Organize Resource Allocation -> Viz: Doughnut Chart -> Interaction: Hover tooltips -> Library: Chart.js (Canvas). (Shows part-to-whole relationship of a hypervisor host).
+         4. Goal: Change/Trend in Backups -> Viz: Line Chart -> Interaction: Hover tooltips -> Library: Chart.js (Canvas). (Dramatically shows 15TB vs 790GB over time).
+         CONFIRMING: NO SVG graphics used. NO Mermaid JS used. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <style>
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 40vh;
+            max-height: 400px;
+            min-height: 250px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            scroll-behavior: smooth;
+        }
+        .tab-active {
+            border-bottom-width: 2px;
+            border-color: #4f46e5;
+            color: #4f46e5;
+            font-weight: 600;
+        }
+        .tab-inactive {
+            color: #57534e;
+        }
+        .tab-inactive:hover {
+            color: #1c1917;
+            border-bottom-width: 2px;
+            border-color: #d6d3d1;
+        }
+    </style>
+</head>
+<body class="bg-stone-50 text-stone-800 antialiased overflow-x-hidden">
+
+    <nav class="bg-white border-b border-stone-200 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl">☁️</span>
+                    <span class="font-bold text-lg text-stone-900 tracking-tight">Cyber.SoHo Educational Hub</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#intro" class="text-stone-600 hover:text-indigo-600 text-sm font-medium">Overview</a>
+                    <a href="#storage" class="text-stone-600 hover:text-indigo-600 text-sm font-medium">Storage Ecosystem</a>
+                    <a href="#compute" class="text-stone-600 hover:text-indigo-600 text-sm font-medium">Compute & VMs</a>
+                    <a href="#ops" class="text-stone-600 hover:text-indigo-600 text-sm font-medium">Operations & DR</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
+
+        <section id="intro" class="bg-white rounded-2xl shadow-sm border border-stone-200 p-8 md:p-12">
+            <h1 class="text-3xl md:text-5xl font-extrabold text-stone-900 mb-4 tracking-tight">Day 13 : Storage and Virtual Machines</h1>
+            <p class="text-lg text-stone-500 mb-8 font-medium">Cloud Computing and Big Data Analytics — Digital Science Programme</p>
+            
+            <p class="text-stone-700 leading-relaxed max-w-4xl text-lg">
+                Welcome to Day 13 of the Digital Science Programme. This interactive dashboard distills the core components of cloud architecture: the trinity of cloud storage (Block, Object, and File) and the foundational compute layer driven by Virtual Machines (VMs) and hypervisors. Explore the modules below to understand how data is stored, how compute resources are allocated, and the mathematical impact of efficient disaster recovery.
+            </p>
+        </section>
+
+        <section id="storage" class="space-y-6">
+            <div>
+                <h2 class="text-2xl font-bold text-stone-900 flex items-center gap-2"><span class="text-2xl">💾</span> The Storage Ecosystem</h2>
+                <p class="text-stone-600 mt-2 max-w-3xl">
+                    This section explores the three fundamental paradigms of cloud storage. Use the interactive tabs to compare their structures, access models, and ideal use cases. The chart below visualizes the massive performance differences within Block storage tiers.
+                </p>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-stone-200 overflow-hidden">
+                <div class="border-b border-stone-200 px-4 pt-4 flex space-x-8 overflow-x-auto" id="storage-tabs">
+                    <button class="pb-3 tab-active text-lg px-2" onclick="switchTab('block')">Block Storage</button>
+                    <button class="pb-3 tab-inactive text-lg px-2" onclick="switchTab('object')">Object Storage</button>
+                    <button class="pb-3 tab-inactive text-lg px-2" onclick="switchTab('file')">File Storage</button>
+                </div>
+
+                <div class="p-6 md:p-8" id="tab-content">
+                    <div id="content-block" class="block">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div>
+                                <h3 class="text-xl font-bold text-stone-900 mb-3">Virtual Disks in the Cloud</h3>
+                                <ul class="space-y-3 text-stone-700">
+                                    <li class="flex gap-2"><span>▪️</span> <b>Structure:</b> Data split into fixed-size chunks (blocks), each with a numeric address.</li>
+                                    <li class="flex gap-2"><span>▪️</span> <b>Access:</b> Device-level (iSCSI/NVMe). Fastest access, highest cost.</li>
+                                    <li class="flex gap-2"><span>▪️</span> <b>Attach Model:</b> Typically single-attach (one volume per VM).</li>
+                                    <li class="flex gap-2"><span>▪️</span> <b>Best For:</b> Databases, OS boot volumes, low-latency applications.</li>
+                                </ul>
+                                <div class="mt-6 p-4 bg-indigo-50 text-indigo-900 rounded-lg border border-indigo-100">
+                                    <b>🔑 Key Takeaway:</b> Block storage is where your databases, Jupyter servers, and OS live. Master IOPS and throughput to avoid bottlenecks.
+                                </div>
+                            </div>
+                            <div class="bg-stone-50 p-6 rounded-xl border border-stone-200 flex flex-col items-center justify-center">
+                                <span class="text-5xl mb-4">💻</span>
+                                <p class="text-stone-600 text-center text-sm">Behaves like a physical SSD/HDD.<br>Must be in the same AZ as the VM.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="content-object" class="hidden">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div>
+                                <h3 class="text-xl font-bold text-stone-900 mb-3">The Data Lake Backbone</h3>
+                                <ul class="space-y-3 text-stone-700">
+                                    <li class="flex gap-2"><span>▪️</span> <b>Structure:</b> Flat namespace. Data stored as self-describing objects (data + metadata + unique ID).</li>
+                                    <li class="flex gap-2"><span>▪️</span> <b>Access:</b> API (HTTP/HTTPS). Immutable data (WORM pattern).</li>
+                                    <li class="flex gap-2"><span>▪️</span> <b>Scalability:</b> Near-infinite, cheapest at scale.</li>
+                                    <li class="flex gap-2"><span>▪️</span> <b>Best For:</b> Data lakes, machine learning training datasets, backups, archiving.</li>
+                                </ul>
+                                <div class="mt-6 p-4 bg-indigo-50 text-indigo-900 rounded-lg border border-indigo-100">
+                                    <b>🔑 Key Takeaway:</b> Object storage is your primary workhorse — it backs every data lake, ML pipeline, and analytics warehouse.
+                                </div>
+                            </div>
+                            <div class="bg-stone-50 p-6 rounded-xl border border-stone-200">
+                                <h4 class="font-semibold text-stone-800 mb-2">Storage Tiers Overview</h4>
+                                <div class="space-y-2">
+                                    <div class="flex justify-between items-center text-sm"><span>Standard (Frequent)</span> <span class="font-mono text-stone-500">$$$</span></div>
+                                    <div class="w-full bg-stone-200 rounded-full h-2"><div class="bg-indigo-400 h-2 rounded-full" style="width: 100%"></div></div>
+                                    <div class="flex justify-between items-center text-sm pt-2"><span>Infrequent Access (Monthly)</span> <span class="font-mono text-stone-500">$$</span></div>
+                                    <div class="w-full bg-stone-200 rounded-full h-2"><div class="bg-indigo-300 h-2 rounded-full" style="width: 60%"></div></div>
+                                    <div class="flex justify-between items-center text-sm pt-2"><span>Glacier / Archive (Yearly)</span> <span class="font-mono text-stone-500">$</span></div>
+                                    <div class="w-full bg-stone-200 rounded-full h-2"><div class="bg-indigo-200 h-2 rounded-full" style="width: 20%"></div></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="content-file" class="hidden">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div>
+                                <h3 class="text-xl font-bold text-stone-900 mb-3">Network-Attached Storage (NAS)</h3>
+                                <ul class="space-y-3 text-stone-700">
+                                    <li class="flex gap-2"><span>▪️</span> <b>Structure:</b> Traditional hierarchical directory tree.</li>
+                                    <li class="flex gap-2"><span>▪️</span> <b>Access:</b> Protocol (NFS/SMB). Shared access across networks.</li>
+                                    <li class="flex gap-2"><span>▪️</span> <b>Attach Model:</b> Multi-attach. Dozens to thousands of VMs can mount simultaneously.</li>
+                                    <li class="flex gap-2"><span>▪️</span> <b>Best For:</b> Shared datasets, distributed ML training, content management.</li>
+                                </ul>
+                                <div class="mt-6 p-4 bg-indigo-50 text-indigo-900 rounded-lg border border-indigo-100">
+                                    <b>🔑 Key Takeaway:</b> When multiple compute nodes need simultaneous access to the same dataset — file storage is your answer.
+                                </div>
+                            </div>
+                            <div class="bg-stone-50 p-6 rounded-xl border border-stone-200 flex flex-col items-center justify-center">
+                                <span class="text-5xl mb-4">📁</span>
+                                <p class="text-stone-600 text-center text-sm">Example: 3 GPU nodes reading from the same 50GB dataset at <code class="bg-white px-1 py-0.5 rounded border border-stone-200">/mnt/shared-data/</code></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-stone-200 p-6 md:p-8 mt-6">
+                <h3 class="text-xl font-bold text-stone-900 mb-2">Block Storage: Max IOPS by Volume Type</h3>
+                <p class="text-stone-500 text-sm mb-6">Input/Output Operations Per Second. Note the logarithmic scale to accommodate mission-critical database speeds.</p>
+                <div class="chart-container">
+                    <canvas id="iopsChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section id="compute" class="space-y-6">
+            <div>
+                <h2 class="text-2xl font-bold text-stone-900 flex items-center gap-2"><span class="text-2xl">⚙️</span> Compute & Virtual Machines</h2>
+                <p class="text-stone-600 mt-2 max-w-3xl">
+                    Understand the software-defined computer. This section details hypervisor mechanics, multi-tenancy business models, and the critical phases of a VM's lifecycle.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="bg-white rounded-2xl shadow-sm border border-stone-200 p-6 md:p-8">
+                    <h3 class="text-xl font-bold text-stone-900 mb-4">Host Resource Allocation</h3>
+                    <p class="text-stone-600 text-sm mb-6">Example of carving up a physical host's 512 GB of RAM among multiple tenant VMs via a Hypervisor.</p>
+                    <div class="chart-container" style="height: 300px; max-height: 300px;">
+                        <canvas id="ramChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-sm border border-stone-200 p-6 md:p-8 flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-xl font-bold text-stone-900 mb-4">The VM Lifecycle</h3>
+                        <div class="flex flex-wrap gap-2 mb-6">
+                            <span class="px-3 py-1 bg-stone-100 text-stone-700 rounded-full font-mono text-sm border border-stone-200">PENDING</span>
+                            <span class="text-stone-400">→</span>
+                            <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full font-mono text-sm border border-green-200">RUNNING</span>
+                            <span class="text-stone-400">→</span>
+                            <span class="px-3 py-1 bg-amber-100 text-amber-800 rounded-full font-mono text-sm border border-amber-200">STOPPED</span>
+                            <span class="text-stone-400">→</span>
+                            <span class="px-3 py-1 bg-red-100 text-red-800 rounded-full font-mono text-sm border border-red-200">TERMINATED</span>
+                        </div>
+                        
+                        <h4 class="font-semibold text-stone-800 mb-2 mt-4">Storage Integration Workflow (Block)</h4>
+                        <ol class="list-decimal pl-5 space-y-2 text-stone-700 text-sm">
+                            <li><b>Attach</b> — Create volume, attach to instance</li>
+                            <li><b>Format</b> — e.g., <code class="bg-stone-100 px-1 rounded">sudo mkfs.ext4 /dev/xvdf</code></li>
+                            <li><b>Mount</b> — e.g., <code class="bg-stone-100 px-1 rounded">sudo mount /dev/xvdf /mnt/data</code></li>
+                            <li><b>Persist</b> — Add entry to <code class="bg-stone-100 px-1 rounded">/etc/fstab</code></li>
+                        </ol>
+                    </div>
+                    
+                    <div class="mt-8 p-4 bg-red-50 text-red-900 rounded-lg border border-red-100">
+                        <b>⚠️ Common Mistake:</b> Forgetting to terminate. A running GPU instance can cost ~$2,200/month. Stop pauses billing (mostly); Terminate ends it.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="ops" class="space-y-6">
+            <div>
+                <h2 class="text-2xl font-bold text-stone-900 flex items-center gap-2"><span class="text-2xl">🛡️</span> Operations & Disaster Recovery</h2>
+                <p class="text-stone-600 mt-2 max-w-3xl">
+                    Explore the mechanics and economics of incremental snapshots. Snapshots are point-in-time copies of block volumes stored in object storage, providing massive cost reductions compared to full daily backups.
+                </p>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-stone-200 p-6 md:p-8">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+                    <div>
+                        <h3 class="text-xl font-bold text-stone-900">Snapshot Cost Savings Math</h3>
+                        <p class="text-stone-500 text-sm">30-Day Accumulation: Full Backups vs. Incremental Snapshots (Initial 500GB volume)</p>
+                    </div>
+                    <div class="mt-4 md:mt-0 text-right bg-green-50 p-3 rounded-lg border border-green-100">
+                        <span class="block text-2xl font-bold text-green-700">94.7%</span>
+                        <span class="block text-xs text-green-800 uppercase tracking-wider font-semibold">Storage Reduction</span>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="snapshotChart"></canvas>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8 pt-6 border-t border-stone-100">
+                    <div>
+                        <p class="text-sm font-semibold text-stone-500 uppercase tracking-wider">RPO (Recovery Point Objective)</p>
+                        <p class="text-lg text-stone-900">Max acceptable data loss (e.g., 1-hour snapshots = 1-hour RPO)</p>
+                    </div>
+                    <div>
+                        <p class="text-sm font-semibold text-stone-500 uppercase tracking-wider">RTO (Recovery Time Objective)</p>
+                        <p class="text-lg text-stone-900">Max acceptable downtime (e.g., 15 min to restore from snapshot)</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer class="border-t border-stone-200 pt-8 mt-16 text-center">
+            <p class="text-stone-500 text-sm">© 2026 Cyber.SoHo Educational Hub — All Rights Reserved.</p>
+            <p class="text-stone-400 text-xs mt-1">From the Industry to the Classroom — Building IT's Future, Today and Together!</p>
+        </footer>
+
+    </main>
+
+    <script>
+        function switchTab(tabId) {
+            const tabs = ['block', 'object', 'file'];
+            const tabButtons = document.getElementById('storage-tabs').children;
+            
+            tabs.forEach((tab, index) => {
+                const content = document.getElementById('content-' + tab);
+                const button = tabButtons[index];
+                
+                if (tab === tabId) {
+                    content.classList.remove('hidden');
+                    content.classList.add('block');
+                    button.classList.remove('tab-inactive');
+                    button.classList.add('tab-active');
+                } else {
+                    content.classList.add('hidden');
+                    content.classList.remove('block');
+                    button.classList.add('tab-inactive');
+                    button.classList.remove('tab-active');
+                }
+            });
+        }
+
+        Chart.defaults.font.family = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
+        Chart.defaults.color = '#57534e';
+
+        const iopsCtx = document.getElementById('iopsChart').getContext('2d');
+        new Chart(iopsCtx, {
+            type: 'bar',
+            data: {
+                labels: ['sc1 (Cold HDD)', 'st1 (Throughput HDD)', 'gp3 (General SSD)', 'io2 Block Express'],
+                datasets: [{
+                    label: 'Max IOPS',
+                    data: [250, 500, 16000, 256000],
+                    backgroundColor: ['#d6d3d1', '#a8a29e', '#818cf8', '#4f46e5'],
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.parsed.y.toLocaleString() + ' IOPS';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        type: 'logarithmic',
+                        title: { display: true, text: 'IOPS (Log Scale)' },
+                        ticks: {
+                            callback: function(value) {
+                                if(value === 100 || value === 1000 || value === 10000 || value === 100000) {
+                                    return value.toLocaleString();
+                                }
+                                return '';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        const ramCtx = document.getElementById('ramChart').getContext('2d');
+        new Chart(ramCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Jupyter Hub (64GB)', 'PostgreSQL DB (128GB)', 'Web Server (16GB)', 'CI/CD Runner (32GB)', 'Remaining Free (272GB)'],
+                datasets: [{
+                    data: [64, 128, 16, 32, 272],
+                    backgroundColor: ['#6366f1', '#4f46e5', '#818cf8', '#a5b4fc', '#e7e5e4'],
+                    borderWidth: 2,
+                    borderColor: '#ffffff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '65%',
+                plugins: {
+                    legend: { position: 'right' }
+                }
+            }
+        });
+
+        const days = Array.from({length: 30}, (_, i) => i + 1);
+        const fullBackupData = days.map(day => 500 * day);
+        const incrementalData = days.map(day => {
+            if (day === 1) return 500;
+            return 500 + ((day - 1) * 10);
+        });
+
+        const snapCtx = document.getElementById('snapshotChart').getContext('2d');
+        new Chart(snapCtx, {
+            type: 'line',
+            data: {
+                labels: days.map(d => 'Day ' + d),
+                datasets: [
+                    {
+                        label: 'Full Backup Strategy (GB)',
+                        data: fullBackupData,
+                        borderColor: '#ef4444',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        fill: true,
+                        tension: 0.1
+                    },
+                    {
+                        label: 'Incremental Snapshots (GB)',
+                        data: incrementalData,
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                        fill: true,
+                        tension: 0.1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': ' + context.parsed.y.toLocaleString() + ' GB';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        title: { display: true, text: 'Cumulative Storage (GB)' },
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+
+
+
