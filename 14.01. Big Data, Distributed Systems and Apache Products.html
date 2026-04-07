@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Big Data & Distributed Systems Explorer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Chosen Palette: Warm Neutrals & Subdued Tech Blues (Stone background, White cards, Slate/Sky accents) -->
+    <!-- Application Structure Plan: A single-page application structured as an interactive learning dashboard. It departs from the linear slide format to group concepts logically: 1. Foundations (The problem space: Big Data 5Vs & CAP Theorem), 2. Scaling (The physical solution: Vertical vs Horizontal), 3. Frameworks (The software solution: Hadoop vs Spark comparison), and 4. Ecosystem (Real-world pipelines & careers). This enables non-linear exploration, using interactive visualisations to make abstract distributed systems concepts tangible. -->
+    <!-- Visualization & Content Choices: 
+         - Foundations (5 Vs): Polar Area Chart (Chart.js) to show the multidimensional nature of Big Data, with custom tooltips containing slide definitions. Justification: Shows equal weight/interconnectedness. No SVG.
+         - Distributed Systems (CAP Theorem): CSS-based overlapping circles acting as an interactive Venn Diagram. Justification: Standard CAP representation, cleanly done with CSS. No SVG.
+         - Scaling Challenge: DOM manipulation (Vanilla JS) interactive module adding/resizing CSS blocks. Justification: Visually demonstrates "buying bigger" vs "buying more" servers. No SVG.
+         - Framework Comparison (Hadoop vs Spark): Grouped Bar Chart (Chart.js). Justification: Directly compares performance/ease across conceptual metrics derived from the text (e.g., Spark 100x faster for ML). No SVG.
+         - Pipeline Flow: CSS Flexbox flow diagram with clickable nodes that update a detail panel. Justification: Explains the microservices pipeline pattern interactively. No SVG. 
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <style>
+        /* Base Styling */
+        body { font-family: 'Inter', sans-serif; background-color: #fafaf9; color: #1c1917; }
+        
+        /* Chart Container Strict Guidelines */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+        @media (max-width: 768px) {
+            .chart-container { height: 280px; max-width: 100%; }
+        }
+
+        /* Hide Scrollbar for clean UI */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f5f5f4; }
+        ::-webkit-scrollbar-thumb { background: #d6d3d1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #a8a29e; }
+
+        /* Custom Interactive Elements */
+        .tab-btn { transition: all 0.2s ease; border-bottom: 2px solid transparent; }
+        .tab-btn.active { border-color: #0284c7; color: #0284c7; font-weight: 600; }
+        
+        .cap-circle { 
+            width: 150px; height: 150px; border-radius: 50%; position: absolute; mix-blend-mode: multiply; 
+            display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        .cap-circle:hover { transform: scale(1.05); }
+        .cap-c { top: 0; left: 50%; transform: translateX(-50%); background-color: rgba(186, 230, 253, 0.8); }
+        .cap-a { bottom: 0; left: 10%; background-color: rgba(254, 215, 170, 0.8); }
+        .cap-p { bottom: 0; right: 10%; background-color: rgba(167, 243, 208, 0.8); }
+        .cap-c:hover { transform: translateX(-50%) scale(1.05); }
+
+        .server-block { transition: all 0.3s ease; }
+        .fade-in { animation: fadeIn 0.4s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="flex flex-col md:flex-row h-screen overflow-hidden">
+
+    <nav class="w-full md:w-64 bg-stone-900 text-stone-100 flex-shrink-0 flex flex-col z-20 shadow-lg">
+        <div class="p-6">
+            <h1 class="text-xl font-bold tracking-wider mb-2">Cyber.SoHo Hub</h1>
+            <p class="text-xs text-stone-400 font-medium">Digital Science Programme</p>
+            <p class="text-xs text-stone-500 mt-1">Day 14: Big Data & Spark</p>
+        </div>
+        <div class="flex-grow flex flex-row md:flex-col overflow-x-auto md:overflow-y-auto px-4 gap-2 pb-4">
+            <button onclick="nav('foundations')" id="nav-foundations" class="nav-item text-left px-4 py-3 rounded-lg bg-stone-800 text-stone-100 font-medium transition-colors whitespace-nowrap md:whitespace-normal">1. Foundations</button>
+            <button onclick="nav('scaling')" id="nav-scaling" class="nav-item text-left px-4 py-3 rounded-lg hover:bg-stone-800 text-stone-400 font-medium transition-colors whitespace-nowrap md:whitespace-normal">2. The Scale Problem</button>
+            <button onclick="nav('frameworks')" id="nav-frameworks" class="nav-item text-left px-4 py-3 rounded-lg hover:bg-stone-800 text-stone-400 font-medium transition-colors whitespace-nowrap md:whitespace-normal">3. Hadoop vs Spark</button>
+            <button onclick="nav('ecosystem')" id="nav-ecosystem" class="nav-item text-left px-4 py-3 rounded-lg hover:bg-stone-800 text-stone-400 font-medium transition-colors whitespace-nowrap md:whitespace-normal">4. Ecosystem & Careers</button>
+        </div>
+    </nav>
+
+    <main class="flex-grow overflow-y-auto bg-stone-50 relative p-4 md:p-8">
+        
+        <section id="sec-foundations" class="max-w-5xl mx-auto pb-16 fade-in">
+            <header class="mb-8">
+                <h2 class="text-3xl font-bold text-stone-800 mb-4">Big Data Foundations</h2>
+                <p class="text-lg text-stone-600 leading-relaxed">
+                    Welcome to the core principles of Big Data and Distributed Systems. This section outlines the characteristics that make datasets "Big" and the fundamental theorem governing how distributed databases manage that data across networks. Interact with the models below to uncover the definitions.
+                </p>
+            </header>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-200">
+                    <h3 class="text-xl font-semibold text-stone-800 mb-2">The Five V's Framework</h3>
+                    <p class="text-sm text-stone-500 mb-6">Hover over each section of the radar chart to explore the dimensions of Big Data.</p>
+                    <div class="chart-container">
+                        <canvas id="fiveVsChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-200 flex flex-col">
+                    <h3 class="text-xl font-semibold text-stone-800 mb-2">The CAP Theorem</h3>
+                    <p class="text-sm text-stone-500 mb-6">Click on the circles to understand the trade-offs in distributed systems. You can only pick two!</p>
+                    
+                    <div class="relative w-full flex-grow flex justify-center items-center min-h-[250px]" id="cap-container">
+                        <div class="relative w-[300px] h-[260px]">
+                            <div class="cap-circle cap-c text-sky-900" onclick="showCapInfo('Consistency', 'Every read returns the most recent write. All nodes see the same data at the same time.')">C</div>
+                            <div class="cap-circle cap-a text-orange-900" onclick="showCapInfo('Availability', 'Every request gets a response, even if some nodes fail. No guarantee it\'s the latest data.')">A</div>
+                            <div class="cap-circle cap-p text-emerald-900" onclick="showCapInfo('Partition Tolerance', 'The system continues to work despite network splits/failures between nodes. This is mandatory.')">P</div>
+                            
+                            <div class="absolute top-[50%] left-[50%] transform -translate-x-[50%] -translate-y-[50%] text-center text-xs font-bold text-stone-800 z-10 pointer-events-none w-16">Pick 2</div>
+                        </div>
+                    </div>
+                    
+                    <div id="cap-info-panel" class="mt-4 p-4 bg-stone-50 rounded border border-stone-200 text-stone-700 min-h-[100px] flex items-center justify-center text-center">
+                        Select a property above to see its definition. Network partitions (P) are inevitable, so systems must choose CP or AP.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="sec-scaling" class="max-w-5xl mx-auto pb-16 hidden">
+            <header class="mb-8">
+                <h2 class="text-3xl font-bold text-stone-800 mb-4">The Scale Problem</h2>
+                <p class="text-lg text-stone-600 leading-relaxed">
+                    Why do traditional systems crack under Big Data? This section visually demonstrates the difference between Vertical Scaling (buying bigger hardware) and Horizontal Scaling (distributing workload across commodity machines). Horizontal scaling is the foundation of Hadoop and Spark.
+                </p>
+            </header>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-200 mb-8">
+                <div class="flex flex-col md:flex-row gap-8 items-center justify-between border-b border-stone-100 pb-8 mb-8">
+                    
+                    <div class="w-full md:w-1/2 flex flex-col items-center">
+                        <h3 class="text-xl font-bold text-stone-800 mb-4">Vertical Scaling (Scale Up)</h3>
+                        <div class="h-[200px] flex items-end justify-center w-full bg-stone-50 rounded-lg p-4 border border-stone-200 relative overflow-hidden">
+                            <div id="vertical-server" class="bg-slate-700 rounded-t-lg w-24 h-24 server-block flex flex-col justify-end p-2 border-b-4 border-slate-900">
+                                <div class="w-full h-1 bg-green-400 mb-1 rounded"></div>
+                                <div class="w-full h-1 bg-green-400 mb-1 rounded"></div>
+                                <div class="w-full h-1 bg-green-400 rounded"></div>
+                            </div>
+                            <div class="absolute top-2 left-2 text-xs font-mono text-stone-400">Limits: CPU, RAM, Cost</div>
+                        </div>
+                        <button onclick="scaleVertical()" class="mt-4 px-6 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded shadow-sm transition-colors w-full border border-slate-300">Buy Bigger Server</button>
+                        <p id="vertical-status" class="text-xs text-red-500 mt-2 h-4"></p>
+                    </div>
+
+                    <div class="text-4xl text-stone-300 font-light hidden md:block">VS</div>
+
+                    <div class="w-full md:w-1/2 flex flex-col items-center">
+                        <h3 class="text-xl font-bold text-stone-800 mb-4">Horizontal Scaling (Scale Out)</h3>
+                        <div class="h-[200px] w-full bg-stone-50 rounded-lg p-4 border border-stone-200 flex flex-wrap gap-2 items-center justify-center overflow-y-auto content-center" id="horizontal-cluster">
+                            <div class="bg-sky-600 rounded w-10 h-10 server-block shadow-sm"></div>
+                        </div>
+                        <button onclick="scaleHorizontal()" class="mt-4 px-6 py-2 bg-sky-100 hover:bg-sky-200 text-sky-700 font-medium rounded shadow-sm transition-colors w-full border border-sky-300">Add Commodity Node</button>
+                        <p id="horizontal-status" class="text-xs text-stone-500 mt-2 h-4">1 node active. Fault tolerance: None.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-red-50 p-4 rounded-lg border border-red-100">
+                        <h4 class="font-bold text-red-800 mb-2">Why Vertical Fails</h4>
+                        <ul class="text-sm text-red-700 space-y-1">
+                            <li>&#9654; Hardware limits (finite RAM/CPU)</li>
+                            <li>&#9654; Cost explosion (doubling capacity triples price)</li>
+                            <li>&#9654; Single Point of Failure (SPOF)</li>
+                            <li>&#9654; I/O network bottlenecks</li>
+                        </ul>
+                    </div>
+                    <div class="bg-emerald-50 p-4 rounded-lg border border-emerald-100">
+                        <h4 class="font-bold text-emerald-800 mb-2">Why Horizontal Wins</h4>
+                        <ul class="text-sm text-emerald-700 space-y-1">
+                            <li>&#9654; Infinite scalability via network</li>
+                            <li>&#9654; Uses cheap commodity hardware</li>
+                            <li>&#9654; Inherent fault tolerance (replication)</li>
+                            <li>&#9654; Parallel processing (MapReduce)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="sec-frameworks" class="max-w-5xl mx-auto pb-16 hidden">
+            <header class="mb-8">
+                <h2 class="text-3xl font-bold text-stone-800 mb-4">Hadoop vs Apache Spark</h2>
+                <p class="text-lg text-stone-600 leading-relaxed">
+                    Explore the evolution of Big Data processing. Hadoop revolutionized storage (HDFS) and batch processing (MapReduce) on disk. Spark emerged to solve MapReduce's latency by keeping Resilient Distributed Datasets (RDDs) in memory, making it up to 100x faster for iterative machine learning workloads. They are often used together in layered architectures.
+                </p>
+            </header>
+
+            <div class="bg-white rounded-xl shadow-sm border border-stone-200 overflow-hidden mb-8">
+                <div class="flex border-b border-stone-200">
+                    <button onclick="switchTab('comparison')" id="tab-comparison" class="tab-btn active flex-1 py-4 text-center font-medium bg-stone-50 hover:bg-white">Performance Comparison</button>
+                    <button onclick="switchTab('architecture')" id="tab-architecture" class="tab-btn flex-1 py-4 text-center font-medium text-stone-500 bg-stone-50 hover:bg-white">Architectural View</button>
+                </div>
+                
+                <div id="panel-comparison" class="p-6">
+                    <h3 class="text-xl font-bold text-stone-800 mb-4 text-center">Conceptual Performance Benchmarks</h3>
+                    <div class="chart-container">
+                        <canvas id="frameworkChart"></canvas>
+                    </div>
+                    <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                        <div class="bg-stone-50 p-4 rounded border border-stone-200">
+                            <strong class="text-stone-800 block mb-1">When to use Hadoop:</strong>
+                            Petabytes of archival data, batch ETL, cold-storage, budget prioritizes disk storage over speed.
+                        </div>
+                        <div class="bg-sky-50 p-4 rounded border border-sky-100">
+                            <strong class="text-sky-800 block mb-1">When to use Spark:</strong>
+                            Fast iterative ML training, real-time streaming, unified batch/SQL/ML engine, Python/Scala teams.
+                        </div>
+                    </div>
+                </div>
+
+                <div id="panel-architecture" class="p-6 hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            <h3 class="text-xl font-bold text-stone-800 mb-4 flex items-center gap-2"><span class="bg-amber-100 text-amber-800 px-2 py-1 rounded text-sm">Disk</span> Hadoop Architecture</h3>
+                            <div class="space-y-3">
+                                <div class="bg-stone-100 p-3 rounded border-l-4 border-amber-500">
+                                    <strong class="block text-stone-800">MapReduce (Processing)</strong>
+                                    <span class="text-sm text-stone-600">Two phases: Map (transform locally) -> Shuffle & Sort -> Reduce (aggregate). Writes to disk between steps.</span>
+                                </div>
+                                <div class="bg-stone-100 p-3 rounded border-l-4 border-amber-500">
+                                    <strong class="block text-stone-800">YARN (Resource Management)</strong>
+                                    <span class="text-sm text-stone-600">Yet Another Resource Negotiator. Manages cluster CPU/RAM and schedules jobs.</span>
+                                </div>
+                                <div class="bg-stone-100 p-3 rounded border-l-4 border-amber-500">
+                                    <strong class="block text-stone-800">HDFS (Storage)</strong>
+                                    <span class="text-sm text-stone-600">Hadoop Distributed File System. Splits files into 128MB blocks, replicates 3x across DataNodes.</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-stone-800 mb-4 flex items-center gap-2"><span class="bg-sky-100 text-sky-800 px-2 py-1 rounded text-sm">RAM</span> Spark Architecture</h3>
+                            <div class="space-y-3">
+                                <div class="bg-stone-100 p-3 rounded border-l-4 border-sky-500">
+                                    <strong class="block text-stone-800">Driver & Actions (Execution)</strong>
+                                    <span class="text-sm text-stone-600">Lazy evaluation. Transformations build a DAG (Directed Acyclic Graph). Actions trigger execution.</span>
+                                </div>
+                                <div class="bg-stone-100 p-3 rounded border-l-4 border-sky-500">
+                                    <strong class="block text-stone-800">Cluster Manager & Executors</strong>
+                                    <span class="text-sm text-stone-600">Connects via SparkContext. Worker nodes execute tasks and store RDDs in memory.</span>
+                                </div>
+                                <div class="bg-stone-100 p-3 rounded border-l-4 border-sky-500">
+                                    <strong class="block text-stone-800">Unified Libraries</strong>
+                                    <span class="text-sm text-stone-600">Spark SQL (DataFrames), Spark Streaming, MLlib (Machine Learning), GraphX.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="sec-ecosystem" class="max-w-5xl mx-auto pb-16 hidden">
+            <header class="mb-8">
+                <h2 class="text-3xl font-bold text-stone-800 mb-4">Real-World Pipelines & Careers</h2>
+                <p class="text-lg text-stone-600 leading-relaxed">
+                    Modern Big Data uses a layered microservices pattern. Explore the stages of a typical pipeline below to see where different technologies fit. Finally, review the diverse career paths required to build, maintain, and analyze these massive systems.
+                </p>
+            </header>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-200 mb-8">
+                <h3 class="text-xl font-bold text-stone-800 mb-6">Interactive Microservices Pipeline</h3>
+                
+                <div class="flex flex-col md:flex-row justify-between items-center gap-2 mb-8 overflow-x-auto pb-4">
+                    <button onclick="showPipelineDetail('source')" class="px-4 py-3 bg-stone-100 hover:bg-stone-200 rounded border border-stone-300 flex-shrink-0 w-32 font-medium text-stone-700 transition-colors">1. Source</button>
+                    <span class="text-stone-300 font-bold">&#8594;</span>
+                    <button onclick="showPipelineDetail('ingest')" class="px-4 py-3 bg-stone-100 hover:bg-stone-200 rounded border border-stone-300 flex-shrink-0 w-32 font-medium text-stone-700 transition-colors">2. Ingest</button>
+                    <span class="text-stone-300 font-bold">&#8594;</span>
+                    <button onclick="showPipelineDetail('store')" class="px-4 py-3 bg-stone-100 hover:bg-stone-200 rounded border border-stone-300 flex-shrink-0 w-32 font-medium text-stone-700 transition-colors">3. Store</button>
+                    <span class="text-stone-300 font-bold">&#8594;</span>
+                    <button onclick="showPipelineDetail('process')" class="px-4 py-3 bg-stone-100 hover:bg-stone-200 rounded border border-stone-300 flex-shrink-0 w-32 font-medium text-stone-700 transition-colors">4. Process</button>
+                    <span class="text-stone-300 font-bold">&#8594;</span>
+                    <button onclick="showPipelineDetail('analyze')" class="px-4 py-3 bg-stone-100 hover:bg-stone-200 rounded border border-stone-300 flex-shrink-0 w-32 font-medium text-stone-700 transition-colors">5. Viz/Analysis</button>
+                </div>
+
+                <div id="pipeline-detail" class="bg-stone-800 text-stone-100 p-6 rounded-lg min-h-[140px] flex items-center">
+                    <div>
+                        <h4 class="text-xl font-bold text-sky-400 mb-2">Click a pipeline stage above</h4>
+                        <p class="text-stone-300">Discover the tools and technologies used at each step of the data lifecycle to power companies like Netflix, Uber, and Spotify.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-200">
+                <h3 class="text-xl font-bold text-stone-800 mb-6">Big Data Career Paths</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead>
+                            <tr class="bg-stone-100 text-stone-600 uppercase text-xs border-b border-stone-200">
+                                <th class="p-4 font-bold">Role</th>
+                                <th class="p-4 font-bold">Core Responsibility</th>
+                                <th class="p-4 font-bold">Key Technologies</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-stone-100">
+                            <tr class="hover:bg-stone-50">
+                                <td class="p-4 font-bold text-stone-800">Data Engineer</td>
+                                <td class="p-4 text-stone-600">Builds and maintains scalable data pipelines and ingestion systems.</td>
+                                <td class="p-4"><span class="inline-block bg-sky-100 text-sky-800 px-2 py-1 rounded text-xs mr-1 mb-1">Hadoop</span><span class="inline-block bg-sky-100 text-sky-800 px-2 py-1 rounded text-xs mr-1 mb-1">Spark</span><span class="inline-block bg-sky-100 text-sky-800 px-2 py-1 rounded text-xs mb-1">Kafka</span></td>
+                            </tr>
+                            <tr class="hover:bg-stone-50">
+                                <td class="p-4 font-bold text-stone-800">Data Scientist</td>
+                                <td class="p-4 text-stone-600">Uses statistical models and algorithms to extract insights from processed data.</td>
+                                <td class="p-4"><span class="inline-block bg-emerald-100 text-emerald-800 px-2 py-1 rounded text-xs mr-1 mb-1">PySpark</span><span class="inline-block bg-emerald-100 text-emerald-800 px-2 py-1 rounded text-xs mb-1">MLlib</span></td>
+                            </tr>
+                            <tr class="hover:bg-stone-50">
+                                <td class="p-4 font-bold text-stone-800">ML Engineer</td>
+                                <td class="p-4 text-stone-600">Trains, scales, and deploys machine learning models to production.</td>
+                                <td class="p-4"><span class="inline-block bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs mr-1 mb-1">Spark MLlib</span><span class="inline-block bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs mb-1">TensorFlow</span></td>
+                            </tr>
+                            <tr class="hover:bg-stone-50">
+                                <td class="p-4 font-bold text-stone-800">Data Analyst</td>
+                                <td class="p-4 text-stone-600">Queries datasets to answer business questions and creates dashboards.</td>
+                                <td class="p-4"><span class="inline-block bg-amber-100 text-amber-800 px-2 py-1 rounded text-xs mr-1 mb-1">SparkSQL</span><span class="inline-block bg-amber-100 text-amber-800 px-2 py-1 rounded text-xs mr-1 mb-1">Hive</span><span class="inline-block bg-amber-100 text-amber-800 px-2 py-1 rounded text-xs mb-1">Tableau</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // --- State Management & Navigation ---
+        const state = {
+            currentSection: 'foundations',
+            verticalSize: 1,
+            horizontalNodes: 1,
+            chartsInitialized: false
+        };
+
+        function nav(sectionId) {
+            // Update UI Nav
+            document.querySelectorAll('.nav-item').forEach(el => {
+                el.classList.remove('bg-stone-800', 'text-stone-100');
+                el.classList.add('hover:bg-stone-800', 'text-stone-400');
+            });
+            const activeNav = document.getElementById(`nav-${sectionId}`);
+            activeNav.classList.remove('hover:bg-stone-800', 'text-stone-400');
+            activeNav.classList.add('bg-stone-800', 'text-stone-100');
+
+            // Update Content Views
+            document.querySelectorAll('main > section').forEach(el => el.classList.add('hidden'));
+            const targetSection = document.getElementById(`sec-${sectionId}`);
+            targetSection.classList.remove('hidden');
+
+            // Initialize charts only when they become visible to ensure correct canvas sizing
+            if ((sectionId === 'foundations' || sectionId === 'frameworks') && !state.chartsInitialized) {
+                // Minor timeout to allow DOM display:block to calculate sizes
+                setTimeout(() => {
+                    initCharts();
+                    state.chartsInitialized = true;
+                }, 50);
+            }
+        }
+
+        // --- Foundations Data & Logic ---
+        const fiveVsData = {
+            labels: ['Volume', 'Velocity', 'Variety', 'Veracity', 'Value'],
+            descriptions: [
+                'Amount: Petabytes+, Exabytes+. e.g., YouTube 500+ hrs/min',
+                'Speed: Real-time streams. e.g., Millions of stock trades/sec',
+                'Formats: Structured (SQL), Semi (JSON), Unstructured (Video/Logs)',
+                'Trust: Filtering noise, duplicates, bots, and spam',
+                'Worth: Raw data is useless without processing -> business insights'
+            ]
+        };
+
+        function showCapInfo(title, desc) {
+            const panel = document.getElementById('cap-info-panel');
+            panel.innerHTML = `<div class="fade-in"><strong>${title}:</strong> ${desc}</div>`;
+        }
+
+        // --- Scaling Data & Logic ---
+        function scaleVertical() {
+            if (state.verticalSize >= 3) {
+                document.getElementById('vertical-status').innerText = 'CRASH! Hardware limit reached. Extremely expensive.';
+                return;
+            }
+            state.verticalSize++;
+            const server = document.getElementById('vertical-server');
+            server.style.height = `${100 + (state.verticalSize * 30)}px`;
+            server.style.width = `${100 + (state.verticalSize * 20)}px`;
+            document.getElementById('vertical-status').innerText = 'Server upgraded. Costs tripled.';
+        }
+
+        function scaleHorizontal() {
+            if (state.horizontalNodes >= 24) {
+                document.getElementById('horizontal-status').innerText = `${state.horizontalNodes} nodes active. Huge parallel power.`;
+                return;
+            }
+            state.horizontalNodes++;
+            const cluster = document.getElementById('horizontal-cluster');
+            const newNode = document.createElement('div');
+            newNode.className = 'bg-sky-600 rounded w-10 h-10 server-block shadow-sm fade-in';
+            cluster.appendChild(newNode);
+            
+            let status = `${state.horizontalNodes} nodes active. `;
+            if(state.horizontalNodes >= 3) status += 'Data replicated 3x. Highly fault-tolerant.';
+            else status += 'Working in parallel.';
+            document.getElementById('horizontal-status').innerText = status;
+        }
+
+        // --- Frameworks Data & Logic ---
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(el => {
+                el.classList.remove('active', 'border-sky-600', 'text-sky-600');
+                el.classList.add('border-transparent', 'text-stone-500');
+            });
+            const activeTab = document.getElementById(`tab-${tab}`);
+            activeTab.classList.remove('border-transparent', 'text-stone-500');
+            activeTab.classList.add('active', 'border-sky-600', 'text-sky-600');
+
+            document.getElementById('panel-comparison').classList.add('hidden');
+            document.getElementById('panel-architecture').classList.add('hidden');
+            document.getElementById(`panel-${tab}`).classList.remove('hidden');
+        }
+
+        // --- Ecosystem Data & Logic ---
+        const pipelineData = {
+            source: { title: '1. Data Sources', desc: 'Where data originates: IoT devices, application logs, external APIs, and transactional databases (RDBMS).', tech: 'Sensors, Web Apps, SQL DBs' },
+            ingest: { title: '2. Ingestion', desc: 'Capturing data streams in real-time or via scheduled batch pulls into the central system.', tech: 'Apache Kafka, Apache Flume, Apache Sqoop' },
+            store: { title: '3. Storage', desc: 'Holding massive volumes of varied data immutably and redundantly.', tech: 'HDFS, Amazon S3, Azure Blob, HBase' },
+            process: { title: '4. Processing', desc: 'Transforming, cleaning, and aggregating data. Can be iterative (ML) or single-pass (ETL).', tech: 'Apache Spark, Hadoop MapReduce' },
+            analyze: { title: '5. Analysis & Visualization', desc: 'Querying processed data via SQL-like interfaces and building dashboards for business value.', tech: 'SparkSQL, Hive, BigQuery, Tableau, MLlib' }
+        };
+
+        function showPipelineDetail(stage) {
+            const data = pipelineData[stage];
+            const panel = document.getElementById('pipeline-detail');
+            panel.innerHTML = `
+                <div class="fade-in w-full">
+                    <div class="flex justify-between items-start mb-2">
+                        <h4 class="text-xl font-bold text-sky-400">${data.title}</h4>
+                        <span class="bg-stone-700 text-stone-200 text-xs px-2 py-1 rounded border border-stone-600">${data.tech}</span>
+                    </div>
+                    <p class="text-stone-300">${data.desc}</p>
+                </div>
+            `;
+        }
+
+        // --- Chart Initialization ---
+        function initCharts() {
+            // 1. Five Vs Polar Area Chart
+            const ctxVs = document.getElementById('fiveVsChart').getContext('2d');
+            new Chart(ctxVs, {
+                type: 'polarArea',
+                data: {
+                    labels: fiveVsData.labels,
+                    datasets: [{
+                        data: [10, 10, 10, 10, 10], // Equal representation conceptually
+                        backgroundColor: [
+                            'rgba(14, 165, 233, 0.6)', // Sky
+                            'rgba(245, 158, 11, 0.6)', // Amber
+                            'rgba(16, 185, 129, 0.6)', // Emerald
+                            'rgba(139, 92, 246, 0.6)', // Violet
+                            'rgba(244, 63, 94, 0.6)'   // Rose
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { r: { ticks: { display: false } } },
+                    plugins: {
+                        legend: { position: 'right' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return fiveVsData.descriptions[context.dataIndex];
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 2. Framework Comparison Bar Chart
+            const ctxFrame = document.getElementById('frameworkChart').getContext('2d');
+            new Chart(ctxFrame, {
+                type: 'bar',
+                data: {
+                    labels: ['Batch Processing Speed', 'Iterative ML Speed', 'Ease of Use (APIs)', 'Batch Cost Efficiency'],
+                    datasets: [
+                        {
+                            label: 'Hadoop MapReduce',
+                            data: [6, 1, 4, 9],
+                            backgroundColor: 'rgba(245, 158, 11, 0.8)' // Amber
+                        },
+                        {
+                            label: 'Apache Spark',
+                            data: [8, 10, 8, 6],
+                            backgroundColor: 'rgba(14, 165, 233, 0.8)' // Sky
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 10,
+                            title: { display: true, text: 'Relative Score (Conceptual)' }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                afterLabel: function(context) {
+                                    if(context.dataset.label === 'Apache Spark' && context.label === 'Iterative ML Speed') return 'Up to 100x faster (in-memory)';
+                                    if(context.dataset.label === 'Hadoop MapReduce' && context.label === 'Batch Cost Efficiency') return 'Cheaper for cold disk storage';
+                                    return '';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Ensure charts initialize if starting on default tab
+        window.addEventListener('DOMContentLoaded', () => {
+            initCharts();
+            state.chartsInitialized = true;
+        });
+
+    </script>
+</body>
+</html>
+
+
+

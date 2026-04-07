@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Big Data Study Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for 3D flip effect */
+        .perspective-1000 { perspective: 1000px; }
+        .transform-style-3d { transform-style: preserve-3d; }
+        .backface-hidden { backface-visibility: hidden; }
+        .rotate-y-180 { transform: rotateY(180deg); }
+        .flip-card-inner { transition: transform 0.6s; }
+        .flipped .flip-card-inner { transform: rotateY(180deg); }
+        
+        /* Smooth tab transitions */
+        .tab-content { display: none; animation: fadeIn 0.3s ease-in-out; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body class="bg-stone-50 text-stone-800 font-sans min-h-screen">
+
+    <div class="max-w-5xl mx-auto p-6">
+        <header class="mb-8 text-center">
+            <h1 class="text-3xl font-bold text-sky-900 mb-2">Big Data & Distributed Systems</h1>
+            <p class="text-stone-500">Interactive Study Guide</p>
+        </header>
+
+        <div class="flex justify-center border-b border-stone-300 mb-8">
+            <button onclick="switchTab('flashcards')" id="btn-flashcards" class="px-6 py-3 font-semibold text-sky-700 border-b-2 border-sky-600 transition-colors">
+                Flashcards (25)
+            </button>
+            <button onclick="switchTab('quiz')" id="btn-quiz" class="px-6 py-3 font-semibold text-stone-500 border-b-2 border-transparent hover:text-sky-600 transition-colors">
+                Practice Quiz (10)
+            </button>
+        </div>
+
+        <div id="tab-flashcards" class="tab-content active">
+            <div class="flex justify-between items-center mb-4">
+                <p class="text-stone-600">Click any card to flip it and reveal the answer.</p>
+                <button onclick="shuffleCards()" class="px-4 py-2 bg-sky-100 text-sky-700 rounded hover:bg-sky-200 transition-colors text-sm font-semibold">Shuffle Cards</button>
+            </div>
+            <div id="flashcard-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                </div>
+        </div>
+
+        <div id="tab-quiz" class="tab-content">
+            <div class="bg-white p-8 rounded-xl shadow-sm border border-stone-200">
+                <p class="text-stone-600 mb-6 border-b pb-4">Select the best answer for each question, then click submit at the bottom to check your score and view the rationales.</p>
+                <div id="quiz-container" class="space-y-8">
+                    </div>
+                <div class="mt-8 pt-6 border-t border-stone-200 text-center">
+                    <button onclick="gradeQuiz()" id="submit-quiz-btn" class="px-8 py-3 bg-sky-600 text-white font-bold rounded shadow hover:bg-sky-700 transition-colors">Submit Answers</button>
+                    <div id="quiz-results" class="mt-4 text-xl font-bold hidden"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA ---
+        const flashcardData = [
+            { f: "The Five V's Framework", b: "Volume, Velocity, Variety, Veracity, and Value." },
+            { f: "Big Data \"Volume\"", b: "The massive amount of data, often measured in Petabytes or Exabytes." },
+            { f: "Big Data \"Velocity\"", b: "The speed at which data streams in continuously, often in real-time." },
+            { f: "Big Data \"Variety\"", b: "The different formats of data: structured (SQL), semi-structured (JSON), and unstructured (videos, social media)." },
+            { f: "Big Data \"Veracity\"", b: "The trustworthiness of data, requiring the filtering of noise, duplicates, and spam." },
+            { f: "Vertical Scaling (\"Scale Up\")", b: "Upgrading a single server to be bigger and faster; it is limited by physical hardware caps and cost." },
+            { f: "Horizontal Scaling (\"Scale Out\")", b: "Distributing workloads across many smaller, networked commodity machines." },
+            { f: "Distributed System", b: "A collection of independent computers that appears to the user as a single coherent system." },
+            { f: "The CAP Theorem", b: "A rule stating a distributed data store can guarantee at most two of three properties: Consistency, Availability, and Partition Tolerance." },
+            { f: "Consistency (CAP Theorem)", b: "The guarantee that every read from the system returns the most recent write." },
+            { f: "Availability (CAP Theorem)", b: "The guarantee that every request to the system gets a response." },
+            { f: "Partition Tolerance (CAP Theorem)", b: "The guarantee that the system continues to work despite network splits or communication failures between nodes." },
+            { f: "Replication", b: "Storing copies of data on multiple nodes to ensure fault tolerance." },
+            { f: "Sharding (Partitioning)", b: "Splitting datasets across multiple nodes, with each node holding a specific subset of the data." },
+            { f: "Apache Hadoop", b: "An open-source framework for distributed storage and processing, primarily consisting of HDFS, YARN, and MapReduce." },
+            { f: "HDFS (Hadoop Distributed File System)", b: "A storage system that splits files into 128 MB blocks and replicates each block three times across worker nodes." },
+            { f: "YARN (Yet Another Resource Negotiator)", b: "Hadoop's cluster resource manager that allocates CPU and memory and schedules jobs." },
+            { f: "Map Phase (MapReduce)", b: "The step where individual nodes process local data blocks to produce intermediate key-value pairs." },
+            { f: "Reduce Phase (MapReduce)", b: "The step where groups of same-key pairs are aggregated into a final result, such as a sum or count." },
+            { f: "Primary limitation of Hadoop MapReduce", b: "It writes output to disk between every Map and Reduce step, creating massive I/O overhead for iterative tasks." },
+            { f: "Apache Spark's primary performance advantage", b: "It keeps data collections in memory (RAM) instead of writing to disk, making it up to 100x faster for iterative workloads like Machine Learning." },
+            { f: "RDD (Resilient Distributed Dataset)", b: "Spark's core abstraction of immutable data collections that live in memory." },
+            { f: "Spark Transformations", b: "Lazy operations, such as map() or filter(), that define what to compute without triggering execution immediately." },
+            { f: "Spark Actions", b: "Eager operations, such as collect() or count(), that trigger the actual execution of the computation plan." },
+            { f: "Microservices pipeline pattern", b: "An architecture where each stage of a Big Data pipeline (Sources, Ingestion, Storage, Processing, Analysis) acts as a separate, scalable service." }
+        ];
+
+        const quizData = [
+            {
+                q: "A streaming platform collects spreadsheet logs, user profile images, and JSON metadata. Which of the Five V's of Big Data does this diverse collection of formats primarily represent?",
+                opts: [
+                    { t: "Volume", r: "Volume refers to the massive amount or sheer size of the data, not the format types.", c: false },
+                    { t: "Velocity", r: "Velocity refers to the speed at which data streams into the system in real-time.", c: false },
+                    { t: "Variety", r: "This category specifically encompasses the different structural formats of data, including structured (spreadsheets), semi-structured (JSON), and unstructured (images).", c: true },
+                    { t: "Veracity", r: "Veracity deals with the trustworthiness, noise, and potential errors within the data.", c: false }
+                ],
+                hint: "Think about the difference between structured, semi-structured, and unstructured data formats."
+            },
+            {
+                q: "A company's database is struggling to handle user traffic. Instead of buying a highly expensive supercomputer, they add 20 standard, commodity servers to distribute the workload. Which concept does this illustrate?",
+                opts: [
+                    { t: "Vertical Scaling", r: "Vertical scaling involves upgrading a single machine's CPU or RAM, which hits hardware limits and causes cost explosions.", c: false },
+                    { t: "Horizontal Scaling", r: "This approach scales out by networking many cheaper, commodity machines together to share the workload, avoiding a single point of failure.", c: true },
+                    { t: "Data Sharding", r: "While sharding is a technique used across multiple servers, it refers specifically to splitting datasets, not the architectural choice of adding more servers itself.", c: false },
+                    { t: "MapReduce", r: "MapReduce is a programming model for processing data, not the physical hardware strategy of scaling servers.", c: false }
+                ],
+                hint: "Remember the analogy of having 50 cooks in a kitchen instead of one superhuman chef."
+            },
+            {
+                q: "During a major network outage, the nodes in a distributed database can no longer communicate with each other. According to the CAP Theorem, since a partition has occurred, the system designers must prioritize between which two properties?",
+                opts: [
+                    { t: "Consistency and Partition Tolerance", r: "Partition tolerance is forced upon the system during a network split, leaving the choice between the remaining two properties.", c: false },
+                    { t: "Consistency and Availability", r: "Because network partitions are inevitable in distributed systems, the architectural trade-off comes down to choosing between returning the most recent write or ensuring every request gets a response.", c: true },
+                    { t: "Availability and Partition Tolerance", r: "The system must tolerate the partition, but it still has to decide whether to sacrifice the accuracy of the data for uptime.", c: false },
+                    { t: "Speed and Reliability", r: "While important system metrics, these are not the formal properties defined by the CAP Theorem.", c: false }
+                ],
+                hint: "Since network splits are inevitable, the system must decide whether to return an error or return potentially outdated data."
+            },
+            {
+                q: "In the Hadoop Distributed File System (HDFS) architecture, what is the primary responsibility of the NameNode?",
+                opts: [
+                    { t: "It stores the actual 128 MB data blocks.", r: "DataNodes are the worker machines responsible for storing the physical data blocks.", c: false },
+                    { t: "It maintains the file system namespace and the metadata map of where blocks are located.", r: "As the master node, it acts as the directory, tracking the locations of all data blocks across the cluster without storing the data itself.", c: true },
+                    { t: "It allocates CPU and memory resources for cluster jobs.", r: "Resource management and job scheduling are the responsibilities of YARN, not the NameNode.", c: false },
+                    { t: "It performs the Map and Reduce transformations on the data.", r: "Transformations are executed by the MapReduce programming model running on the worker nodes.", c: false }
+                ],
+                hint: "Think of this component as the 'master' index or directory that tells the system where things are, rather than holding the things themselves."
+            },
+            {
+                q: "Why is Apache Spark capable of running iterative workloads, such as machine learning algorithms, significantly faster than Hadoop MapReduce?",
+                opts: [
+                    { t: "Spark uses larger data blocks than HDFS.", r: "Block size does not inherently eliminate the processing bottlenecks associated with iterative algorithms.", c: false },
+                    { t: "Spark writes intermediate data to disk between every transformation step.", r: "Writing to disk between every step is actually MapReduce's primary limitation, causing massive I/O overhead.", c: false },
+                    { t: "Spark keeps Resilient Distributed Datasets (RDDs) in memory rather than writing them to disk.", r: "By utilizing RAM for intermediate data storage, it avoids the devastating disk I/O overhead that slows down traditional batch processing.", c: true },
+                    { t: "Spark bypasses the need for a Cluster Manager entirely.", r: "Spark still relies on a Cluster Manager (like YARN or Kubernetes) to allocate resources across nodes.", c: false }
+                ],
+                hint: "Consider the hardware bottleneck that occurs when reading and writing to physical storage drives repeatedly during a multi-pass operation."
+            },
+            {
+                q: "In Apache Spark, operations like `map()` and `filter()` are considered 'lazy'. What does this mean in the context of Spark's execution model?",
+                opts: [
+                    { t: "They execute immediately to speed up data loading.", r: "Immediate execution describes eager evaluation, which is the opposite of how these specific operations behave.", c: false },
+                    { t: "They define what to compute but do not execute until an Action is called.", r: "These transformations build a logical execution plan (DAG) and wait for a trigger command, optimizing the entire workflow before actually running it.", c: true },
+                    { t: "They only run when the Cluster Manager has free RAM.", r: "Execution timing is based on the programming sequence (waiting for an action), not purely on RAM availability.", c: false },
+                    { t: "They permanently alter the original data source.", r: "Spark RDDs are immutable, meaning original datasets are never altered; instead, new RDDs are created.", c: false }
+                ],
+                hint: "These operations build a plan (a Directed Acyclic Graph) but wait for a trigger command to actually do the heavy lifting."
+            },
+            {
+                q: "During a MapReduce job, which phase is responsible for grouping all intermediate key-value pairs by their key and moving them to the appropriate node for final aggregation?",
+                opts: [
+                    { t: "The Map Phase", r: "This phase processes local data to produce the initial intermediate key-value pairs, but does not move or group them across nodes.", c: false },
+                    { t: "The Shuffle & Sort Phase", r: "This transitional step takes the scattered tags from local nodes, groups identical keys together, and routes them to the correct destination.", c: true },
+                    { t: "The Reduce Phase", r: "This phase performs the final aggregation (like summing or counting) on data that has already been grouped.", c: false },
+                    { t: "The YARN Phase", r: "YARN is the resource manager that schedules the job; it is not a data processing phase.", c: false }
+                ],
+                hint: "This is the transitional step between transforming local data blocks and aggregating the final mathematical results."
+            },
+            {
+                q: "A financial institution needs to store petabytes of archival transaction data for regulatory compliance. This data will be queried rarely, and minimizing storage costs is the top priority. Which technology is best suited for this specific use case?",
+                opts: [
+                    { t: "Apache Kafka", r: "This tool is used for real-time event streaming and ingestion, not for long-term, cold data storage.", c: false },
+                    { t: "Apache Spark", r: "This engine requires expensive RAM for fast, in-memory processing, making it cost-prohibitive for massive cold storage.", c: false },
+                    { t: "Hadoop HDFS and MapReduce", r: "This disk-based ecosystem excels at cheap, highly reliable batch storage and processing, ideal for massive archival datasets.", c: true },
+                    { t: "Spark Streaming", r: "This module is designed for processing live data feeds, which is the opposite of querying archival data.", c: false }
+                ],
+                hint: "Look for the technology that is optimized for cheap, massive batch storage on physical disks rather than fast, expensive in-memory processing."
+            },
+            {
+                q: "Within the Hadoop ecosystem, which tool is specifically designed to handle distributed event streaming and real-time data ingestion?",
+                opts: [
+                    { t: "Apache Hive", r: "This provides a SQL-like interface for querying data already stored in Hadoop, rather than ingesting live streams.", c: false },
+                    { t: "Apache Kafka", r: "This platform captures continuous, real-time streams of events (like website clicks or IoT sensor data) before they are stored or processed.", c: true },
+                    { t: "Apache HBase", r: "This is a NoSQL database built on top of HDFS, used for storage rather than the initial ingestion of streams.", c: false },
+                    { t: "Apache Sqoop", r: "This tool transfers structured batch data between relational databases (RDBMS) and Hadoop, rather than handling real-time streams.", c: false }
+                ],
+                hint: "This tool is often positioned at the very beginning of a modern data pipeline to catch continuous events from IoT devices or application logs."
+            },
+            {
+                q: "In a modern Big Data team, which professional is primarily responsible for building and maintaining the ingestion systems and scalable data pipelines?",
+                opts: [
+                    { t: "Data Analyst", r: "Analysts query already-processed data using tools like SQL and Tableau to answer business questions.", c: false },
+                    { t: "Data Scientist", r: "Scientists focus on using statistical models to extract insights from data that has already been made available.", c: false },
+                    { t: "Machine Learning Engineer", r: "This role trains and scales models to production, assuming the underlying data pipeline is already functioning.", c: false },
+                    { t: "Data Engineer", r: "This role focuses heavily on the architecture and infrastructure (using tools like Hadoop, Spark, and Kafka) to move and prepare data for others to use.", c: true }
+                ],
+                hint: "This role focuses on the architecture that physically moves and transforms data, setting the foundation before statistical models or dashboards can be built."
+            }
+        ];
+
+        // --- LOGIC ---
+        
+        // Tab Switching
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+            
+            const btnFlash = document.getElementById('btn-flashcards');
+            const btnQuiz = document.getElementById('btn-quiz');
+            
+            if(tabId === 'flashcards') {
+                btnFlash.classList.replace('text-stone-500', 'text-sky-700');
+                btnFlash.classList.replace('border-transparent', 'border-sky-600');
+                btnQuiz.classList.replace('text-sky-700', 'text-stone-500');
+                btnQuiz.classList.replace('border-sky-600', 'border-transparent');
+            } else {
+                btnQuiz.classList.replace('text-stone-500', 'text-sky-700');
+                btnQuiz.classList.replace('border-transparent', 'border-sky-600');
+                btnFlash.classList.replace('text-sky-700', 'text-stone-500');
+                btnFlash.classList.replace('border-sky-600', 'border-transparent');
+            }
+        }
+
+        // Render Flashcards
+        function renderCards(data) {
+            const grid = document.getElementById('flashcard-grid');
+            grid.innerHTML = '';
+            data.forEach((card, i) => {
+                const cardHtml = `
+                    <div class="h-48 w-full perspective-1000 cursor-pointer group" onclick="this.classList.toggle('flipped')">
+                        <div class="relative w-full h-full transform-style-3d flip-card-inner rounded-xl shadow-sm border border-stone-200">
+                            <div class="absolute w-full h-full backface-hidden bg-white text-stone-800 flex items-center justify-center p-6 text-center rounded-xl group-hover:shadow-md transition-shadow">
+                                <h3 class="text-lg font-bold">${card.f}</h3>
+                            </div>
+                            <div class="absolute w-full h-full backface-hidden bg-sky-50 text-sky-900 rotate-y-180 flex items-center justify-center p-6 text-center rounded-xl border border-sky-100">
+                                <p class="text-sm font-medium">${card.b}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                grid.innerHTML += cardHtml;
+            });
+        }
+
+        function shuffleCards() {
+            const shuffled = [...flashcardData].sort(() => Math.random() - 0.5);
+            renderCards(shuffled);
+        }
+
+        // Render Quiz
+        function renderQuiz() {
+            const container = document.getElementById('quiz-container');
+            container.innerHTML = '';
+            
+            quizData.forEach((q, index) => {
+                let optionsHtml = '';
+                
+                // Shuffle options for this question
+                const shuffledOpts = [...q.opts].sort(() => Math.random() - 0.5);
+                
+                shuffledOpts.forEach((opt, optIndex) => {
+                    const optId = `q${index}_opt${optIndex}`;
+                    optionsHtml += `
+                        <div class="relative flex items-start mt-3">
+                            <div class="flex h-6 items-center">
+                                <input id="${optId}" name="question-${index}" type="radio" value="${opt.c}" class="h-4 w-4 border-stone-300 text-sky-600 focus:ring-sky-600 cursor-pointer">
+                            </div>
+                            <div class="ml-3 text-sm leading-6">
+                                <label for="${optId}" class="font-medium text-stone-700 cursor-pointer block">${opt.t}</label>
+                                <p class="text-stone-500 text-xs mt-1 hidden rationale-text" data-correct="${opt.c}">${opt.r}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                const qHtml = `
+                    <div class="quiz-question" id="q-block-${index}">
+                        <h4 class="text-lg font-semibold text-stone-800 mb-2">${index + 1}. ${q.q}</h4>
+                        <div class="bg-amber-50 text-amber-800 text-xs p-2 rounded mb-3 border border-amber-100 inline-block"><strong>Hint:</strong> ${q.hint}</div>
+                        <div class="space-y-1 pl-2">
+                            ${optionsHtml}
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += qHtml;
+            });
+        }
+
+        // Grade Quiz
+        function gradeQuiz() {
+            let score = 0;
+            const total = quizData.length;
+            
+            quizData.forEach((q, index) => {
+                const block = document.getElementById(`q-block-${index}`);
+                const selected = document.querySelector(`input[name="question-${index}"]:checked`);
+                const rationales = block.querySelectorAll('.rationale-text');
+                
+                // Show all rationales for this question
+                rationales.forEach(r => {
+                    r.classList.remove('hidden');
+                    if (r.dataset.correct === "true") {
+                        r.classList.add('text-emerald-600', 'font-semibold');
+                    } else {
+                        r.classList.add('text-red-500');
+                    }
+                });
+
+                if (selected && selected.value === "true") {
+                    score++;
+                    block.classList.add('bg-emerald-50', 'p-4', 'rounded-lg', 'border', 'border-emerald-200');
+                } else {
+                    block.classList.add('bg-red-50', 'p-4', 'rounded-lg', 'border', 'border-red-200');
+                }
+                
+                // Disable inputs
+                block.querySelectorAll('input').forEach(input => input.disabled = true);
+            });
+
+            const resultsDiv = document.getElementById('quiz-results');
+            resultsDiv.classList.remove('hidden');
+            resultsDiv.innerHTML = `You scored ${score} out of ${total}! <span class="${score > 7 ? 'text-emerald-600' : 'text-amber-600'}">${score > 7 ? 'Great job!' : 'Keep reviewing the flashcards!'}</span>`;
+            
+            document.getElementById('submit-quiz-btn').style.display = 'none';
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            renderCards(flashcardData);
+            renderQuiz();
+        });
+
+    </script>
+</body>
+</html>
+
+
+
