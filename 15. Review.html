@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cloud Computing &amp; Big Data Analytics — Final Exam Review</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Source+Sans+3:wght@300;400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #1a1a2e;
+  --paper: #faf9f6;
+  --warm: #f5f0e8;
+  --accent: #2563eb;
+  --accent2: #7c3aed;
+  --success: #059669;
+  --danger: #dc2626;
+  --orange: #ea580c;
+  --border: #e2e0db;
+  --muted: #6b7280;
+  --card: #ffffff;
+  --shadow: 0 2px 12px rgba(0,0,0,.06);
+  --radius: 10px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;font-size:16px}
+body{font-family:'Source Sans 3',Georgia,serif;background:var(--paper);color:var(--ink);line-height:1.72}
+::selection{background:var(--accent);color:#fff}
+a{color:var(--accent);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:2px;transition:color .2s}
+a:hover{color:var(--accent2)}
+
+/* ── Hero ── */
+.hero{background:linear-gradient(135deg,#1e293b 0%,#0f172a 60%,#1e1b4b 100%);color:#fff;padding:3.5rem 1.5rem 3rem;text-align:center;position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")}
+.hero h1{font-family:'Playfair Display',Georgia,serif;font-size:clamp(2rem,5vw,3.2rem);font-weight:900;letter-spacing:-.02em;position:relative;z-index:1}
+.hero .subtitle{font-size:1.15rem;opacity:.85;margin-top:.6rem;font-weight:300;position:relative;z-index:1}
+.hero .badge{display:inline-block;margin-top:1rem;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);padding:.35rem 1.1rem;border-radius:30px;font-size:.82rem;letter-spacing:.04em;text-transform:uppercase;position:relative;z-index:1}
+
+/* ── Layout ── */
+.container{max-width:1060px;margin:0 auto;padding:0 1.5rem}
+section{padding:2.5rem 0}
+.section-title{font-family:'Playfair Display',Georgia,serif;font-size:1.9rem;font-weight:700;margin-bottom:.4rem;color:var(--ink)}
+.section-lead{color:var(--muted);font-size:1.05rem;margin-bottom:1.8rem;max-width:680px}
+
+/* ── Navigation ── */
+.nav-bar{position:sticky;top:0;z-index:100;background:rgba(250,249,246,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:.6rem 0}
+.nav-inner{display:flex;gap:.5rem;overflow-x:auto;scrollbar-width:none}
+.nav-inner::-webkit-scrollbar{display:none}
+.nav-btn{white-space:nowrap;padding:.4rem .9rem;border:1px solid var(--border);background:var(--card);border-radius:6px;font-size:.82rem;font-family:'Source Sans 3',sans-serif;cursor:pointer;transition:all .2s;color:var(--ink)}
+.nav-btn:hover,.nav-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+/* ── Cards ── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.6rem;margin-bottom:1.2rem;box-shadow:var(--shadow);transition:box-shadow .2s}
+.card:hover{box-shadow:0 4px 20px rgba(0,0,0,.09)}
+.card h3{font-family:'Playfair Display',serif;font-size:1.2rem;margin-bottom:.5rem}
+.card h4{font-size:1rem;font-weight:600;margin-bottom:.4rem;color:var(--accent)}
+.chapter-tag{display:inline-block;background:var(--warm);color:var(--orange);font-size:.72rem;font-weight:700;padding:.15rem .55rem;border-radius:4px;margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.04em}
+
+/* ── Tables ── */
+table{width:100%;border-collapse:collapse;font-size:.92rem;margin:1rem 0}
+th{background:var(--ink);color:#fff;padding:.55rem .7rem;text-align:left;font-weight:600}
+td{padding:.5rem .7rem;border-bottom:1px solid var(--border)}
+tr:nth-child(even) td{background:var(--warm)}
+
+/* ── Accordion / Interactive ── */
+.q-block{border:1px solid var(--border);border-radius:var(--radius);margin-bottom:.7rem;background:var(--card);overflow:hidden}
+.q-header{display:flex;gap:.7rem;align-items:flex-start;padding:1rem 1.2rem;cursor:pointer;user-select:none;transition:background .15s}
+.q-header:hover{background:var(--warm)}
+.q-num{font-family:'JetBrains Mono',monospace;font-size:.78rem;font-weight:600;background:var(--accent);color:#fff;min-width:2rem;height:2rem;display:flex;align-items:center;justify-content:center;border-radius:6px;flex-shrink:0;margin-top:.1rem}
+.q-num.msq{background:var(--accent2)}
+.q-num.essay{background:var(--orange)}
+.q-text{flex:1;font-weight:600;font-size:.95rem;line-height:1.5}
+.q-chevron{transition:transform .25s;font-size:1.1rem;color:var(--muted);margin-top:.2rem}
+.q-block.open .q-chevron{transform:rotate(180deg)}
+.q-body{max-height:0;overflow:hidden;transition:max-height .35s ease}
+.q-block.open .q-body{max-height:3000px}
+.q-answer{padding:.8rem 1.2rem 1.2rem;border-top:1px solid var(--border);background:var(--warm);font-size:.92rem;line-height:1.7}
+.q-answer .correct{color:var(--success);font-weight:700}
+.q-answer .explain{color:var(--muted);margin-top:.4rem;font-size:.88rem}
+
+/* ── MCQ Options ── */
+.options{list-style:none;margin:.5rem 0 0;padding-left:0}
+.options li{padding:.15rem 0;font-size:.93rem}
+.options li::before{content:attr(data-letter) ") ";font-weight:700;color:var(--accent)}
+
+/* ── Tabs ── */
+.tab-strip{display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:1.5rem}
+.tab{padding:.55rem 1.3rem;font-size:.9rem;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;color:var(--muted);transition:all .2s;font-family:'Source Sans 3',sans-serif;background:none;border-top:none;border-left:none;border-right:none}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+/* ── Progress bar ── */
+.progress-wrap{background:var(--border);border-radius:20px;height:8px;margin:1.2rem 0}
+.progress-bar{height:100%;border-radius:20px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .6s ease}
+
+/* ── Stats Row ── */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;margin-bottom:2rem}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.1rem;text-align:center;box-shadow:var(--shadow)}
+.stat-card .num{font-family:'Playfair Display',serif;font-size:2rem;font-weight:900;color:var(--accent)}
+.stat-card .label{font-size:.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:.2rem}
+
+/* ── Code ── */
+code{font-family:'JetBrains Mono',monospace;font-size:.85em;background:var(--warm);padding:.1em .35em;border-radius:3px}
+
+/* ── Search ── */
+.search-box{width:100%;max-width:400px;padding:.55rem 1rem;border:1px solid var(--border);border-radius:8px;font-size:.95rem;font-family:'Source Sans 3',sans-serif;margin-bottom:1.5rem;background:var(--card)}
+.search-box:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(37,99,235,.12)}
+
+/* ── Reveal Button ── */
+.reveal-btn{display:inline-flex;align-items:center;gap:.4rem;margin-top:.7rem;padding:.5rem 1.2rem;background:var(--accent);color:#fff;border:none;border-radius:6px;font-size:.85rem;font-weight:600;font-family:'Source Sans 3',sans-serif;cursor:pointer;transition:all .2s}
+.reveal-btn:hover{background:var(--accent2);transform:translateY(-1px)}
+.reveal-btn.revealed{background:var(--success);cursor:default}
+.reveal-btn.revealed:hover{transform:none}
+
+/* ── Hint ── */
+.hint-box{margin-top:.5rem;padding:.5rem .8rem;background:#fef3c7;border-left:3px solid #f59e0b;border-radius:0 6px 6px 0;font-size:.84rem;color:#92400e;line-height:1.5}
+.hint-toggle{font-size:.82rem;color:var(--accent);cursor:pointer;text-decoration:underline;margin-top:.3rem;display:inline-block}
+
+/* ── MCQ Option Buttons ── */
+.opt-list{list-style:none;padding:0;margin:.6rem 0 0}
+.opt-item{display:flex;align-items:flex-start;gap:.5rem;padding:.5rem .7rem;margin:.3rem 0;border:1px solid var(--border);border-radius:6px;cursor:default;transition:all .2s;font-size:.92rem;line-height:1.5;background:var(--card)}
+.opt-letter{font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--accent);min-width:1.4rem}
+.opt-item.correct-revealed{background:#d1fae5;border-color:#059669}
+.opt-item.wrong-revealed{background:#fee2e2;border-color:#dc2626;opacity:.65}
+.opt-item.correct-revealed .opt-letter{color:#059669}
+
+/* ── Answer Box ── */
+.answer-box{display:none;margin-top:.8rem;padding:.9rem 1rem;background:var(--warm);border-radius:var(--radius);border-left:4px solid var(--success)}
+.answer-box.visible{display:block;animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
+
+.hidden{display:none !important}
+
+/* ── Responsive ── */
+@media(max-width:640px){
+  .hero{padding:2.5rem 1rem 2rem}
+  .hero h1{font-size:1.7rem}
+  .card{padding:1.1rem}
+  .stats{grid-template-columns:repeat(2,1fr)}
+}
+
+/* ── Footer ── */
+footer.cyber-footer{background:#1c1917;color:#a8a29e;padding:1.5rem 0;margin-top:2.5rem}
+footer.cyber-footer .inner{display:flex;justify-content:center;align-items:center;gap:8px;text-align:center;font-size:.85rem}
+footer.cyber-footer img{height:50px}
+</style>
+</head>
+<body>
+
+<!-- ═══════════ HERO ═══════════ -->
+<header class="hero">
+  <h1>Cloud Computing &amp; Big Data Analytics</h1>
+  <div class="subtitle">Final Exam Review — 3-Hour Comprehensive Session</div>
+  <div class="badge">Digital Science Programme · Graduate Level · 2026</div>
+</header>
+
+<!-- ═══════════ NAV ═══════════ -->
+<nav class="nav-bar">
+  <div class="container nav-inner">
+    <button class="nav-btn active" onclick="scrollTo_('review')">Course Review</button>
+    <button class="nav-btn" onclick="scrollTo_('cases')">Case Studies</button>
+    <button class="nav-btn" onclick="scrollTo_('mcq')">MCQ (45)</button>
+    <button class="nav-btn" onclick="scrollTo_('msq')">MSQ (35)</button>
+    <button class="nav-btn" onclick="scrollTo_('essay')">Short Essays (20)</button>
+    <button class="nav-btn" onclick="scrollTo_('resources')">Resources</button>
+  </div>
+</nav>
+
+<main class="container">
+
+<!-- ═══════════ STATS ═══════════ -->
+<section>
+  <div class="stats">
+    <div class="stat-card"><div class="num">6</div><div class="label">Chapters</div></div>
+    <div class="stat-card"><div class="num">10</div><div class="label">Case Studies</div></div>
+    <div class="stat-card"><div class="num">45</div><div class="label">MCQs</div></div>
+    <div class="stat-card"><div class="num">35</div><div class="label">MSQs</div></div>
+    <div class="stat-card"><div class="num">20</div><div class="label">Short Essays</div></div>
+    <div class="stat-card"><div class="num">3h</div><div class="label">Duration</div></div>
+  </div>
+  <div style="font-size:.88rem;color:var(--muted);margin-bottom:.5rem">Study Progress — click questions to reveal answers</div>
+  <div class="progress-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+  <div id="progressText" style="font-size:.82rem;color:var(--muted)">0 / 110 questions reviewed</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!--                    PART 1: COMPREHENSIVE REVIEW                    -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section id="review">
+  <h2 class="section-title">Part 1 — Comprehensive Course Review</h2>
+  <p class="section-lead">A chapter-by-chapter summary of every topic covered in this course, distilled for efficient exam preparation.</p>
+
+  <!-- Chapter 1 -->
+  <div class="card">
+    <span class="chapter-tag">Chapter 1 — Day 09</span>
+    <h3>Cloud Providers Comparison and Future Trends</h3>
+    <p>This chapter surveys the global cloud computing landscape as of Q3 2025, covering the five major providers and their competitive positioning.</p>
+    <h4>Key Topics</h4>
+    <table>
+      <tr><th>Provider</th><th>Market Share (Q3 2025)</th><th>Core Strength</th></tr>
+      <tr><td><a href="https://aws.amazon.com/" target="_blank">AWS (Amazon Web Services)</a></td><td>~29%</td><td>Broadest service catalogue (250+ services), custom silicon (Trainium, Inferentia), 11-nines S3 durability</td></tr>
+      <tr><td><a href="https://azure.microsoft.com/" target="_blank">MS Azure (Microsoft Azure)</a></td><td>~20%</td><td>Enterprise integration (Microsoft 365, Power BI), exclusive <a href="https://openai.com/" target="_blank">OpenAI</a> partnership, hybrid cloud via Azure Arc / Azure Stack</td></tr>
+      <tr><td><a href="https://cloud.google.com/" target="_blank">GCP (Google Cloud Platform)</a></td><td>~13%</td><td>BigQuery serverless analytics, TPU (Tensor Processing Unit) chips, Kubernetes inventor, 90%+ carbon-free energy</td></tr>
+      <tr><td><a href="https://www.alibabacloud.com/" target="_blank">Alibaba Cloud (Aliyun)</a></td><td>~4%</td><td>APAC (Asia-Pacific) dominance, China data-residency compliance, Qwen LLM (Large Language Model) family</td></tr>
+      <tr><td>Others (Oracle, IBM, DigitalOcean, OVHcloud, CoreWeave)</td><td>~34%</td><td>Niche strengths: <a href="https://www.oracle.com/cloud/" target="_blank">Oracle Cloud</a> pricing &amp; Autonomous DB; <a href="https://www.ibm.com/cloud" target="_blank">IBM Cloud</a> regulated industries; <a href="https://www.digitalocean.com/" target="_blank">DigitalOcean</a> simplicity; <a href="https://www.ovhcloud.com/" target="_blank">OVHcloud</a> EU sovereignty; CoreWeave GPU-as-a-Service</td></tr>
+    </table>
+    <h4>Future Trends (2025–2028)</h4>
+    <p>AWS is investing in custom silicon (Trainium, Inferentia) to undercut NVIDIA GPU pricing. Azure is expanding the Copilot ecosystem across all Microsoft products, creating a self-reinforcing demand flywheel. GCP is betting on the Gemini multimodal AI family, keeping AI capabilities in-house via Vertex AI. Alibaba Cloud plans a $50 billion+ AI infrastructure investment through 2027. The "neocloud" segment (CoreWeave, Lambda, Nebius) is capturing AI training workloads at reportedly 80% lower cost than hyperscalers. Data sovereignty laws are driving growth of local providers in Europe, China, and Russia, making cloud selection increasingly a regulatory decision rather than a purely technical one.</p>
+    <h4>Critical Concepts</h4>
+    <p><strong>Data Sovereignty:</strong> China (CSL — Cybersecurity Law, PIPL — Personal Information Protection Law), EU (<a href="https://gdpr.eu/" target="_blank">GDPR — General Data Protection Regulation</a>), USA (CCPA — California Consumer Privacy Act, <a href="https://www.hhs.gov/hipaa/" target="_blank">HIPAA — Health Insurance Portability and Accountability Act</a>). In China and Russia, global hyperscalers face severe restrictions — local providers are often the only compliant choice. ESG (Environmental, Social, and Governance) mandates increasingly influence procurement; AWS targets 100% renewable energy, GCP runs on 90%+ carbon-free power. FinOps (Financial Operations) is emerging as a standard discipline for managing multi-cloud cost complexity.</p>
+  </div>
+
+  <!-- Chapter 2 -->
+  <div class="card">
+    <span class="chapter-tag">Chapter 2 — Day 10</span>
+    <h3>Basics of Cloud Computing Using AWS</h3>
+    <p>A deep dive into <a href="https://aws.amazon.com/" target="_blank">AWS (Amazon Web Services)</a>, the market leader commanding ~31–33% of global IaaS (Infrastructure as a Service) revenue according to <a href="https://www.gartner.com/" target="_blank">Gartner</a> and <a href="https://www.srgresearch.com/" target="_blank">Synergy Research Group</a>.</p>
+    <h4>Origin &amp; Scale</h4>
+    <p>Launched by Jeff Bezos in 2006, AWS grew from Amazon's internal infrastructure needs into 200+ services. Its pay-as-you-go model transformed capital expenditure (CapEx) into operational expenditure (OpEx). A GPU-equipped EC2 (Elastic Compute Cloud) instance costs ~$0.526/hour versus ~$4,000 upfront for equivalent hardware.</p>
+    <h4>Core Services</h4>
+    <table>
+      <tr><th>Service</th><th>Category</th><th>Purpose</th></tr>
+      <tr><td>EC2 (Elastic Compute Cloud)</td><td>Compute</td><td>Virtual servers with GPU/TPU options</td></tr>
+      <tr><td>S3 (Simple Storage Service)</td><td>Storage</td><td>Object storage — 11-nines (99.999999999%) durability</td></tr>
+      <tr><td>RDS (Relational Database Service)</td><td>Database</td><td>Managed SQL databases (PostgreSQL, MySQL)</td></tr>
+      <tr><td>Lambda</td><td>Serverless</td><td>Event-driven code; pay only per millisecond of execution</td></tr>
+      <tr><td>SageMaker</td><td>AI/ML (Artificial Intelligence / Machine Learning)</td><td>End-to-end ML model training and deployment</td></tr>
+      <tr><td>Bedrock</td><td>AI/ML</td><td>Access foundation models from <a href="https://www.anthropic.com/" target="_blank">Anthropic</a>, Meta, Cohere via API (Application Programming Interface)</td></tr>
+      <tr><td>Redshift</td><td>Analytics</td><td>Petabyte-scale data warehouse</td></tr>
+      <tr><td>Kinesis</td><td>Streaming</td><td>Real-time data stream processing</td></tr>
+    </table>
+    <h4>AWS Global Infrastructure</h4>
+    <p>Regions (geographic clusters of data centres), Availability Zones (AZs — isolated facilities within a region with independent power/cooling), and Edge Locations (for CDN — Content Delivery Network caching). The Shared Responsibility Model divides security duties: AWS secures the infrastructure; the customer secures data, access, and application-layer configurations. IAM (Identity and Access Management) is the service for managing users, roles, and permissions.</p>
+    <h4>Pricing Models</h4>
+    <p>On-Demand (pay-as-you-go), Reserved Instances (RIs — commit 1–3 years for up to 72% savings), Spot Instances (bid on unused capacity at steep discounts, but instances can be reclaimed), and the Free Tier (12 months of limited services plus always-free tiers).</p>
+  </div>
+
+  <!-- Chapter 3 -->
+  <div class="card">
+    <span class="chapter-tag">Chapter 3 — Day 11</span>
+    <h3>Basics of Cloud Computing Using MS Azure</h3>
+    <p><a href="https://azure.microsoft.com/" target="_blank">Microsoft Azure</a>, the second-largest cloud, launched in 2010 and rebranded from "Windows Azure" in 2014. It operates 60+ regions — more geographic coverage than any competitor — and offers 600+ services.</p>
+    <h4>Why Azure Matters for Data Science</h4>
+    <p>Three reasons stand out: seamless integration with the Microsoft ecosystem (Microsoft 365, Power BI, SQL Server); Azure Machine Learning provides managed Jupyter notebooks, auto-scaling GPU clusters, model registry, and REST (Representational State Transfer) API deployment; the exclusive partnership with <a href="https://openai.com/" target="_blank">OpenAI</a> means Azure is the only enterprise cloud host for GPT (Generative Pre-trained Transformer) models.</p>
+    <h4>Shared Responsibility Model</h4>
+    <p>Regardless of service model (IaaS, PaaS — Platform as a Service, SaaS — Software as a Service), your data and access controls are always your responsibility. Physical infrastructure responsibility shifts to Microsoft as you move up the service model stack.</p>
+    <h4>Infrastructure Concepts</h4>
+    <p>Regions → Availability Zones → Resource Groups (logical containers for managing related resources). Azure Resource Manager (ARM) is the unified management layer for all requests. Access is via the Azure Portal (web GUI — Graphical User Interface), Azure CLI (Command Line Interface), PowerShell, ARM/Bicep templates (Infrastructure as Code), and SDKs (Software Development Kits).</p>
+    <h4>Storage Tiers</h4>
+    <p>Hot (frequently accessed), Cool (infrequently accessed — lower storage cost, higher access cost), Cold (rarely accessed), Archive (cheapest storage, retrieval takes hours). Blob Storage handles unstructured data; Data Lake Storage Gen2 adds hierarchical file system for big data analytics; Cosmos DB provides globally distributed NoSQL at single-digit-millisecond latency.</p>
+    <h4>Certifications</h4>
+    <p>AZ-900 (Azure Fundamentals), DP-100 (Data Scientist Associate), AI-102 (AI Engineer Associate). Cloud-certified professionals command significantly higher starting salaries. The <a href="https://azure.microsoft.com/en-us/pricing/calculator/" target="_blank">Azure Pricing Calculator</a> is essential for cost estimation.</p>
+  </div>
+
+  <!-- Chapter 4 -->
+  <div class="card">
+    <span class="chapter-tag">Chapter 4 — Day 12</span>
+    <h3>Basics of Cloud Computing Using GCP</h3>
+    <p><a href="https://cloud.google.com/" target="_blank">GCP (Google Cloud Platform)</a> is the third-largest cloud by revenue but leads in data analytics, ML, and container orchestration. Google's internal infrastructure (Jupiter networking, Borg/Kubernetes scheduler, Colossus file system) is the same hardware you rent when using GCP.</p>
+    <h4>Timeline Highlights</h4>
+    <p>2008: App Engine launches. 2011: Cloud Storage and BigQuery (beta). 2014: Google open-sources Kubernetes (K8s). 2017: Cloud Spanner (globally-distributed relational DB). 2023: Vertex AI Gemini integration.</p>
+    <h4>Infrastructure</h4>
+    <p>Zones (single data-centre locations with independent power/cooling/networking), Regions (geographic clusters of 3+ zones, &lt;5 ms inter-zone latency), Multi-Regions/Dual-Regions (for maximum availability). As of 2024: 38+ Regions, 115+ Zones, 200+ countries. Google's private backbone carries ~40% of global internet traffic, providing premium-tier networking.</p>
+    <h4>Flagship Service: BigQuery</h4>
+    <p>A serverless, fully managed data warehouse scanning petabytes in seconds. Pricing: $6.25 per TB (Terabyte) scanned, with 1 TB free monthly. No infrastructure to manage, no indexes to build, no clusters to resize. The analytics ecosystem layers Dataflow (batch/stream processing), Dataproc (managed Spark/Hadoop), Pub/Sub (real-time messaging), and Looker (BI — Business Intelligence visualisation).</p>
+    <h4>ML &amp; AI</h4>
+    <p>Vertex AI (unified ML platform), TensorFlow (world's most popular open-source ML framework, invented at Google), TPUs (Tensor Processing Units — purpose-built AI accelerators, often more cost-effective than NVIDIA GPUs for large model training). GCP is the birthplace of the Transformer architecture (the "T" in GPT).</p>
+    <h4>Data Residency</h4>
+    <p>GDPR may require EU citizen PII (Personally Identifiable Information) to stay within EU territory. Egress costs apply for inter-region data transfer (~$80 per TB from us-central1 to europe-west1). A smart architect co-locates data and compute in the same region.</p>
+  </div>
+
+  <!-- Chapter 5 -->
+  <div class="card">
+    <span class="chapter-tag">Chapter 5 — Day 13</span>
+    <h3>Storage and Virtual Machines</h3>
+    <h4>Three Storage Paradigms</h4>
+    <table>
+      <tr><th>Paradigm</th><th>How It Works</th><th>Cloud Services</th><th>Data Science Use Case</th></tr>
+      <tr><td>Block Storage</td><td>Fixed-size blocks, numeric addresses, no metadata. Fastest, most expensive, typically single-attach.</td><td>Amazon EBS (Elastic Block Store), Azure Managed Disks, Google Persistent Disk</td><td>OS boot volumes, databases, Jupyter servers</td></tr>
+      <tr><td>Object Storage</td><td>Data + rich metadata + unique ID in a flat namespace. Cheapest at scale, higher latency, immutable (re-upload to edit).</td><td>Amazon S3, Azure Blob Storage, Google Cloud Storage (GCS)</td><td>Data lakes, ML training datasets, log archives</td></tr>
+      <tr><td>File Storage</td><td>Hierarchical files/folders via NFS (Network File System) or SMB (Server Message Block). Multi-attach, familiar.</td><td>Amazon EFS (Elastic File System), Azure Files, Google Filestore</td><td>Shared datasets for distributed ML training</td></tr>
+    </table>
+    <h4>Block Storage Deep Dive</h4>
+    <p>Performance measured in IOPS (Input/Output Operations Per Second) and throughput (MB/s). AWS EBS gp3 baseline: 3,000 IOPS included; additional IOPS at $0.005/IOPS-month. Pricing example: 200 GB gp3 at 6,000 IOPS = $31/month.</p>
+    <h4>Object Storage Concepts</h4>
+    <p>Objects in a flat namespace (forward slashes are part of the key string, not real directories). WORM (Write Once Read Many) pattern. HeadObject API retrieves metadata without downloading data. Storage tiers: Standard → Infrequent Access (IA) → Glacier/Archive.</p>
+    <h4>Virtual Machines &amp; Hypervisors</h4>
+    <p>A VM (Virtual Machine) is a software-defined computer with emulated CPU, RAM, storage, and NIC (Network Interface Card). Type 1 (bare-metal) hypervisors (VMware ESXi, Microsoft Hyper-V, <a href="https://www.linux-kvm.org/" target="_blank">KVM — Kernel-based Virtual Machine</a>) run directly on hardware — used by all major clouds. Type 2 (hosted) hypervisors (<a href="https://www.virtualbox.org/" target="_blank">Oracle VirtualBox</a>, VMware Workstation) run on a host OS.</p>
+    <h4>VM Lifecycle</h4>
+    <p>Pending → Running → Stopped → Terminated. Resizing requires stop-change-start. Always separate OS volume from data volume. AMI (Amazon Machine Image) is the AWS template for creating instances.</p>
+    <h4>Snapshots &amp; Disaster Recovery (DR)</h4>
+    <p>Incremental snapshots store only changed blocks. Example: 500 GB volume with 10 GB/day changes — full daily backups = 15,000 GB/month ($750); incremental snapshots = 790 GB/month ($39.50) — a 95% reduction. RPO (Recovery Point Objective) = max acceptable data loss. RTO (Recovery Time Objective) = max acceptable downtime.</p>
+  </div>
+
+  <!-- Chapter 6 -->
+  <div class="card">
+    <span class="chapter-tag">Chapter 6 — Day 14</span>
+    <h3>Big Data, Distributed Systems, and Apache Spark (with Hadoop)</h3>
+    <h4>The Five V's of Big Data</h4>
+    <p>Framework originally proposed by Doug Laney at <a href="https://www.gartner.com/" target="_blank">Gartner</a>: Volume (PB/EB scale), Velocity (real-time streaming), Variety (structured/semi-structured/unstructured), Veracity (data quality and trustworthiness), Value (business insights derived after processing).</p>
+    <h4>Scaling Paradigms</h4>
+    <p>Vertical scaling ("scale up"): bigger, more expensive single machine — hard hardware ceilings, SPOF (Single Point of Failure). Horizontal scaling ("scale out"): many commodity machines networked together — the foundation of Hadoop, Spark, and all cloud computing.</p>
+    <h4>Distributed Systems &amp; CAP Theorem</h4>
+    <p>Eric Brewer (<a href="https://www.berkeley.edu/" target="_blank">UC Berkeley</a>) formalised in 2000: any distributed data store can guarantee at most two of three properties simultaneously — Consistency (every read returns latest write), Availability (every request gets a response), Partition Tolerance (survives network splits). In practice, choose CP (e.g., HBase, MongoDB) or AP (e.g., Cassandra, DynamoDB). Key concepts: Replication, Sharding (Partitioning), Consensus Algorithms (Paxos, Raft), Fault Tolerance.</p>
+    <h4>Apache Hadoop</h4>
+    <p>Created by Doug Cutting at Yahoo! based on Google's GFS (2003) and MapReduce (2004) papers. Donated to <a href="https://www.apache.org/" target="_blank">ASF (Apache Software Foundation)</a>. Core components: <a href="https://hadoop.apache.org/" target="_blank">HDFS (Hadoop Distributed File System)</a> — splits files into 128 MB blocks, replicates 3×; YARN (Yet Another Resource Negotiator) — cluster resource manager; MapReduce — two-phase processing (Map → Shuffle &amp; Sort → Reduce). Ecosystem: Hive (SQL-on-Hadoop), HBase (NoSQL), Kafka (streaming), ZooKeeper (coordination), Sqoop (DB transfer), Flume (log ingestion).</p>
+    <h4>HDFS Architecture</h4>
+    <p>NameNode (master): maintains file system namespace and block-to-DataNode metadata map. DataNodes (workers): store actual data blocks, send heartbeats. Secondary NameNode: merges edit log with filesystem image (not a backup).</p>
+    <h4>Apache Spark</h4>
+    <p>Created by Matei Zaharia at UC Berkeley's AMPLab (2009), donated to ASF in 2013. Key innovation: RDD (Resilient Distributed Dataset) — immutable, distributed collections in memory, up to 100× faster than disk-based MapReduce. Components: Spark Core (scheduling, fault recovery), Spark SQL (DataFrames), Spark Streaming, MLlib (Machine Learning Library), GraphX. Lazy evaluation: Transformations (map, filter, groupByKey) define what to compute; Actions (collect, count, reduce) trigger execution.</p>
+    <h4>Hadoop vs. Spark</h4>
+    <table>
+      <tr><th>Criterion</th><th>Hadoop (MapReduce)</th><th>Apache Spark</th></tr>
+      <tr><td>Processing</td><td>Disk-based (writes between stages)</td><td>In-memory (keeps data in RAM)</td></tr>
+      <tr><td>Speed</td><td>Slower for iterative workloads</td><td>Up to 100× faster for iterative ML</td></tr>
+      <tr><td>Ease of Use</td><td>Verbose Java code</td><td>Clean Python/Scala/R APIs</td></tr>
+      <tr><td>Streaming</td><td>Requires add-ons (Storm)</td><td>Built-in Spark Streaming</td></tr>
+      <tr><td>ML</td><td>External tools (Mahout)</td><td>Built-in MLlib</td></tr>
+      <tr><td>Best For</td><td>Massive batch ETL (Extract, Transform, Load) on cold data</td><td>Iterative analytics, ML, interactive queries, streaming</td></tr>
+    </table>
+    <p>The modern reality: many organisations run Spark on top of Hadoop's YARN and HDFS — Hadoop provides storage/resource management, Spark provides fast processing.</p>
+    <h4>Industry Pipelines</h4>
+    <p>Netflix: Spark + Kafka + Cassandra (500 billion events/day). Uber: Spark + Hadoop + Hive (surge pricing, fraud detection). Spotify: Spark + BigQuery (Discover Weekly playlists). <a href="https://www.nasa.gov/" target="_blank">NASA (National Aeronautics and Space Administration)</a>: Hadoop + Spark (satellite imagery). <a href="https://home.cern/" target="_blank">CERN (European Organisation for Nuclear Research)</a>: Spark + Hadoop (particle collision data from the LHC — Large Hadron Collider).</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!--                    PART 2: CASE STUDIES                            -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section id="cases">
+  <h2 class="section-title">Part 2 — Case Studies (10)</h2>
+  <p class="section-lead">Real-world scenarios drawn from lecture material. Analyse each situation and formulate your answer before revealing the solution.</p>
+
+  <div class="card">
+    <span class="chapter-tag">Case 1 — Ch.1 (Day 09) &amp; Ch.4 (Day 12)</span>
+    <h3>European Fintech Choosing a Cloud Provider</h3>
+    <p>A Berlin-based fintech startup processes payment data from French and German customers. Their legal team confirms all transaction data must remain within the EU under <a href="https://gdpr.eu/" target="_blank">GDPR</a>. They need a cloud provider for a fraud-detection ML pipeline. Budget is tight, the team has Python expertise, and they need serverless analytics. Which cloud provider and region should they choose?</p>
+    <h4>Recommended Answer</h4>
+    <p><strong>GCP with BigQuery, deployed in europe-west1 (Belgium) or europe-west3 (Frankfurt).</strong> Reasoning: GCP's BigQuery offers serverless, pay-per-TB analytics ideal for budget-conscious startups. Both named regions are within the EU, satisfying GDPR data-residency requirements. Vertex AI integrates natively for the ML fraud-detection model. Alternative: Azure in West Europe (Netherlands) would also comply with GDPR and offers Azure ML, but BigQuery's per-TB pricing model is more cost-effective for analytics-heavy workloads. AWS eu-central-1 (Frankfurt) is another valid choice but less compelling for analytics-first workflows.</p>
+  </div>
+
+  <div class="card">
+    <span class="chapter-tag">Case 2 — Ch.2 (Day 10)</span>
+    <h3>Graduate Research Lab Cost Estimation</h3>
+    <p>A data science research lab needs to train a customer churn model on AWS. They require a GPU-equipped EC2 p3.2xlarge instance ($3.06/hr for 160 hours/month), a t3.micro API endpoint (730 hrs/month), 500 GB S3 Standard storage, 2 TB S3 Glacier archive, and 5 million Lambda invocations. What is the estimated monthly cost, and what is the dominant expense category?</p>
+    <h4>Recommended Answer</h4>
+    <p>EC2 p3.2xlarge: $3.06 × 160 = $489.60. EC2 t3.micro: $0.0104 × 730 = $7.59. S3 Standard: $0.023 × 500 = $11.50. S3 Glacier: $0.004 × 2,000 = $8.00. Lambda: $0.0000002 × 5,000,000 = $1.00. <strong>Total: ~$517.69/month.</strong> Compute (EC2) dominates at 96% of the total bill. The key insight: always monitor GPU instance runtime because leaving a GPU instance running overnight can double costs. Reserved Instances (RIs) can save up to 72% on EC2.</p>
+  </div>
+
+  <div class="card">
+    <span class="chapter-tag">Case 3 — Ch.3 (Day 11)</span>
+    <h3>Enterprise Azure Migration with Hybrid Requirements</h3>
+    <p>A Canadian bank with existing on-premises SQL Server infrastructure and Microsoft 365 needs to deploy a new ML-based credit risk model. Regulations require some data to remain on-premises while other processing can use cloud GPU resources. They also want to use GPT-4 for internal document summarisation. Which Azure services and architecture would you recommend?</p>
+    <h4>Recommended Answer</h4>
+    <p><strong>Hybrid architecture using Azure Arc</strong> to extend Azure management to on-premises servers. Sensitive data stays on-premises; Azure Machine Learning manages training on cloud GPU clusters (ND H100 v5-series) that auto-scale and auto-terminate. Azure SQL Database for cloud-side analytics. <a href="https://azure.microsoft.com/en-us/products/ai-services/openai-service" target="_blank">Azure OpenAI Service</a> for GPT-4 document summarisation behind the bank's own compliance framework. Azure Entra ID (formerly Azure Active Directory) for unified identity management. This approach satisfies <a href="https://www.priv.gc.ca/en/privacy-topics/privacy-laws-in-canada/the-personal-information-protection-and-electronic-documents-act-pipeda/" target="_blank">PIPEDA (Personal Information Protection and Electronic Documents Act)</a> requirements by keeping regulated data on-premises while leveraging cloud GPU for training. The Canada Central region minimises latency.</p>
+  </div>
+
+  <div class="card">
+    <span class="chapter-tag">Case 4 — Ch.1 (Day 09)</span>
+    <h3>Multinational Cloud Provider Selection</h3>
+    <p>A multinational company has offices in Shanghai, Frankfurt, and Virginia. They need to select cloud providers for each location. For each, identify the top provider, the governing data regulation, and why that provider is the best fit.</p>
+    <h4>Recommended Answer</h4>
+    <p><strong>Shanghai:</strong> Alibaba Cloud — mandatory under CSL (Cybersecurity Law), PIPL (Personal Information Protection Law), and DSL (Data Security Law). AWS, Azure, and GCP operate limited services in China; Alibaba is the native, government-approved standard. <strong>Frankfurt:</strong> AWS (eu-central-1) or Azure (West Europe) — GDPR governs, both comply. Azure may be preferred if the company already uses Microsoft 365. <strong>Virginia:</strong> AWS (us-east-1) — the most mature region with the broadest service catalogue. CCPA (California Consumer Privacy Act) and HIPAA apply sector-by-sector. The overarching lesson: cloud provider selection is frequently dictated by regulation and geography, not just technical features.</p>
+  </div>
+
+  <div class="card">
+    <span class="chapter-tag">Case 5 — Ch.5 (Day 13)</span>
+    <h3>Choosing the Right Storage Paradigm</h3>
+    <p>A data engineering team has three distinct workloads: (A) a PostgreSQL database serving real-time queries for a web application; (B) a 50 TB data lake of historical sensor data for ML training; (C) a shared training image dataset that three GPU instances need to read simultaneously. Which cloud storage paradigm should be used for each workload?</p>
+    <h4>Recommended Answer</h4>
+    <p><strong>(A) Block Storage</strong> (Amazon EBS / Azure Managed Disks / Google Persistent Disk) — PostgreSQL needs fast, low-latency, single-attach storage with high IOPS. <strong>(B) Object Storage</strong> (Amazon S3 / Azure Blob / GCS) — 50 TB of historical data fits the WORM pattern; object storage is the cheapest at scale with rich metadata for data governance. <strong>(C) File Storage</strong> (Amazon EFS / Azure Files / Google Filestore) — the multi-attach requirement rules out block; the simultaneous-read pattern from multiple GPU instances requires NFS/SMB shared access. The key trade-off is cost vs. access pattern vs. multi-tenancy.</p>
+  </div>
+
+  <div class="card">
+    <span class="chapter-tag">Case 6 — Ch.5 (Day 13)</span>
+    <h3>Snapshot Strategy for a Production Database</h3>
+    <p>A 500 GB PostgreSQL volume changes about 10 GB per day. The operations team must design a backup strategy with an RPO (Recovery Point Objective) of 1 hour and an RTO (Recovery Time Objective) of 15 minutes. Compare full daily backups versus incremental snapshots over a 30-day retention window.</p>
+    <h4>Recommended Answer</h4>
+    <p><strong>Incremental snapshots every hour</strong> using AWS Data Lifecycle Manager (or Azure Backup / GCP Scheduled Snapshots). Full daily: 500 × 30 = 15,000 GB at $0.05/GB = $750/month. Incremental: 500 + (29 × 10) = 790 GB = $39.50/month — a 95% cost reduction. For the 1-hour RPO, hourly snapshots ensure at most 1 hour of data loss. For the 15-minute RTO, create a new volume from the latest snapshot and attach it to a standby VM — typically achievable in under 15 minutes. Cross-region snapshot replication provides disaster recovery for regional outages.</p>
+  </div>
+
+  <div class="card">
+    <span class="chapter-tag">Case 7 — Ch.6 (Day 14)</span>
+    <h3>SmartCampus University — Five V's Analysis</h3>
+    <p>A university with 30,000 students collects 2 TB of lecture recordings, 500 GB of assignment submissions, and 50 GB of admin records per semester. During exam week, the LMS (Learning Management System) logs 10,000 click-events per minute. Analyse this scenario through the Five V's framework.</p>
+    <h4>Recommended Answer</h4>
+    <p><strong>Volume:</strong> ~2.55 TB per semester across multiple formats. <strong>Velocity:</strong> 10,000 click-events/minute during exam week — requires real-time or near-real-time ingestion (Kafka / Pub/Sub). <strong>Variety:</strong> Structured (grade spreadsheets), semi-structured (JSON API logs), unstructured (discussion forum text, video recordings). <strong>Veracity:</strong> Typos in student names, double-counted attendance scans, missing fields — cleaning required before analysis. <strong>Value:</strong> Correlating lecture topics with poor exam scores enables curriculum redesign, improving pass rates by 12%. A suitable pipeline: ingest via Kafka → store in HDFS/S3 → process with Spark → analyse with Spark SQL/MLlib → visualise in Looker/Tableau.</p>
+  </div>
+
+  <div class="card">
+    <span class="chapter-tag">Case 8 — Ch.6 (Day 14)</span>
+    <h3>HDFS Block Distribution for a Large File</h3>
+    <p>A 512 MB file named "sales_data.csv" is stored on an HDFS cluster with 5 DataNodes, a block size of 128 MB, and a replication factor of 3. How many blocks are created, how many total block replicas exist across the cluster, and what happens if one DataNode fails?</p>
+    <h4>Recommended Answer</h4>
+    <p>512 MB / 128 MB = <strong>4 blocks</strong>. Replication factor 3 means each block is stored on 3 different DataNodes, so total replicas = 4 × 3 = <strong>12 block copies</strong> distributed across 5 DataNodes. If one DataNode fails, each block still has at least 2 surviving copies on the remaining nodes — the data is safe. The NameNode detects the failure via missing heartbeats and instructs surviving DataNodes to re-replicate under-replicated blocks to restore the replication factor to 3. This is HDFS's core fault-tolerance mechanism.</p>
+  </div>
+
+  <div class="card">
+    <span class="chapter-tag">Case 9 — Ch.6 (Day 14)</span>
+    <h3>Spark vs. Hadoop for ML Training</h3>
+    <p>Your team needs to train an ML model that requires 100 iterations over the same dataset. Compare the performance implications of using Hadoop MapReduce versus Apache Spark for this workload. Which should you choose and why?</p>
+    <h4>Recommended Answer</h4>
+    <p><strong>Apache Spark</strong> is the clear winner for iterative ML workloads. Hadoop MapReduce writes intermediate results to disk after every Map and Reduce step. For 100 iterations, this means 200+ disk write/read cycles — devastating for performance. Spark keeps data in memory via RDDs (Resilient Distributed Datasets), so subsequent iterations access RAM instead of disk — up to 100× faster. Spark's built-in MLlib provides classification, regression, and clustering algorithms, while Hadoop requires external tools like Apache Mahout. Hadoop remains relevant for massive one-time batch ETL on cold archival data where disk cost is lower than memory cost. The modern best practice: run Spark on YARN over HDFS — Hadoop provides storage, Spark provides fast iterative processing.</p>
+  </div>
+
+  <div class="card">
+    <span class="chapter-tag">Case 10 — Ch.6 (Day 14) &amp; Ch.2 (Day 10)</span>
+    <h3>End-to-End Big Data Pipeline Design</h3>
+    <p>An e-commerce company needs a pipeline that ingests real-time clickstream data, stores it for analytics, processes it to detect purchasing patterns, trains an ML recommendation model, and serves predictions to users. Design this pipeline using cloud-native services, specifying at least one tool for each stage.</p>
+    <h4>Recommended Answer</h4>
+    <p><strong>Ingestion:</strong> <a href="https://kafka.apache.org/" target="_blank">Apache Kafka</a> or Amazon Kinesis for real-time event streaming. <strong>Storage:</strong> Amazon S3 or Google Cloud Storage (GCS) for raw data in Parquet format (object storage for data lake). <strong>Processing:</strong> <a href="https://spark.apache.org/" target="_blank">Apache Spark</a> (via AWS EMR, Azure HDInsight, or GCP Dataproc) for batch and stream processing. <strong>Analysis &amp; ML:</strong> Spark MLlib or Amazon SageMaker for recommendation model training. <strong>Serving:</strong> A REST API endpoint deployed on AWS Lambda or Azure Functions for low-latency prediction serving. <strong>Visualisation:</strong> Looker, Tableau, or Power BI for business dashboards. The pipeline follows the canonical pattern: Sources → Ingest → Store → Process → Analyse → Visualise. Cost optimisation: use S3 Intelligent-Tiering for automatic tier management, and Spot Instances for Spark cluster workers to reduce compute costs.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!--                    PART 3: MCQ (45 Questions)                      -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section id="mcq">
+  <h2 class="section-title">Part 3 — Multiple Choice Questions (45)</h2>
+  <p class="section-lead">Select the single best answer. Click any question to reveal the answer and explanation.</p>
+  <input type="text" class="search-box" placeholder="Search MCQ questions..." oninput="filterQ(this,'mcq-list')">
+  <div id="mcq-list"></div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!--                    PART 4: MSQ (35 Questions)                      -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section id="msq">
+  <h2 class="section-title">Part 4 — Multiple Select Questions (35)</h2>
+  <p class="section-lead">Select ALL correct answers. Click any question to reveal the answer and explanation.</p>
+  <input type="text" class="search-box" placeholder="Search MSQ questions..." oninput="filterQ(this,'msq-list')">
+  <div id="msq-list"></div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!--                    PART 5: SHORT ESSAY (20)                        -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section id="essay">
+  <h2 class="section-title">Part 5 — Short Essay Questions (20)</h2>
+  <p class="section-lead">Compose a concise 4–8 sentence answer for each. Click to reveal model answers.</p>
+  <input type="text" class="search-box" placeholder="Search essay questions..." oninput="filterQ(this,'essay-list')">
+  <div id="essay-list"></div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!--                    RESOURCES                                        -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section id="resources">
+  <h2 class="section-title">Quick Reference — Key Hyperlinks</h2>
+  <div class="card">
+    <table>
+      <tr><th>Resource</th><th>URL</th></tr>
+      <tr><td>AWS (Amazon Web Services)</td><td><a href="https://aws.amazon.com/" target="_blank">https://aws.amazon.com/</a></td></tr>
+      <tr><td>Microsoft Azure</td><td><a href="https://azure.microsoft.com/" target="_blank">https://azure.microsoft.com/</a></td></tr>
+      <tr><td>GCP (Google Cloud Platform)</td><td><a href="https://cloud.google.com/" target="_blank">https://cloud.google.com/</a></td></tr>
+      <tr><td>Alibaba Cloud</td><td><a href="https://www.alibabacloud.com/" target="_blank">https://www.alibabacloud.com/</a></td></tr>
+      <tr><td>Apache Hadoop</td><td><a href="https://hadoop.apache.org/" target="_blank">https://hadoop.apache.org/</a></td></tr>
+      <tr><td>Apache Spark</td><td><a href="https://spark.apache.org/" target="_blank">https://spark.apache.org/</a></td></tr>
+      <tr><td>Apache Kafka</td><td><a href="https://kafka.apache.org/" target="_blank">https://kafka.apache.org/</a></td></tr>
+      <tr><td>Apache Software Foundation</td><td><a href="https://www.apache.org/" target="_blank">https://www.apache.org/</a></td></tr>
+      <tr><td>Kubernetes</td><td><a href="https://kubernetes.io/" target="_blank">https://kubernetes.io/</a></td></tr>
+      <tr><td>GDPR (General Data Protection Regulation)</td><td><a href="https://gdpr.eu/" target="_blank">https://gdpr.eu/</a></td></tr>
+      <tr><td>NIST Cloud Definition (SP 800-145)</td><td><a href="https://csrc.nist.gov/publications/detail/sp/800-145/final" target="_blank">https://csrc.nist.gov/publications/detail/sp/800-145/final</a></td></tr>
+      <tr><td>Gartner</td><td><a href="https://www.gartner.com/" target="_blank">https://www.gartner.com/</a></td></tr>
+      <tr><td>Synergy Research Group</td><td><a href="https://www.srgresearch.com/" target="_blank">https://www.srgresearch.com/</a></td></tr>
+      <tr><td>VirusTotal (URL Safety)</td><td><a href="https://www.virustotal.com/gui/home/url" target="_blank">https://www.virustotal.com/gui/home/url</a></td></tr>
+      <tr><td>AWS Pricing Calculator</td><td><a href="https://calculator.aws/" target="_blank">https://calculator.aws/</a></td></tr>
+      <tr><td>Azure Pricing Calculator</td><td><a href="https://azure.microsoft.com/en-us/pricing/calculator/" target="_blank">https://azure.microsoft.com/en-us/pricing/calculator/</a></td></tr>
+      <tr><td>GCP Pricing Calculator</td><td><a href="https://cloud.google.com/products/calculator" target="_blank">https://cloud.google.com/products/calculator</a></td></tr>
+    </table>
+  </div>
+</section>
+
+</main>
+
+<!-- ═══════════ FOOTER ═══════════ -->
+<footer class="cyber-footer">
+  <div class="inner">
+    <img src="cyber_soho.png" alt="Cyber Soho" style="height:50px;">
+    <span>Educational Hub &copy; 2026 | From the Industry to the Classroom — Building the IT's Future, Today and Together !<br>ALL Rights Reserved</span>
+  </div>
+</footer>
+
+<script>
+// ═══════════ QUESTION DATA ═══════════
+const MCQ = [
+  {q:"Which cloud provider holds the largest global market share as of Q3 2025?",ch:"Ch.1 (Day 09)",opts:["Microsoft Azure","GCP (Google Cloud Platform)","AWS (Amazon Web Services)","Alibaba Cloud"],ans:2,ex:"According to Synergy Research Group, AWS commands approximately 29% of the global cloud market — more than any other single provider."},
+  {q:"What pricing model does AWS use that transformed CapEx (Capital Expenditure) into OpEx (Operational Expenditure)?",ch:"Ch.2 (Day 10)",opts:["Subscription-only","Pay-as-you-go","Annual licence fees","One-time purchase"],ans:1,ex:"AWS introduced pay-as-you-go pricing where customers are billed only for resources consumed, measured by the second or minute for most services."},
+  {q:"What is the durability guarantee of Amazon S3 (Simple Storage Service)?",ch:"Ch.2 (Day 10)",opts:["99.9%","99.99%","99.999%","99.999999999% (eleven nines)"],ans:3,ex:"S3 offers 99.999999999% durability — statistically, you would lose one object out of ten billion over a 10,000-year period."},
+  {q:"In the Shared Responsibility Model, who is ALWAYS responsible for data and access controls?",ch:"Ch.3 (Day 11)",opts:["The cloud provider","The customer","It depends on the service model","A third-party auditor"],ans:1,ex:"Regardless of whether you use IaaS, PaaS, or SaaS, your data and who can access it is always your responsibility."},
+  {q:"Which Azure service provides exclusive enterprise access to GPT (Generative Pre-trained Transformer) models?",ch:"Ch.3 (Day 11)",opts:["Azure Machine Learning","Azure Cognitive Services","Azure OpenAI Service","Azure Synapse Analytics"],ans:2,ex:"The Microsoft–OpenAI partnership means Azure OpenAI Service is currently the only enterprise path for deploying GPT models behind corporate firewalls."},
+  {q:"What is BigQuery's pricing model for on-demand queries?",ch:"Ch.4 (Day 12)",opts:["$6.25 per TB (Terabyte) of data scanned","$0.01 per query","Flat monthly fee","$6.25 per GB (Gigabyte) of data scanned"],ans:0,ex:"BigQuery charges $6.25 per TB scanned, with 1 TB free per month. No infrastructure management required."},
+  {q:"Which year was Kubernetes (K8s) open-sourced by Google?",ch:"Ch.4 (Day 12)",opts:["2008","2011","2014","2017"],ans:2,ex:"Google open-sourced Kubernetes in 2014, fundamentally changing the container orchestration industry."},
+  {q:"Which cloud storage paradigm stores data as fixed-size chunks identified only by numeric addresses?",ch:"Ch.5 (Day 13)",opts:["Object storage","File storage","Block storage","Archive storage"],ans:2,ex:"Block storage chops data into fixed-size blocks, each with a numeric address — no filename, no metadata. It is the closest to a physical hard drive."},
+  {q:"What does WORM stand for in the context of object storage?",ch:"Ch.5 (Day 13)",opts:["Write Only Read Multiple","Write Once Read Many","Wide Object Resource Management","Wireless Object Retrieval Method"],ans:1,ex:"WORM — Write Once Read Many — describes the typical access pattern for analytics data: written once, read repeatedly by analytics jobs."},
+  {q:"Which type of hypervisor runs directly on physical hardware without a host OS?",ch:"Ch.5 (Day 13)",opts:["Type 2 (hosted)","Type 1 (bare-metal)","Type 3 (containerised)","Type 0 (firmware)"],ans:1,ex:"Type 1 (bare-metal) hypervisors like KVM, VMware ESXi, and Hyper-V run directly on hardware. All major clouds use Type 1 for performance and security."},
+  {q:"What is the default HDFS (Hadoop Distributed File System) block size?",ch:"Ch.6 (Day 14)",opts:["64 MB (Megabyte)","128 MB","256 MB","512 MB"],ans:1,ex:"HDFS splits files into 128 MB blocks by default. Each block is replicated three times across different DataNodes."},
+  {q:"What does the 'V' for Veracity represent in the Five V's of Big Data?",ch:"Ch.6 (Day 14)",opts:["The speed of data arrival","The variety of data formats","The trustworthiness and quality of data","The business value derived from data"],ans:2,ex:"Veracity refers to data quality — noise, duplicates, missing values, and inaccuracies that must be cleaned before analysis."},
+  {q:"Who created Apache Hadoop?",ch:"Ch.6 (Day 14)",opts:["Matei Zaharia","Jeff Bezos","Doug Cutting and Mike Cafarella","Eric Brewer"],ans:2,ex:"Doug Cutting (inspired by Google's GFS and MapReduce papers) and Mike Cafarella built Hadoop at Yahoo!, naming it after Cutting's son's toy elephant."},
+  {q:"What is the primary innovation that makes Apache Spark faster than Hadoop MapReduce?",ch:"Ch.6 (Day 14)",opts:["Larger block sizes","In-memory processing via RDDs (Resilient Distributed Datasets)","Better compression algorithms","Faster network protocols"],ans:1,ex:"Spark introduced RDDs — immutable, distributed collections held in memory — eliminating the disk I/O overhead of MapReduce between every step."},
+  {q:"In the CAP Theorem, what does the 'P' stand for?",ch:"Ch.6 (Day 14)",opts:["Performance","Persistence","Partition Tolerance","Processing"],ans:2,ex:"Partition Tolerance means the system continues operating even when network links between nodes fail. In practice, network partitions will happen, so you choose between CP or AP."},
+  {q:"What is the AWS equivalent of Azure Blob Storage?",ch:"Ch.1 (Day 09)",opts:["EBS (Elastic Block Store)","S3 (Simple Storage Service)","EFS (Elastic File System)","Glacier"],ans:1,ex:"Azure Blob Storage and Amazon S3 both serve the object storage paradigm — unstructured data at massive scale."},
+  {q:"Which AWS service allows serverless, event-driven code execution?",ch:"Ch.2 (Day 10)",opts:["EC2 (Elastic Compute Cloud)","S3 (Simple Storage Service)","Lambda","SageMaker"],ans:2,ex:"AWS Lambda runs code in response to events (file uploads, API calls) without provisioning servers. You pay only for execution time."},
+  {q:"What does IaaS stand for?",ch:"Ch.4 (Day 12)",opts:["Internet as a Service","Infrastructure as a Service","Integration as a Solution","Intelligent Application Service"],ans:1,ex:"IaaS (Infrastructure as a Service) provides virtual hardware — you rent VMs and manage the OS and everything above it."},
+  {q:"How many Availability Zones does a typical GCP Region contain?",ch:"Ch.4 (Day 12)",opts:["1","2","3 or more","Exactly 5"],ans:2,ex:"A GCP Region is a geographic cluster of 3 or more Zones, connected by low-latency private fibre with typically less than 5 ms inter-zone latency."},
+  {q:"What is the approximate cost savings of using AWS Reserved Instances versus On-Demand pricing?",ch:"Ch.2 (Day 10)",opts:["Up to 25%","Up to 50%","Up to 72%","Up to 90%"],ans:2,ex:"Committing to 1–3 years with Reserved Instances can save up to 72% compared to On-Demand pricing."},
+  {q:"Which company is the official cloud services provider of the Olympic Games?",ch:"Ch.1 (Day 09)",opts:["AWS","Microsoft Azure","GCP","Alibaba Cloud"],ans:3,ex:"Alibaba Cloud became the official cloud services provider starting with the Tokyo 2020 Olympics, continuing through Milano Cortina 2026."},
+  {q:"In HDFS, which component maintains the file system namespace and metadata map?",ch:"Ch.6 (Day 14)",opts:["DataNode","Secondary NameNode","NameNode","YARN (Yet Another Resource Negotiator)"],ans:2,ex:"The NameNode is the master server that maintains the directory tree and tracks which blocks reside on which DataNodes. It does not store actual data."},
+  {q:"Which Spark component provides scalable machine learning algorithms?",ch:"Ch.6 (Day 14)",opts:["Spark SQL","GraphX","Spark Streaming","MLlib (Machine Learning Library)"],ans:3,ex:"MLlib is Spark's built-in library for scalable machine learning, covering classification, regression, clustering, and recommendation."},
+  {q:"What does RPO (Recovery Point Objective) measure?",ch:"Ch.5 (Day 13)",opts:["Maximum acceptable downtime","Maximum acceptable data loss measured in time","Cost of recovery operations","Number of backup copies required"],ans:1,ex:"RPO defines how much data you can afford to lose. An RPO of 1 hour means snapshots every hour, accepting at most 1 hour of data loss."},
+  {q:"What cloud pricing term describes bidding on unused capacity at steep discounts?",ch:"Ch.2 (Day 10)",opts:["Reserved Instances","Spot Instances","On-Demand Instances","Dedicated Hosts"],ans:1,ex:"Spot Instances let you use unused AWS capacity at discounts of up to 90%, but your instance can be reclaimed with a 2-minute warning."},
+  {q:"Which GCP service was launched in 2017 as the first globally-distributed relational database?",ch:"Ch.4 (Day 12)",opts:["BigQuery","Cloud SQL","Cloud Spanner","Firestore"],ans:2,ex:"Cloud Spanner is the first globally-distributed relational database, offering strong consistency across regions."},
+  {q:"Which Azure concept serves as a logical container for grouping and managing related resources?",ch:"Ch.3 (Day 11)",opts:["Availability Zone","Region","Resource Group","Virtual Network"],ans:2,ex:"Resource Groups are logical containers that let you deploy, monitor, and delete related Azure resources as a unit."},
+  {q:"What Azure entry-level certification validates basic cloud and Azure knowledge?",ch:"Ch.3 (Day 11)",opts:["AZ-104","DP-100","AI-102","AZ-900"],ans:3,ex:"AZ-900 (Azure Fundamentals) is the recommended starting point for anyone new to Azure and cloud computing."},
+  {q:"In the MapReduce paradigm, what happens during the Shuffle & Sort phase?",ch:"Ch.6 (Day 14)",opts:["Data blocks are split into 128 MB chunks","Intermediate key-value pairs are grouped by key","Reducers sum up final values","The NameNode distributes tasks"],ans:1,ex:"Shuffle & Sort groups all intermediate Map output pairs by key and moves them to the appropriate Reduce node for aggregation."},
+  {q:"Which storage tier in Azure offers the cheapest storage but takes hours for retrieval?",ch:"Ch.3 (Day 11)",opts:["Hot","Cool","Cold","Archive"],ans:3,ex:"Archive tier is the cheapest Azure storage option but retrieval can take hours, making it suitable only for rarely accessed compliance data."},
+  {q:"What percentage of global internet traffic does Google's private backbone carry?",ch:"Ch.4 (Day 12)",opts:["~10%","~25%","~40%","~60%"],ans:2,ex:"Google's private subsea and terrestrial fibre network carries approximately 40% of the world's internet traffic, providing premium-tier networking on GCP."},
+  {q:"Which cloud provider is widely recognised as the technical leader in container orchestration?",ch:"Ch.4 (Day 12)",opts:["AWS","Azure","GCP (Google Cloud Platform)","Oracle Cloud"],ans:2,ex:"Google invented Kubernetes, open-sourced it, and runs the most mature managed version (GKE — Google Kubernetes Engine) on GCP."},
+  {q:"What does YARN stand for in the Hadoop ecosystem?",ch:"Ch.6 (Day 14)",opts:["Your Application Resource Node","Yet Another Resource Negotiator","Yielded Allocation Resource Network","Year-round Application Resource Node"],ans:1,ex:"YARN (Yet Another Resource Negotiator) manages cluster resources (CPU, memory) and schedules jobs — the air traffic controller of the cluster."},
+  {q:"In Spark, what is the difference between a Transformation and an Action?",ch:"Ch.6 (Day 14)",opts:["Transformations execute immediately; Actions are lazy","Transformations define what to compute (lazy); Actions trigger execution (eager)","There is no difference","Actions define the computation; Transformations trigger it"],ans:1,ex:"Spark uses lazy evaluation: Transformations (map, filter) build a logical plan but do not execute. Actions (collect, count) trigger actual computation."},
+  {q:"What is the approximate egress cost for moving 1 TB from us-central1 to europe-west1 on GCP?",ch:"Ch.4 (Day 12)",opts:["Free","~$8","~$80","~$800"],ans:2,ex:"Inter-region egress on GCP costs approximately $80 per TB. A smart architect co-locates data and compute in the same region to avoid this."},
+  {q:"Which OVHcloud differentiator makes it attractive to European customers?",ch:"Ch.1 (Day 09)",opts:["Highest GPU availability","No egress fees","Free AI model training","Largest number of regions"],ans:1,ex:"OVHcloud charges no egress fees — a significant differentiator since AWS and Azure charge substantially for data leaving their networks."},
+  {q:"What is the AWS service for end-to-end machine learning model building and deployment?",ch:"Ch.2 (Day 10)",opts:["Amazon Bedrock","Amazon SageMaker","Amazon Redshift","Amazon Kinesis"],ans:1,ex:"Amazon SageMaker provides a complete ML platform: data labelling, training, experiment tracking, model registry, and managed deployment endpoints."},
+  {q:"What is the correct term for adding more VMs behind a load balancer instead of making one VM bigger?",ch:"Ch.6 (Day 14)",opts:["Vertical scaling","Horizontal scaling","Diagonal scaling","Elastic scaling"],ans:1,ex:"Horizontal scaling (scale out) adds more commodity machines. Vertical scaling (scale up) makes one machine bigger. Horizontal is the foundation of distributed systems."},
+  {q:"What is Azure Cosmos DB best described as?",ch:"Ch.3 (Day 11)",opts:["A relational SQL database","A globally distributed multi-model NoSQL database","A file storage service","A message queue service"],ans:1,ex:"Cosmos DB offers single-digit-millisecond response times at any scale — ideal for real-time feature stores in ML pipelines."},
+  {q:"What Google technology is the 'T' in GPT (Generative Pre-trained Transformer) named after?",ch:"Ch.4 (Day 12)",opts:["TensorFlow","TPU (Tensor Processing Unit)","The Transformer architecture","Transfer learning"],ans:2,ex:"Google researchers invented the Transformer architecture in the 2017 'Attention Is All You Need' paper. The 'T' in GPT stands for Transformer."},
+  {q:"What is the maximum object size in Amazon S3?",ch:"Ch.5 (Day 13)",opts:["1 GB","5 GB","5 TB","Unlimited"],ans:2,ex:"Amazon S3 supports objects up to 5 TB in size. For objects larger than 5 GB, multipart upload is recommended."},
+  {q:"Which protocol is dominant for file storage on Linux systems?",ch:"Ch.5 (Day 13)",opts:["SMB (Server Message Block)","NFS (Network File System)","FTP (File Transfer Protocol)","HTTP (HyperText Transfer Protocol)"],ans:1,ex:"NFS (Network File System) is the dominant protocol for Linux-based file storage, while SMB/CIFS is dominant on Windows."},
+  {q:"What AWS tool lets you estimate monthly costs before deploying anything?",ch:"Ch.2 (Day 10)",opts:["AWS Budgets","AWS Cost Explorer","AWS Pricing Calculator","AWS Trusted Advisor"],ans:2,ex:"The AWS Pricing Calculator lets you model different service configurations and estimate monthly costs before spending any money."},
+  {q:"Which cloud concept lets Azure manage on-premises servers and other clouds from a single control plane?",ch:"Ch.3 (Day 11)",opts:["Azure Stack","Azure DevOps","Azure Arc","Azure Functions"],ans:2,ex:"Azure Arc extends Azure management to any infrastructure — on-premises servers, other clouds, or edge devices — from a unified control plane."},
+  {q:"In the Five V's, which 'V' addresses the fact that raw data alone is worthless until processed?",ch:"Ch.6 (Day 14)",opts:["Volume","Velocity","Veracity","Value"],ans:3,ex:"Value emphasises that raw data only becomes useful after processing, analysis, and interpretation. Netflix saves ~$1 billion/year by extracting value from viewing data."}
+];
+
+const MSQ = [
+  {q:"Which of the following are core components of the Apache Hadoop ecosystem? (4 correct answers)",ch:"Ch.6 (Day 14)",opts:["HDFS (Hadoop Distributed File System)","YARN (Yet Another Resource Negotiator)","MapReduce","Spark SQL","Hadoop Common"],ans:[0,1,2,4],hint:"Think about what Hadoop ships with out of the box — not tools from a different Apache project.",ex:"Hadoop's four core components are HDFS, YARN, MapReduce, and Hadoop Common. Spark SQL belongs to the Apache Spark ecosystem, not Hadoop's core."},
+  {q:"Which of the following are valid cloud service models? (3 correct answers)",ch:"Ch.4 (Day 12)",opts:["IaaS (Infrastructure as a Service)","PaaS (Platform as a Service)","SaaS (Software as a Service)","DaaS (Data as a Service)"],ans:[0,1,2],hint:"Recall the three classic models defined by NIST (National Institute of Standards and Technology).",ex:"The three classic cloud service models defined by NIST are IaaS, PaaS, and SaaS. DaaS is sometimes discussed but is not part of the standard model."},
+  {q:"Which of the following are AWS storage services? (4 correct answers)",ch:"Ch.2 (Day 10)",opts:["S3 (Simple Storage Service)","EBS (Elastic Block Store)","Lambda","EFS (Elastic File System)","Glacier"],ans:[0,1,3,4],hint:"One of these options is a compute service disguised among storage options.",ex:"S3, EBS, EFS, and Glacier are all storage services. Lambda is a serverless compute service."},
+  {q:"Which of the following factors drive cloud provider selection based on geography and regulation? (4 correct answers)",ch:"Ch.1 (Day 09)",opts:["GDPR in the EU","CSL (Cybersecurity Law) in China","PIPEDA in Canada","Customer brand preference","HIPAA in US healthcare"],ans:[0,1,2,4],hint:"Focus on legally binding regulations, not subjective preferences.",ex:"Data residency laws (GDPR, CSL, PIPEDA, HIPAA) directly dictate where data can be stored and processed. Brand preference is a factor but not a regulatory driver."},
+  {q:"Which are valid cloud deployment models? (4 correct answers)",ch:"Ch.4 (Day 12)",opts:["Public Cloud","Private Cloud","Hybrid Cloud","Multi-Cloud","Social Cloud"],ans:[0,1,2,3],hint:"The standard deployment models are well-established in the industry — look for the odd one out.",ex:"The four standard deployment models are Public, Private, Hybrid, and Multi-Cloud. Social Cloud is not a recognised model."},
+  {q:"Which of the following are properties in the CAP Theorem? (3 correct answers)",ch:"Ch.6 (Day 14)",opts:["Consistency","Availability","Performance","Partition Tolerance"],ans:[0,1,3],hint:"CAP is an acronym — each letter stands for one property.",ex:"The CAP Theorem covers Consistency, Availability, and Partition Tolerance. Performance is a general metric but not part of the CAP theorem."},
+  {q:"Which of these are Apache Spark components? (5 correct answers)",ch:"Ch.6 (Day 14)",opts:["Spark Core","Spark SQL","MLlib (Machine Learning Library)","GraphX","Spark Streaming","Hive"],ans:[0,1,2,3,4],hint:"One of these options is a Hadoop ecosystem tool, not a Spark component.",ex:"All five (Core, SQL, MLlib, GraphX, Streaming) are Spark components. Hive is part of the Hadoop ecosystem (SQL-on-Hadoop), not Spark."},
+  {q:"Which of the following describe Azure's competitive advantages? (3 correct answers)",ch:"Ch.3 (Day 11)",opts:["Exclusive OpenAI GPT model hosting","Hybrid cloud via Azure Arc and Azure Stack","Largest global market share","Integration with Microsoft 365 and Power BI"],ans:[0,1,3],hint:"Think about which provider actually holds the largest market share.",ex:"Azure does not have the largest market share — AWS does. But Azure uniquely offers OpenAI hosting, hybrid cloud excellence, and deep Microsoft ecosystem integration."},
+  {q:"Which are valid Spark Transformations (lazy operations)? (3 correct answers)",ch:"Ch.6 (Day 14)",opts:["map()","collect()","filter()","flatMap()","count()"],ans:[0,2,3],hint:"Lazy operations build a plan — they do not trigger computation.",ex:"map(), filter(), and flatMap() are lazy Transformations. collect() and count() are Actions that trigger execution."},
+  {q:"Which of the following are GCP services? (4 correct answers)",ch:"Ch.4 (Day 12)",opts:["BigQuery","Compute Engine","Azure ML","Cloud Spanner","Dataflow"],ans:[0,1,3,4],hint:"One of these options has a different cloud provider's name in it.",ex:"BigQuery, Compute Engine, Cloud Spanner, and Dataflow are all GCP services. Azure ML belongs to Microsoft Azure."},
+  {q:"Which of these are characteristics of object storage? (4 correct answers)",ch:"Ch.5 (Day 13)",opts:["Flat namespace (no real directories)","Rich user-defined metadata","Fastest IOPS performance","Immutable objects (re-upload to edit)","Cheapest at scale"],ans:[0,1,3,4],hint:"Which storage paradigm provides the fastest IOPS — block or object?",ex:"Object storage uses a flat namespace, supports rich metadata, is immutable, and is cheapest at scale. Block storage provides the fastest IOPS."},
+  {q:"Which of the following are future trends for cloud computing (2025–2028)? (4 correct answers)",ch:"Ch.1 (Day 09)",opts:["Custom silicon development by AWS (Trainium, Inferentia)","Growth of neocloud GPU providers (CoreWeave)","Decline of data sovereignty laws","Microsoft Copilot ecosystem expansion","ESG-driven procurement decisions"],ans:[0,1,3,4],hint:"Are data sovereignty laws getting weaker or stronger globally?",ex:"All are trends except the decline of data sovereignty laws — in fact, sovereignty laws are tightening globally."},
+  {q:"Which of the following are valid Azure storage tiers? (4 correct answers)",ch:"Ch.3 (Day 11)",opts:["Hot","Cool","Warm","Cold","Archive"],ans:[0,1,3,4],hint:"Azure has four official tiers. One option here is not a real Azure tier name.",ex:"Azure offers Hot, Cool, Cold, and Archive tiers. There is no 'Warm' tier in Azure's storage model."},
+  {q:"Which of the following are key concepts in distributed systems? (4 correct answers)",ch:"Ch.6 (Day 14)",opts:["Replication","Sharding (Partitioning)","Consensus Algorithms (Paxos, Raft)","Fault Tolerance","Pay-as-you-go pricing"],ans:[0,1,2,3],hint:"All but one are architectural concepts — one is a billing model.",ex:"Replication, Sharding, Consensus Algorithms, and Fault Tolerance are core distributed systems concepts. Pay-as-you-go is a cloud pricing model."},
+  {q:"Which of the following are advantages of horizontal scaling over vertical scaling? (3 correct answers)",ch:"Ch.6 (Day 14)",opts:["No single point of failure (SPOF)","Uses commodity hardware","No hardware ceiling","Simpler application code"],ans:[0,1,2],hint:"Horizontal scaling distributes complexity — does that make code simpler or harder?",ex:"Horizontal scaling eliminates SPOF, uses cheap commodity machines, and has no hardware ceiling. However, it requires more complex application code (distributed logic)."},
+  {q:"Which block storage performance metrics are discussed in the course? (3 correct answers)",ch:"Ch.5 (Day 13)",opts:["IOPS (Input/Output Operations Per Second)","Throughput (MB/s)","Latency","Colour depth"],ans:[0,1,2],hint:"One option is a display/graphics term, not a storage metric.",ex:"Block storage performance is measured by IOPS, throughput (MB/s), and latency. Colour depth is a display metric, not a storage metric."},
+  {q:"Which of the following are valid reasons why GCP leads in data analytics? (3 correct answers)",ch:"Ch.4 (Day 12)",opts:["BigQuery's serverless per-TB pricing","Google invented the Transformer architecture","TPU (Tensor Processing Unit) chips","GCP has the largest market share"],ans:[0,1,2],hint:"Which position does GCP hold in global market share — first, second, or third?",ex:"BigQuery, Transformers, and TPUs are genuine GCP data/AI strengths. GCP is third in market share, not first."},
+  {q:"Which of these are components of the wider Hadoop ecosystem (beyond core)? (5 correct answers)",ch:"Ch.6 (Day 14)",opts:["Apache Hive","Apache HBase","Apache ZooKeeper","Apache Kafka","Apache Sqoop"],ans:[0,1,2,3,4],hint:"All options here are named Apache projects — but are they all part of the Hadoop ecosystem?",ex:"All listed tools are part of the broader Hadoop ecosystem: Hive (SQL), HBase (NoSQL), ZooKeeper (coordination), Kafka (streaming), Sqoop (data transfer)."},
+  {q:"Which of the following describe Amazon S3 features? (3 correct answers)",ch:"Ch.2 (Day 10)",opts:["11-nines durability (99.999999999%)","Object versioning for accidental delete recovery","Maximum 5 TB per object","Block-level access with IOPS guarantees"],ans:[0,1,2],hint:"S3 is object storage — block-level access belongs to a different service.",ex:"S3 offers 11-nines durability, versioning, and up to 5 TB per object. Block-level access with IOPS guarantees describes EBS, not S3."},
+  {q:"Which of the following are Azure AI/ML services? (5 correct answers)",ch:"Ch.3 (Day 11)",opts:["Azure Machine Learning","Azure Cognitive Services","Azure OpenAI Service","Azure Synapse Analytics","Azure Databricks"],ans:[0,1,2,3,4],hint:"Azure's AI/ML offering is broad — consider whether analytics platforms count.",ex:"All five are Azure services within the AI/ML and analytics domain. Synapse and Databricks bridge analytics and ML, Cognitive Services provides pre-built AI."},
+  {q:"Which of the following are valid AWS EC2 pricing models? (4 correct answers)",ch:"Ch.2 (Day 10)",opts:["On-Demand","Reserved Instances","Spot Instances","Free Tier","Subscription-only"],ans:[0,1,2,3],hint:"AWS is famous for flexible pay models — which one sounds like a traditional software model?",ex:"AWS EC2 offers On-Demand, Reserved, Spot, and Free Tier options. There is no subscription-only model for EC2."},
+  {q:"Which of the following are reasons Alibaba Cloud matters for data scientists? (3 correct answers)",ch:"Ch.1 (Day 09)",opts:["Chinese data residency laws mandate local storage","Qwen LLM family is open-source","20–40% cheaper than AWS in APAC","Largest global market share"],ans:[0,1,2],hint:"Check the market share rankings — Alibaba is 4th globally.",ex:"Chinese law mandates local data storage, Qwen is open-source, and Alibaba offers competitive APAC pricing. It is fourth globally, not first."},
+  {q:"Which VM lifecycle states are discussed in the course? (4 correct answers)",ch:"Ch.5 (Day 13)",opts:["Pending","Running","Stopped","Terminated","Archived"],ans:[0,1,2,3],hint:"Think about the standard cloud VM state machine — is 'Archived' a VM state?",ex:"The four lifecycle states are Pending, Running, Stopped, and Terminated. Archived is not a standard VM state."},
+  {q:"Which HDFS architecture components are discussed? (3 correct answers)",ch:"Ch.6 (Day 14)",opts:["NameNode","DataNodes","Secondary NameNode","RegionServer"],ans:[0,1,2],hint:"RegionServer belongs to which Apache project — HDFS or HBase?",ex:"HDFS components are NameNode (master), DataNodes (workers), and Secondary NameNode (edit log merger). RegionServer belongs to HBase."},
+  {q:"Which of the following companies use Spark in their production data pipelines? (5 correct answers)",ch:"Ch.6 (Day 14)",opts:["Netflix","Uber","Spotify","CERN (European Organisation for Nuclear Research)","NASA (National Aeronautics and Space Administration)"],ans:[0,1,2,3,4],hint:"All of these were mentioned in Lesson 8 of the Big Data chapter.",ex:"All five organisations use Spark (or Spark+Hadoop) in their production Big Data pipelines as discussed in the course."},
+  {q:"Which of the following describe the Secondary NameNode in HDFS? (3 correct answers)",ch:"Ch.6 (Day 14)",opts:["Periodically merges the edit log with the filesystem image","Prevents the edit log from growing too large","Serves as a backup for the NameNode","Does not store actual user data"],ans:[0,1,3],hint:"The name is misleading — it is NOT what you might assume from its title.",ex:"Despite its name, the Secondary NameNode is NOT a backup. It merges edit logs with the filesystem image to keep the NameNode healthy."},
+  {q:"Which of these are file storage services across major clouds? (3 correct answers)",ch:"Ch.5 (Day 13)",opts:["Amazon EFS (Elastic File System)","Azure Files","Google Filestore","Amazon S3","Google Cloud Storage"],ans:[0,1,2],hint:"S3 and GCS are which type of storage — object or file?",ex:"EFS, Azure Files, and Filestore are file storage services. S3 and GCS are object storage services."},
+  {q:"Which of the following are real-world applications of the Five V's? (4 correct answers)",ch:"Ch.6 (Day 14)",opts:["YouTube: 500+ hours uploaded every minute (Volume)","Stock markets: millions of transactions/second (Velocity)","Hospitals: structured records + unstructured MRI scans (Variety)","Netflix: $1B/year savings from viewing data (Value)"],ans:[0,1,2,3],hint:"Each option is labelled with which V it represents.",ex:"All four examples directly illustrate the Five V's as discussed in the Big Data lecture."},
+  {q:"Which of the following are Spark Actions (eager operations)? (4 correct answers)",ch:"Ch.6 (Day 14)",opts:["collect()","count()","reduce()","saveAsTextFile()","filter()"],ans:[0,1,2,3],hint:"Actions trigger computation — which of these only defines a transformation?",ex:"collect(), count(), reduce(), and saveAsTextFile() are all Actions that trigger computation. filter() is a lazy Transformation."},
+  {q:"Which of the following cloud services are serverless? (4 correct answers)",ch:"Ch.2 (Day 10) & Ch.4 (Day 12)",opts:["AWS Lambda","Google BigQuery","Azure Virtual Machines","Azure Functions","GCP Cloud Run"],ans:[0,1,3,4],hint:"Serverless means no infrastructure to manage — does a VM fit that definition?",ex:"Lambda, BigQuery, Azure Functions, and Cloud Run are all serverless — no infrastructure management required. Azure VMs are IaaS requiring OS management."},
+  {q:"Which of these are Type 1 (bare-metal) hypervisors? (3 correct answers)",ch:"Ch.5 (Day 13)",opts:["VMware ESXi","Microsoft Hyper-V","KVM (Kernel-based Virtual Machine)","Oracle VirtualBox"],ans:[0,1,2],hint:"Type 1 runs directly on hardware; Type 2 runs on top of an existing OS.",ex:"ESXi, Hyper-V, and KVM are Type 1 (bare-metal) hypervisors running directly on hardware. VirtualBox is Type 2, running on a host OS."},
+  {q:"Which factors make Oracle Cloud competitive? (3 correct answers)",ch:"Ch.1 (Day 09)",opts:["30–50% cheaper than AWS for comparable compute","Autonomous Database (self-tuning, self-patching)","Partnership with NVIDIA for GPU clusters","Largest global market share"],ans:[0,1,2],hint:"Oracle's market share is growing fast but still around 3%.",ex:"Oracle Cloud undercuts AWS on pricing, offers the unique Autonomous Database, and has NVIDIA GPU partnerships. It does not have the largest market share."},
+  {q:"Which of these are Azure compute service options? (4 correct answers)",ch:"Ch.3 (Day 11)",opts:["Azure VM (Virtual Machine)","Azure Container Instances (ACI)","AKS (Azure Kubernetes Service)","Azure Functions","Amazon EC2"],ans:[0,1,2,3],hint:"One option here belongs to a completely different cloud provider.",ex:"Azure VM, ACI, AKS, and Functions are all Azure compute options at different abstraction levels. EC2 is an AWS service."},
+  {q:"Which GCP services form the analytics ecosystem around BigQuery? (4 correct answers)",ch:"Ch.4 (Day 12)",opts:["Dataflow","Dataproc","Pub/Sub","Looker","SageMaker"],ans:[0,1,2,3],hint:"SageMaker is a well-known ML service — but from which cloud provider?",ex:"Dataflow (batch/stream), Dataproc (Spark/Hadoop), Pub/Sub (messaging), and Looker (BI visualisation) all complement BigQuery. SageMaker is AWS."},
+  {q:"Which of the following are best practices for cloud storage management? (3 correct answers)",ch:"Ch.5 (Day 13)",opts:["Separate OS volume from data volume","Use incremental snapshots instead of full backups","Add fstab entries for persistent mounts","Leave unused instances running for convenience"],ans:[0,1,2],hint:"Cost awareness is key — does leaving unused resources running sound like a best practice?",ex:"Separating volumes, using incremental snapshots, and persisting mounts via fstab are all best practices. Leaving unused instances running wastes money."}
+];
+
+const ESSAY = [
+  {q:"Explain the Shared Responsibility Model in cloud computing and why it matters for data scientists handling sensitive datasets.",ch:"Ch.3 (Day 11)",ans:"The Shared Responsibility Model divides security duties between the cloud provider and the customer. The provider is responsible for securing the physical infrastructure — data centres, networking hardware, and the hypervisor layer. The customer is always responsible for their data, access controls, identity management, and application-level security, regardless of the service model (IaaS, PaaS, or SaaS). For data scientists, this means that even when using a fully managed service like Azure Machine Learning, the classification, encryption, and access policies applied to training datasets remain entirely your responsibility. A misconfigured IAM (Identity and Access Management) role or an exposed storage bucket can lead to data breaches that the cloud provider will not be held accountable for."},
+  {q:"Compare and contrast the three cloud storage paradigms — block, object, and file — and explain when a data scientist would use each.",ch:"Ch.5 (Day 13)",ans:"Block storage divides data into fixed-size blocks with numeric addresses and no metadata. It delivers the fastest performance (high IOPS) and is used for database volumes, OS boot disks, and Jupyter servers. Object storage wraps data in self-describing objects with rich metadata in a flat namespace; it is the cheapest at scale and ideal for data lakes, ML training datasets, and log archives. File storage provides a familiar hierarchical structure accessible via NFS or SMB, supporting simultaneous access from multiple machines — essential for distributed ML training where several GPU instances read the same shared dataset. The key trade-off is speed vs. cost vs. access pattern: block for transactional speed, object for analytics-scale economics, file for shared access."},
+  {q:"Describe the Five V's of Big Data and provide one real-world example for each.",ch:"Ch.6 (Day 14)",ans:"The Five V's are: Volume — the sheer amount of data (YouTube receives 500+ hours of video every minute). Velocity — the speed at which data arrives and must be processed (stock trading platforms handle millions of transactions per second). Variety — the mix of structured, semi-structured, and unstructured data (hospitals collect structured patient records alongside unstructured MRI scans). Veracity — the trustworthiness and quality of data (social media sentiment analysis must filter sarcasm and bots). Value — the actionable insights derived after processing (Netflix saves approximately $1 billion per year by using viewing data to reduce subscriber churn). Understanding these dimensions is the first step before designing any Big Data processing pipeline."},
+  {q:"Explain the CAP Theorem and its practical implications when designing a distributed system.",ch:"Ch.6 (Day 14)",ans:"The CAP Theorem, formalised by Eric Brewer at UC Berkeley in 2000, states that any distributed data store can guarantee at most two of three properties: Consistency (every read returns the most recent write), Availability (every request receives a response), and Partition Tolerance (the system continues operating despite network splits). Since network partitions are inevitable in real-world systems, architects effectively choose between CP systems (consistent but sometimes unavailable, such as HBase or MongoDB) and AP systems (always available but sometimes returning stale data, such as Cassandra or DynamoDB). For a banking application requiring accurate balances, a CP system is appropriate. For a social media feed where slight staleness is acceptable, an AP system provides better user experience."},
+  {q:"Compare AWS, Azure, and GCP from the perspective of a data scientist choosing a platform for ML model training and deployment.",ch:"Ch.1 (Day 09) & Ch.2–4 (Days 10–12)",ans:"AWS offers SageMaker for end-to-end ML, Bedrock for foundation model access, and the broadest compute instance selection including custom Trainium chips. Its strength is breadth and maturity. Azure provides Azure Machine Learning with deep Microsoft ecosystem integration (Power BI, Microsoft 365) and exclusive access to OpenAI GPT models — critical for enterprises deploying LLM applications. GCP excels in analytics-first ML with Vertex AI, TPU (Tensor Processing Unit) accelerators that are often more cost-effective than NVIDIA GPUs for large-scale training, and tight integration with BigQuery for feature engineering. The choice depends on existing infrastructure (Microsoft shop → Azure), analytics-heavy workloads (→ GCP), or broadest service catalogue needs (→ AWS)."},
+  {q:"Explain how HDFS achieves fault tolerance through block replication.",ch:"Ch.6 (Day 14)",ans:"HDFS (Hadoop Distributed File System) achieves fault tolerance by splitting files into 128 MB blocks and replicating each block across multiple DataNodes (default replication factor is 3). The NameNode maintains a metadata map tracking which blocks reside on which DataNodes, while DataNodes send periodic heartbeats to the NameNode. When a DataNode fails (missed heartbeats), the NameNode detects the under-replication and instructs surviving DataNodes to create additional copies of affected blocks, restoring the replication factor. For a 512 MB file (4 blocks × 3 replicas = 12 copies across the cluster), losing one DataNode still leaves at least 2 copies of every block available. This rack-aware placement strategy ensures data survives even a full rack failure."},
+  {q:"Describe the key differences between Apache Hadoop MapReduce and Apache Spark, and explain when each is more appropriate.",ch:"Ch.6 (Day 14)",ans:"Hadoop MapReduce processes data by writing intermediate results to disk after every Map and Reduce step. This disk I/O overhead makes it slow for iterative workloads. Spark introduced RDDs (Resilient Distributed Datasets) that keep intermediate data in memory, achieving up to 100× faster performance for iterative ML algorithms. Spark provides clean Python/Scala APIs, built-in streaming, and MLlib, while Hadoop requires verbose Java code and external tools like Mahout for ML. However, Hadoop excels for massive one-time batch ETL on cold archival data where disk cost is lower than memory cost. The modern reality is that they often work together: Spark runs on Hadoop's YARN for resource management and HDFS for storage, combining Hadoop's reliability with Spark's speed."},
+  {q:"What is the significance of data sovereignty in cloud provider selection? Provide examples from at least three countries.",ch:"Ch.1 (Day 09)",ans:"Data sovereignty refers to the legal requirement that data must be stored and processed within specific geographic boundaries. In China, the CSL (Cybersecurity Law), PIPL (Personal Information Protection Law), and DSL (Data Security Law) mandate local data residency, making Alibaba Cloud the de facto required provider. In the EU, GDPR requires that EU citizen PII remain within EU territory, pushing organisations toward EU-based regions of AWS, Azure, or GCP, or European providers like OVHcloud. In Russia, FZ-242 mandates local storage, making Yandex Cloud the primary compliant option. In the United States, regulations are sector-specific: HIPAA for healthcare, CCPA for California consumer data. The key insight is that cloud provider selection is increasingly a regulatory decision, not merely a technical one."},
+  {q:"Explain the concept of lazy evaluation in Apache Spark using a practical example.",ch:"Ch.6 (Day 14)",ans:"Spark uses lazy evaluation, meaning Transformations (such as map, filter, and flatMap) only define what to compute — they do not execute immediately. Instead, Spark builds a DAG (Directed Acyclic Graph) of pending operations. Execution only occurs when an Action (such as collect, count, or saveAsTextFile) is called. For example, if you chain: rdd.filter(x > 100).map(x * 0.9).map(round), nothing happens until you call .collect(). At that point, Spark optimises the entire chain and executes it in a single pass. This design enables query optimisation (Spark can reorder or combine operations) and avoids unnecessary computation on data that would be filtered out. It is analogous to writing a recipe versus actually cooking — the recipe (transformations) is written first, and the cooking (action) happens all at once."},
+  {q:"Describe the VM lifecycle in cloud computing and explain why cost awareness at each stage is critical.",ch:"Ch.5 (Day 13)",ans:"A cloud VM progresses through four states: Pending (being created), Running (actively consuming compute resources and incurring charges), Stopped (not executing but may still incur storage charges for attached volumes), and Terminated (permanently destroyed, resources released). Resizing requires stopping the VM, changing its specification, and restarting. Cost awareness is critical because every minute a VM runs generates charges. A common beginner mistake is forgetting to terminate lab instances, resulting in surprise bills. Best practices include auto-termination policies, separating OS volumes from data volumes (so data survives VM rebuilds), and using Spot Instances for non-critical workloads. The Azure Pricing Calculator and AWS Pricing Calculator are essential tools for estimating costs before deployment."},
+  {q:"Explain how incremental snapshots work and calculate the storage savings compared to full daily backups for a 500 GB volume with 10 GB daily changes over 30 days.",ch:"Ch.5 (Day 13)",ans:"A snapshot captures a point-in-time copy of a block storage volume. The first snapshot is a full copy of all data blocks. Subsequent incremental snapshots only store blocks that changed since the last snapshot. For a 500 GB volume with 10 GB daily changes: Full daily backups = 500 GB × 30 days = 15,000 GB at $0.05/GB = $750/month. Incremental snapshots = 500 GB (Day 1 full) + 10 GB × 29 days (deltas) = 790 GB at $0.05/GB = $39.50/month. Savings: $710.50/month, a 95% reduction. Restoring from incremental snapshots works by layering the base snapshot plus all subsequent deltas. Cloud providers handle this automatically, and automated scheduling (AWS Data Lifecycle Manager, Azure Backup) makes the process effortless."},
+  {q:"What is BigQuery and why is it considered GCP's flagship differentiator for data science?",ch:"Ch.4 (Day 12)",ans:"BigQuery is a serverless, fully managed data warehouse developed by Google that can scan petabytes of data in seconds. Unlike traditional databases, BigQuery requires no infrastructure management — no servers to provision, no indexes to build, no clusters to resize. You write SQL, it distributes the query across potentially thousands of machines in parallel, and you pay $6.25 per terabyte scanned (with 1 TB free monthly). This makes small-scale analytics essentially free and large-scale analytics dramatically cheaper than maintaining traditional data warehouse infrastructure. BigQuery is surrounded by an analytics ecosystem including Dataflow (stream/batch processing), Dataproc (managed Spark/Hadoop), Pub/Sub (real-time messaging), and Looker (BI visualisation), creating a complete data platform that positions GCP as the premier cloud for analytics-heavy workloads."},
+  {q:"Describe the role of YARN in the Hadoop ecosystem.",ch:"Ch.6 (Day 14)",ans:"YARN (Yet Another Resource Negotiator) is the cluster resource management layer of Hadoop, introduced in Hadoop 2.0 to separate resource management from data processing. YARN acts as the 'air traffic controller' of the cluster, managing CPU and memory allocations across all running applications. It has two main components: the ResourceManager (a global master that arbitrates resources) and NodeManagers (per-node agents that monitor resource usage). YARN's significance lies in enabling multiple processing engines — not just MapReduce — to share the same Hadoop cluster. This is why Spark can run on YARN alongside traditional MapReduce jobs, Hive queries, and other workloads, all managed by a single resource scheduler."},
+  {q:"Explain the difference between vertical scaling and horizontal scaling using a real-world analogy.",ch:"Ch.6 (Day 14)",ans:"Vertical scaling (scale up) means upgrading a single machine to be more powerful — adding more CPU cores, RAM, or faster storage. The analogy is buying one enormous industrial stove and hiring one superhuman chef to cook dinner for 500 guests. Eventually, even the best chef reaches a physical limit. Vertical scaling has hard ceilings (hardware limits), exponential cost increases, and creates a single point of failure. Horizontal scaling (scale out) means distributing work across many smaller machines. The analogy is setting up 50 standard kitchen stations with 50 competent cooks, each preparing a portion in parallel. If one cook is absent, the other 49 continue working. Horizontal scaling is the foundation of cloud computing, Hadoop, and Spark — it uses commodity hardware, has no theoretical ceiling, and provides built-in fault tolerance."},
+  {q:"What is Azure Arc and why is hybrid cloud important for regulated industries?",ch:"Ch.3 (Day 11)",ans:"Azure Arc is a service that extends Azure management capabilities to any infrastructure — on-premises servers, other cloud providers, and edge devices — from a single control plane. Hybrid cloud is critical for regulated industries like banking, healthcare, and government because regulations may prohibit certain sensitive data from leaving on-premises facilities. For example, a bank might need to keep customer financial records on local servers while using cloud GPU resources for ML model training. Azure Arc allows the bank to manage both environments with consistent policies, security controls, and monitoring. Azure Stack complements this by running Azure services directly inside the organisation's own data centre. This hybrid approach satisfies regulatory requirements while still leveraging cloud scalability for non-sensitive workloads."},
+  {q:"Describe MapReduce using the classic word count example.",ch:"Ch.6 (Day 14)",ans:"MapReduce processes data in two phases. Given three text chunks across three nodes ('the cat sat', 'the dog sat', 'the cat ran'): In the Map Phase, each node processes its local chunk and emits intermediate key-value pairs — for example, (the,1), (cat,1), (sat,1) from node 1. During the Shuffle and Sort Phase, the framework automatically groups all pairs by key: the→[1,1,1], cat→[1,1], sat→[1,1], dog→[1], ran→[1]. In the Reduce Phase, each group is aggregated: the=3, cat=2, sat=2, dog=1, ran=1. This model enables parallel processing because each Map task operates independently on its local data block. The Shuffle phase is the only stage requiring network communication between nodes, making MapReduce efficient for distributed computation across commodity hardware."},
+  {q:"Explain why the choice between CP and AP systems matters when designing a distributed database.",ch:"Ch.6 (Day 14)",ans:"The choice between CP (Consistency + Partition Tolerance) and AP (Availability + Partition Tolerance) fundamentally shapes how a distributed database behaves during network failures. A CP system like HBase or MongoDB will refuse to serve some requests during a partition to ensure every read returns the most recent write — essential for banking systems where an incorrect balance could cause overdrafts. An AP system like Cassandra or DynamoDB will always respond to requests even during partitions, potentially returning slightly stale data — acceptable for social media feeds where showing a post from 2 seconds ago is better than showing an error page. In practice, many modern systems offer tunable consistency, allowing developers to choose consistency levels per-query rather than making a system-wide commitment."},
+  {q:"Discuss the emerging role of 'neoclouds' in the cloud computing landscape.",ch:"Ch.1 (Day 09)",ans:"Neoclouds are cloud providers purpose-built for AI workloads, representing the most disruptive category in the cloud market. Companies like CoreWeave, Lambda Labs, and Nebius (spun out of Yandex) specialise in GPU-as-a-Service at prices reportedly up to 80% cheaper than hyperscalers for equivalent GPU compute. They recognised that training and serving large AI models requires specialised infrastructure that general-purpose clouds overcharge for. CoreWeave is the largest, and Synergy Research Group has specifically identified the neocloud category as a meaningful source of market share growth. As generative AI becomes a standard enterprise tool, neoclouds will likely capture an increasing share of AI training spend, though hyperscalers are responding with custom silicon (AWS Trainium, Google TPUs) and aggressive GPU infrastructure expansion."},
+  {q:"Explain the concept of ETL (Extract, Transform, Load) and describe how it applies to a cloud-based Big Data pipeline.",ch:"Ch.6 (Day 14) & Ch.2 (Day 10)",ans:"ETL (Extract, Transform, Load) is a data integration process that moves data from source systems into a target analytical environment. Extract pulls raw data from diverse sources (databases, APIs, IoT sensors, log files). Transform cleans, validates, enriches, and restructures the data — handling missing values, normalising formats, and applying business logic. Load stores the processed data in a destination system (data warehouse, data lake) for analysis. In a cloud Big Data pipeline, extraction might use Apache Kafka or Amazon Kinesis for real-time ingestion. Transformation runs on Apache Spark (via AWS EMR, GCP Dataproc, or Azure HDInsight) for scalable processing. Loading targets Amazon S3, Google Cloud Storage, or a data warehouse like BigQuery or Redshift. The shift to cloud has also popularised ELT (Extract, Load, Transform), where raw data is loaded first and transformed in-place using the warehouse's compute power."},
+  {q:"What are the key considerations when estimating cloud computing costs for a data science project?",ch:"Ch.1 (Day 09) & Ch.2 (Day 10)",ans:"Effective cloud cost estimation requires understanding several dimensions. Compute costs typically dominate (often 90%+ of the bill), especially GPU instances for ML training. Storage costs vary dramatically by tier — S3 Standard at $0.023/GB vs. Glacier at $0.004/GB. Data transfer (egress) costs are often overlooked — moving 1 TB between GCP regions costs approximately $80. Serverless costs (Lambda, BigQuery) are minimal for low-volume workloads but scale linearly. Reserved Instances save up to 72% for predictable workloads; Spot Instances save up to 90% for interruptible tasks. Critical practices include: always use the cloud provider's pricing calculator before deployment, set budget alerts, auto-terminate idle GPU instances, use lifecycle policies to move cold data to cheaper tiers, and adopt FinOps (Financial Operations) discipline for multi-cloud environments."}
+];
+
+// ═══════════ MCQ HINTS (parallel array) ═══════════
+const MCQ_HINTS = [
+  "Think about which provider had a multi-year head start over all competitors.",
+  "This model means you never buy hardware upfront — you pay per use.",
+  "Count the nines carefully — this is an extraordinary engineering feat.",
+  "This is a trick question — one layer of responsibility never shifts.",
+  "This service resulted from a $1 billion+ investment partnership.",
+  "BigQuery charges per unit of data processed, not per query or per month.",
+  "This happened in the same year Google started taking cloud seriously with Compute Engine.",
+  "Think about what a physical hard drive looks like — raw addresses, no filenames.",
+  "This is a data access pattern where analytics datasets are written once.",
+  "All major cloud providers use this type of hypervisor for performance.",
+  "This is the standard block size — roughly the size of a short video file.",
+  "This V is about data quality problems like noise and missing values.",
+  "The name comes from a child's toy — a stuffed animal.",
+  "This innovation keeps data in RAM instead of writing to disk between steps.",
+  "The CAP acronym spells out three specific guarantees.",
+  "Both services handle unstructured data at massive scale — same paradigm, different cloud.",
+  "This service charges only for the milliseconds your code actually runs.",
+  "This is the lowest level of cloud service — you manage the most.",
+  "Think about fault isolation — more zones means better resilience.",
+  "This is one of the most aggressive savings options for predictable workloads.",
+  "This cloud provider has deep roots in Asia's largest retail event — Singles' Day.",
+  "This component is the single 'brain' of the HDFS cluster.",
+  "This component's name literally contains 'Machine Learning Library'.",
+  "Think about backup schedules — how often do snapshots need to run?",
+  "These instances can be reclaimed with very short notice.",
+  "This was the first database to offer strong consistency at global scale.",
+  "This is an organisational concept for managing Azure resources together.",
+  "This is the starting-point certification — the number starts with 900.",
+  "This phase happens between Map and Reduce — it organises intermediate data.",
+  "This tier name suggests something locked away for a very long time.",
+  "This is an enormous percentage of all global internet traffic.",
+  "This provider invented the technology that all others now use for container orchestration.",
+  "The acronym literally tells you what it does — negotiates resources.",
+  "One approach builds a plan; the other actually executes it.",
+  "Think about the cost of moving data across an ocean.",
+  "This European provider's zero-egress policy is its main competitive hook.",
+  "This AWS service name suggests a person who builds machine learning models.",
+  "This is about adding more machines, not making one machine bigger.",
+  "This database offers single-digit-millisecond latency at any scale.",
+  "Google's research paper from 2017 introduced this foundational architecture.",
+  "This is a very large file size limit — measured in terabytes.",
+  "Think about which OS dominates servers: Linux uses which file protocol?",
+  "This tool lets you model costs before spending any money.",
+  "This service extends Azure management everywhere — even to other clouds.",
+  "This V answers the question: 'So what? Why does all this data matter?'"
+];
+
+// ═══════════ RENDER QUESTIONS ═══════════
+function renderQ(arr, containerId, type, hints) {
+  const c = document.getElementById(containerId);
+  let html = '';
+  arr.forEach((item, i) => {
+    const numClass = type === 'msq' ? ' msq' : type === 'essay' ? ' essay' : '';
+    const hintText = (type === 'msq' && item.hint) ? item.hint : (hints && hints[i]) ? hints[i] : '';
+    const uid = type + '-' + i;
+
+    html += `<div class="q-block" data-idx="${i}" data-search="${item.q.toLowerCase()}">
+      <div class="q-header" style="cursor:default">
+        <span class="q-num${numClass}">${i+1}</span>
+        <div class="q-text"><span class="chapter-tag">${item.ch}</span><br>${item.q}</div>
+      </div>
+      <div style="padding:0 1.2rem 1rem">`;
+
+    // Render options for MCQ and MSQ
+    if (type === 'mcq' || type === 'msq') {
+      html += `<ul class="opt-list" id="opts-${uid}">`;
+      item.opts.forEach((o,j) => {
+        const letter = String.fromCharCode(65+j);
+        html += `<li class="opt-item" id="opt-${uid}-${j}"><span class="opt-letter">${letter})</span> <span>${o}</span></li>`;
+      });
+      html += `</ul>`;
+
+      // Hint toggle
+      if (hintText) {
+        html += `<span class="hint-toggle" onclick="toggleHint('${uid}')">💡 Show Hint</span>`;
+        html += `<div class="hint-box" id="hint-${uid}" style="display:none">${hintText}</div>`;
+      }
+
+      // Reveal button
+      html += `<button class="reveal-btn" id="btn-${uid}" onclick="revealAnswer('${uid}','${type}',${i})">🔓 Reveal Answer</button>`;
+
+      // Answer box (hidden initially)
+      html += `<div class="answer-box" id="ans-${uid}">`;
+      if (type === 'mcq') {
+        html += `<div class="correct" style="font-weight:700;color:var(--success)">✔ Correct Answer: ${String.fromCharCode(65+item.ans)}) ${item.opts[item.ans]}</div>`;
+      } else {
+        html += `<div class="correct" style="font-weight:700;color:var(--success)">✔ Correct Answers: ${item.ans.map(a=>String.fromCharCode(65+a)).join(', ')}</div>`;
+      }
+      html += `<div class="explain" style="margin-top:.4rem;color:var(--muted);font-size:.88rem">${item.ex}</div>`;
+      html += `</div>`;
+    } else {
+      // Essay — keep original accordion behavior
+      html += `<button class="reveal-btn" id="btn-${uid}" onclick="revealAnswer('${uid}','${type}',${i})">🔓 Reveal Model Answer</button>`;
+      html += `<div class="answer-box" id="ans-${uid}">`;
+      html += `<div class="correct" style="font-weight:700;color:var(--success)">Model Answer:</div>`;
+      html += `<div class="explain" style="margin-top:.4rem;color:var(--ink);font-size:.92rem;line-height:1.7">${item.ans}</div>`;
+      html += `</div>`;
+    }
+
+    html += `</div></div>`;
+  });
+  c.innerHTML = html;
+}
+
+renderQ(MCQ, 'mcq-list', 'mcq', MCQ_HINTS);
+renderQ(MSQ, 'msq-list', 'msq');
+renderQ(ESSAY, 'essay-list', 'essay');
+
+// ═══════════ HINT TOGGLE ═══════════
+function toggleHint(uid) {
+  const el = document.getElementById('hint-' + uid);
+  const toggle = el.previousElementSibling;
+  if (el.style.display === 'none') {
+    el.style.display = 'block';
+    toggle.textContent = '💡 Hide Hint';
+  } else {
+    el.style.display = 'none';
+    toggle.textContent = '💡 Show Hint';
+  }
+}
+
+// ═══════════ REVEAL ANSWER ═══════════
+function revealAnswer(uid, type, idx) {
+  const btn = document.getElementById('btn-' + uid);
+  if (btn.classList.contains('revealed')) return;
+
+  btn.classList.add('revealed');
+  btn.innerHTML = '✔ Answer Revealed';
+
+  // Show answer box
+  document.getElementById('ans-' + uid).classList.add('visible');
+
+  // Highlight correct/wrong options
+  const arr = type === 'mcq' ? MCQ : type === 'msq' ? MSQ : null;
+  if (arr) {
+    const item = arr[idx];
+    const correctSet = type === 'mcq' ? new Set([item.ans]) : new Set(item.ans);
+    item.opts.forEach((o, j) => {
+      const optEl = document.getElementById('opt-' + uid + '-' + j);
+      if (correctSet.has(j)) {
+        optEl.classList.add('correct-revealed');
+      } else {
+        optEl.classList.add('wrong-revealed');
+      }
+    });
+  }
+
+  // Track progress
+  opened.add(uid);
+  updateProgress();
+}
+
+// ═══════════ TOGGLE & PROGRESS ═══════════
+let opened = new Set();
+function updateProgress() {
+  const total = MCQ.length + MSQ.length + ESSAY.length;
+  const pct = Math.round(opened.size / total * 100);
+  document.getElementById('progressBar').style.width = pct + '%';
+  document.getElementById('progressText').textContent = opened.size + ' / ' + total + ' questions reviewed';
+}
+
+// ═══════════ SEARCH ═══════════
+function filterQ(input, listId) {
+  const term = input.value.toLowerCase();
+  document.querySelectorAll('#'+listId+' .q-block').forEach(b => {
+    b.style.display = b.dataset.search.includes(term) ? '' : 'none';
+  });
+}
+
+// ═══════════ NAV SCROLL ═══════════
+function scrollTo_(id) {
+  document.getElementById(id).scrollIntoView({behavior:'smooth'});
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+}
+
+// Highlight active nav on scroll
+const sections = ['review','cases','mcq','msq','essay','resources'];
+window.addEventListener('scroll', () => {
+  const y = window.scrollY + 100;
+  let current = sections[0];
+  sections.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && el.offsetTop <= y) current = id;
+  });
+  document.querySelectorAll('.nav-btn').forEach(b => {
+    b.classList.toggle('active', b.textContent.toLowerCase().includes(current.slice(0,4)) ||
+      (current === 'review' && b.textContent.includes('Course')) ||
+      (current === 'cases' && b.textContent.includes('Case')) ||
+      (current === 'resources' && b.textContent.includes('Res')));
+  });
+});
+</script>
+</body>
+</html>
